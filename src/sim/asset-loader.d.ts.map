@@ -1,0 +1,1 @@
+{"version":3,"file":"asset-loader.d.ts","sourceRoot":"","sources":["asset-loader.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,UAAU,EAAoB,MAAM,eAAe,CAAC;AAE7D,oBAAY,WAAW,GAAG;IACtB,SAAS,CAAC,IAAI,EAAE,MAAM,EAAE,GAAG,EAAE,MAAM,GAAG,WAAW,CAAC;IAClD,UAAU,IAAI,OAAO,CAAC,UAAU,CAAC,CAAC;CACrC,CAAC;AAEF,eAAO,MAAM,iBAAiB,QAAO,WA2BpC,CAAC"}

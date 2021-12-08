@@ -4,20 +4,14 @@
     "description": "Dependency injection container",
     "main": "lib/cjs/index.js",
     "module": "lib/esm/index.js",
-    "typings": "lib/cjs/index.d.ts",
+    "types": "lib/esm/index.d.ts",
     "files": [
         "lib/**/*"
     ],
-    "type": "module",
     "scripts": {
-        "tsc": "tsc -p tsconfig.json && tsc -p tsconfig-esm.json",
-        "build": "npm run tsc",
-        "test": "mocha -r ts-node/register test/**/*.test.ts",
-        "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
-        "lint": "tslint -p tsconfig.json",
-        "prepare": "npm run build",
-        "prepublishOnly": "npm run test && npm run tsc",
-        "preversion": "npm run lint"
+        "clean": "rm -f *.tsbuildinfo && rm -rf lib",
+        "build": "tsc -b && tsc -b tsconfig-esm.json",
+        "prepare": "npm run build"
     },
     "keywords": [
         "dark",

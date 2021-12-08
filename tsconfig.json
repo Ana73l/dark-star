@@ -6,7 +6,7 @@
         "declarationMap": true,
         "downlevelIteration": true,
         "esModuleInterop": true,
-        "module": "esnext",
+        "module": "CommonJS",
         "moduleResolution": "node",
         "noImplicitAny": true,
         "skipLibCheck": true,
@@ -15,7 +15,7 @@
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
         "forceConsistentCasingInFileNames": true,
-        "target": "es2019"
+        "target": "ES6"
     },
-    "exclude": ["node_modules", "lib"]
+    "exclude": ["node_modules"]
 }
