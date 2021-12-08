@@ -1,0 +1,38 @@
+{
+    "name": "@dark-star/ecs",
+    "version": "0.0.1",
+    "description": "ECS Framework",
+    "main": "lib/cjs/index.js",
+    "module": "lib/esm/index.js",
+    "typings": "lib/cjs/index.d.ts",
+    "files": [
+        "lib/**/*"
+    ],
+    "type": "module",
+    "dependencies": {
+        "@dark-star/di": "^0.0.5"
+    },
+    "scripts": {
+        "tsc": "tsc -p tsconfig.json && tsc -p tsconfig-esm.json",
+        "build": "npm run tsc",
+        "test": "mocha -r ts-node/register test/**/*.test.ts",
+        "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
+        "lint": "tslint -p tsconfig.json",
+        "prepare": "npm run build",
+        "prepublishOnly": "npm run test && npm run tsc",
+        "preversion": "npm run lint"
+    },
+    "keywords": [
+        "dark",
+        "star",
+        "dark-star",
+        "darkstar",
+        "dark-star-ecs",
+        "ecs",
+        "entity",
+        "component",
+        "system"
+    ],
+    "author": "Ana73l",
+    "license": "ISC"
+}

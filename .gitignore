@@ -1,0 +1,9 @@
+# Dependencies
+node_modules
+
+# TS cache
+.tsbuildinfo
+
+# Generated files
+lib
+dist
