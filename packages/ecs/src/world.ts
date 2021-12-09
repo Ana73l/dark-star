@@ -115,7 +115,7 @@ export abstract class World {
 export class ECSWorld implements World {
     private registry!: Registry;
     private componentsPool!: ComponentsPool;
-    private operationsQueue!: WorldOp<ComponentTypesQuery>[];
+    private operationsQueue: WorldOp<ComponentTypesQuery>[] = [];
     private systems: System[] = [];
     private reusableEntities: Entity[] = [];
     private ueid!: () => number | null;

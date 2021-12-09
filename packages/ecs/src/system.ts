@@ -7,6 +7,8 @@ export class System {
     public tickRate: number = 1;
     public ticksSinceLastExecution: number = 1;
 
+    constructor() {}
+
     execute(deltaT?: number): void {}
 }
 

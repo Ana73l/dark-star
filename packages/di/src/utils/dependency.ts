@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 import { Abstract } from '../types';
 
 const PARAM_TYPES = 'design:paramtypes';
@@ -7,7 +6,7 @@ const getConstructorDependenciesFromInjectable = <T>(target: Abstract<T>, parent
     const dependencies: Abstract<unknown>[] = Reflect.getMetadata(PARAM_TYPES, target) || [];
 
     if (dependencies.length < target.length) {
-        throw new Error(`Class not decorated with @injectable: ${[...parents, target.name].join(' -> ')}`);
+        throw new Error(`Class not decorated: ${[...parents, target.name].join(' -> ')}`);
     }
 
     return dependencies;
