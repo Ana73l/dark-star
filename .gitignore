@@ -11,3 +11,5 @@ build
 
 # Test folders
 test
+
+.npmignore

@@ -24,6 +24,9 @@
         "component",
         "system"
     ],
+    "dependencies": {
+        "@dark-star/di": "^0.0.5"
+    },
     "author": "Ana73l",
     "license": "ISC"
 }

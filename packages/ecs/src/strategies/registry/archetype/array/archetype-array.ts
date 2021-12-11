@@ -224,7 +224,7 @@ export class ArchetypeArray implements Registry {
                 // compare required components
                 let i = 0;
                 for (const componentTypeId of currentAll) {
-                    if (componentTypeId !== currentAll[i]) {
+                    if (componentTypeId !== queryAll[i]) {
                         continue queriesCycle;
                     }
                     i++;
@@ -233,7 +233,7 @@ export class ArchetypeArray implements Registry {
                 // compare optional components
                 i = 0;
                 for (const componentTypeId of currentSome) {
-                    if (componentTypeId !== currentSome[i]) {
+                    if (componentTypeId !== querySome[i]) {
                         continue queriesCycle;
                     }
                     i++;
@@ -241,7 +241,7 @@ export class ArchetypeArray implements Registry {
                 // compare filter out components
                 i = 0;
                 for (const componentTypeId of currentNone) {
-                    if (componentTypeId !== currentNone[i]) {
+                    if (componentTypeId !== queryNone[i]) {
                         continue queriesCycle;
                     }
                     i++;

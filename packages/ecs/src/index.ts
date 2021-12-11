@@ -1,3 +1,5 @@
+import 'reflect-metadata';
+export * from './decorators/';
 export { component } from './component';
 export { System, system } from './system';
 export { QueryResult } from './query';
