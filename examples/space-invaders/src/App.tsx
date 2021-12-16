@@ -1,7 +1,7 @@
 import { useRef, useEffect } from 'react';
 import './App.css';
 
-import { bootstrap } from './sim/bootstrap';
+import { bootstrap } from './game/bootstrap';
 
 const App = () => {
     const canvas = useRef<HTMLCanvasElement>(null);

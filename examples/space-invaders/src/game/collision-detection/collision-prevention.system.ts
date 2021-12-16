@@ -1,7 +1,7 @@
 import { system, System, Topic, World } from '@dark-star/ecs';
 
-import { Position } from '../components/position';
-import { Velocity } from '../components/velocity';
+import { Position } from '../common/position.component';
+import { Velocity } from '../common/velocity.component';
 import { Collider } from './collider.component';
 
 import { CollisionTopic } from './collision.topic';

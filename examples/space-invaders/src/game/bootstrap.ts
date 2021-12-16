@@ -4,7 +4,8 @@ import { Keyboard, createKeyboard } from './inputs/keyboard';
 import { createAssetLoader } from './asset-loader';
 import { AssetStore } from './asset-store';
 import { InputSystem, PlayerControlled } from './input-system';
-import { MovementSystem } from './movement-system';
+
+import { MovementSystem } from './movement/movement.system';
 
 import RenderingModule from './rendering/rendering.module';
 import { Sprite } from './rendering/sprite.component';
@@ -12,11 +13,12 @@ import { Sprite } from './rendering/sprite.component';
 import CollisionsModule from './collision-detection/collision.module';
 import { RenderQuadtreeSystem } from './collision-detection/debug/render-quadtree.system';
 import { RenderCollidersSystem } from './collision-detection/debug/render-colliders.system';
+import { Collider } from './collision-detection/collider.component';
 import { Shapes } from '../cd/shapes';
 
-import { Collider } from './collision-detection/collider.component';
-import { Position } from './components/position';
-import { Velocity } from './components/velocity';
+import { ClearVelocitySytem } from './common/clear-velocity.system';
+import { Position } from './common/position.component';
+import { Velocity } from './common/velocity.component';
 
 export const bootstrap = async (canvas: HTMLCanvasElement): Promise<World> => {
     const assetStore = await createAssetLoader()
@@ -28,6 +30,7 @@ export const bootstrap = async (canvas: HTMLCanvasElement): Promise<World> => {
         .registerSingleton(Keyboard, createKeyboard().attach(window as any))
         .registerSingleton(CanvasRenderingContext2D, canvas.getContext('2d'))
         .registerSingleton(AssetStore, assetStore)
+        .registerSystem(ClearVelocitySytem)
         .registerSystem(InputSystem)
         .registerSystem(MovementSystem)
         .registerModule(CollisionsModule)

@@ -1,6 +1,6 @@
 import { provider, Entity } from '@dark-star/ecs';
 import { Quadtree } from '../../cd/structures/quad-tree';
-import { Position } from '../components/position';
+import { Position } from '../common/position.component';
 
 import { Collider } from './collider.component';
 

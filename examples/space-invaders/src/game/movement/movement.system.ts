@@ -1,7 +1,7 @@
 import { System, system, World, QueryResult } from '@dark-star/ecs';
 
-import { Position } from './components/position';
-import { Velocity } from './components/velocity';
+import { Position } from '../common/position.component';
+import { Velocity } from '../common/velocity.component';
 
 @system
 export class MovementSystem extends System {

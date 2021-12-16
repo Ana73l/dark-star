@@ -1,6 +1,6 @@
 import { Entity, system, System, Topic, World } from '@dark-star/ecs';
 import { shapesCollide } from '../../cd/collisions';
-import { Position } from '../components/position';
+import { Position } from '../common/position.component';
 import { Collider } from './collider.component';
 
 import { CollisionProvider } from './collision.provider';

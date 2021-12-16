@@ -16,7 +16,7 @@ export type ComponentTypesArrayFromQuerySignature<T> = {
     [P in keyof T]: T[P] extends ComponentType ? InstanceType<T[P]>[] : never;
 };
 export type OptionalTypesArrayFromQuerySignature<T> = {
-    [P in keyof T]: T[P] extends ComponentType ? InstanceType<T[P]>[] | undefined : never;
+    [P in keyof T]: T[P] extends ComponentType ? (InstanceType<T[P]> | undefined)[] : never;
 };
 
 export const component = <T extends ComponentType>(target: T): T =>

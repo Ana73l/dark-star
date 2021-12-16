@@ -1,7 +1,7 @@
 import { System, system, World, QueryResult } from '@dark-star/ecs';
 
 import { Sprite } from './sprite.component';
-import { Position } from '../components/position';
+import { Position } from '../common/position.component';
 
 @system
 export class RenderSpritesSystem extends System {

@@ -1,7 +1,7 @@
 import { System, system, World, QueryResult, component } from '@dark-star/ecs';
 
 import { Keyboard, Keys } from './inputs/keyboard';
-import { Velocity } from './components/velocity';
+import { Velocity } from './common/velocity.component';
 
 @component
 export class PlayerControlled {}

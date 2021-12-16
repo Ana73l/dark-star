@@ -4,7 +4,7 @@ import { shapeAABB } from '../../cd/aabb';
 import { CollisionProvider } from './collision.provider';
 
 import { Collider } from './collider.component';
-import { Position } from '../components/position';
+import { Position } from '../common/position.component';
 
 @system
 export class BroadphaseSystem extends System {

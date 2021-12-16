@@ -3,7 +3,7 @@ import { System, system, World, QueryResult } from '@dark-star/ecs';
 import { Shapes } from '../../../cd/shapes';
 
 import { Collider } from '../collider.component';
-import { Position } from '../../components/position';
+import { Position } from '../../common/position.component';
 
 @system
 export class RenderCollidersSystem extends System {
