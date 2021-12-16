@@ -47,6 +47,28 @@ export class ArchetypeArray implements Registry {
         this.entityToArchetypeIndex[entity] = index;
     }
 
+    public registerEntities<T extends ComponentTypesQuery>(
+        entities: number[],
+        components: ComponentInstancesFromQuery<T>[]
+    ): void {
+        const entitiesCount = entities.length;
+        assert(entitiesCount === components.length, 'Entities and component instances lengths cannot differ');
+
+        if (entitiesCount === 0) {
+            return;
+        }
+
+        const firstRowOfComponents = components[0];
+        const signature = createSignature(firstRowOfComponents.map((c: InstanceType<ComponentType>) => c.constructor));
+        const [archetype, index] = this.findOrCreateArchetype(signature);
+
+        let i;
+        for (i = 0; i < entitiesCount; i++) {
+            addEntityToArchetype(archetype, entities[i], components[i]);
+            this.entityToArchetypeIndex[entities[i]] = index;
+        }
+    }
+
     public unregisterEntity(entity: Entity): InstanceType<ComponentType>[] {
         const archetypeIndex = this.entityToArchetypeIndex[entity];
 

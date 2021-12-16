@@ -1,9 +1,11 @@
 import 'reflect-metadata';
-export * from './decorators/';
+export * from './types';
+export * from './entity';
 export { component } from './component';
 export { System, system } from './system';
+export * from './module';
+export * from './topic';
 export { QueryResult } from './query';
 export { World } from './world';
 export { WorldBuilder } from './world-builder';
-export * from './entity';
-export * from './types';
+export * from './decorators/';

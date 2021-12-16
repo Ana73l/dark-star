@@ -5,6 +5,10 @@ import { QueryRecord } from '../../query';
 
 export interface Registry {
     registerEntity<T extends ComponentTypesQuery>(entity: Entity, components: ComponentInstancesFromQuery<T>): void;
+    registerEntities<T extends ComponentTypesQuery>(
+        entities: Entity[],
+        components: ComponentInstancesFromQuery<T>[]
+    ): void;
     unregisterEntity(entity: Entity): InstanceType<ComponentType>[];
     exists(entity: Entity): boolean;
 

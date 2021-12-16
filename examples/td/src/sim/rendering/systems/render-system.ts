@@ -1,18 +1,21 @@
 import { System, system, World, QueryResult } from '@dark-star/ecs';
 
+import { Shapes } from '../../../cd/shapes';
+
 import { Sprite } from '../components/sprite';
-import { Shape, Shapes } from '../components/shape';
+import { Shape } from '../components/shape';
 import { Position } from '../../components/position';
 
 @system
-export class RenderSystem implements System {
+export class RenderSystem extends System {
     private entities: QueryResult<[typeof Position, typeof Shape]>;
 
     constructor(public world: World, private context: CanvasRenderingContext2D) {
+        super();
         this.entities = world.query([Position, Shape]);
     }
 
-    public execute(deltaT: number): void {
+    public execute(): void {
         const context = this.context;
         const canvas = this.context.canvas;
         let i;

@@ -1,9 +1,5 @@
 import { component } from '@dark-star/ecs';
-
-export enum Shapes {
-    Circle,
-    Rectangle
-}
+import { Shapes } from '../../../cd/shapes';
 
 @component
 export class Shape {

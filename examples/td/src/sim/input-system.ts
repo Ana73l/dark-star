@@ -7,10 +7,11 @@ import { Velocity } from './components/velocity';
 export class PlayerControlled {}
 
 @system
-export class InputSystem implements System {
+export class InputSystem extends System {
     private entities: QueryResult<[typeof Velocity, typeof PlayerControlled]>;
 
     constructor(world: World, private keyboard: Keyboard) {
+        super();
         this.entities = world.query([Velocity, PlayerControlled]);
     }
 

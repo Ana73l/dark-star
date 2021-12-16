@@ -1,4 +1,4 @@
-import { ClassType, ContainerBuilder } from '@dark-star/di';
+import { Abstract, ClassType, ContainerBuilder, Instance } from '@dark-star/di';
 import { Nullable } from './types';
 import { Entity } from './entity';
 import { createUIDGenerator, assert } from './utils/misc';
@@ -6,12 +6,19 @@ import { Registry } from './strategies/registry/registry';
 import { ArchetypeArray } from './strategies/registry/archetype/array/archetype-array';
 import { ComponentsPool } from './strategies/pooling/componentsPool';
 import { NullPull } from './strategies/pooling/nullPool';
-import { ComponentType, ComponentTypesQuery, ComponentInstancesFromQuery } from './component';
+import {
+    ComponentType,
+    ComponentTypesQuery,
+    ComponentInstancesFromQuery,
+    ComponentTypesArrayFromQuerySignature
+} from './component';
 import { QueryResult, createQueryResult } from './query';
 import { System, SystemType, executeSystems } from './system';
+import { Topic } from './topic';
 
 enum WorldOpType {
     Create,
+    CreateMultiple,
     Attach,
     Detach,
     Destroy
@@ -20,8 +27,16 @@ enum WorldOpType {
 type CreateWorldOp<T extends ComponentTypesQuery> = [
     WorldOpType.Create,
     T,
-    (entity: Entity, components: ComponentInstancesFromQuery<T>) => void
+    { (entity: Entity, components: ComponentInstancesFromQuery<T>): void } | undefined
 ];
+
+type CreateMultipleWorldOp<T extends ComponentTypesQuery> = [
+    WorldOpType.CreateMultiple,
+    number,
+    T,
+    { (entity: Entity, components: ComponentInstancesFromQuery<T>, iteration: number): void } | undefined
+];
+
 type AttachWorldOp<T extends ComponentTypesQuery> = [
     WorldOpType.Attach,
     Entity,
@@ -42,6 +57,7 @@ type DestroyWorldOp<T extends ComponentTypesQuery = []> = [
 ];
 type WorldOp<T extends ComponentTypesQuery> =
     | CreateWorldOp<T>
+    | CreateMultipleWorldOp<T>
     | AttachWorldOp<T>
     | DetachWorldOp<T>
     | DestroyWorldOp<T>;
@@ -52,6 +68,7 @@ export type WorldCompileParams = {
     ueid?: () => number | null;
     containerBuilder: ContainerBuilder;
     systems: SystemType[];
+    topics: Abstract<unknown>[];
 };
 
 export abstract class World {
@@ -60,10 +77,24 @@ export abstract class World {
         initializer?: (entity: Entity, components: ComponentInstancesFromQuery<T>) => void
     ): void;
 
+    abstract spawn<T extends ComponentTypesQuery>(
+        entitiesCount: number,
+        componentTypes: T,
+        initializer?: (entity: Entity, components: ComponentInstancesFromQuery<T>, iteration: number) => void
+    ): void;
+
     abstract spawnImmediate<T extends ComponentTypesQuery>(
         componentTypes: T,
         initializer?: (entity: Entity, components: ComponentInstancesFromQuery<T>) => void
     ): void;
+
+    abstract spawnImmediate<T extends ComponentTypesQuery>(
+        entitiesCount: number,
+        componentTypes: T,
+        initializer?: (entity: Entity, components: ComponentInstancesFromQuery<T>, iteration: number) => void
+    ): void;
+
+    abstract has<T extends ComponentType>(entity: Entity, componentType: T): boolean;
 
     abstract get<T extends ComponentType>(entity: Entity, componentType: T): Nullable<InstanceType<T>>;
 
@@ -109,6 +140,8 @@ export abstract class World {
         TNone extends ComponentTypesQuery = []
     >(all: TAll, some?: TSome, none?: TNone): QueryResult<TAll, TSome>;
 
+    abstract getTopic<T extends object>(topic: Abstract<T>): Topic<Instance<T>>;
+
     abstract step(deltaT: number): void;
 }
 
@@ -117,6 +150,7 @@ export class ECSWorld implements World {
     private componentsPool!: ComponentsPool;
     private operationsQueue: WorldOp<ComponentTypesQuery>[] = [];
     private systems: System[] = [];
+    private topics: Map<Abstract<unknown>, Topic<unknown>> = new Map();
     private reusableEntities: Entity[] = [];
     private ueid!: () => number | null;
 
@@ -126,6 +160,7 @@ export class ECSWorld implements World {
         ueid = createUIDGenerator(1),
         containerBuilder,
         systems,
+        topics,
         registryStrategy = ArchetypeArray,
         componentPoolingStrategy = NullPull
     }: WorldCompileParams): Promise<World> {
@@ -149,6 +184,12 @@ export class ECSWorld implements World {
 
             const injectablesContainer = containerBuilder.build();
 
+            // create topics
+            for (const topic of topics) {
+                world.topics.set(topic, new Topic<Instance<typeof topic>>());
+            }
+
+            // init systems
             world.systems = systems.map((systemType) => injectablesContainer.get(systemType));
 
             resolve(world);
@@ -156,36 +197,47 @@ export class ECSWorld implements World {
     }
 
     public spawn<T extends ComponentTypesQuery>(
-        componentTypes: T,
-        initializer?: (entity: Entity, components: ComponentInstancesFromQuery<T>) => void
+        entitiesCount: number | T,
+        componentTypes?: T | { (entity: Entity, components: ComponentInstancesFromQuery<T>): void },
+        initializer?: (entity: Entity, components: ComponentInstancesFromQuery<T>, iteration: number) => void
     ): void {
-        this.operationsQueue.push([
-            WorldOpType.Create,
-            componentTypes,
-            // @ts-ignore
-            initializer as (entity: Entity, components: ComponentInstancesFromQuery<T>) => void
-        ]);
+        if (typeof entitiesCount === 'number') {
+            this.operationsQueue.push([
+                WorldOpType.CreateMultiple,
+                entitiesCount,
+                componentTypes as T,
+                // @ts-ignore
+                initializer
+            ]);
+        } else {
+            this.operationsQueue.push([
+                WorldOpType.Create,
+                entitiesCount as T,
+                // @ts-ignore
+                componentTypes
+            ]);
+        }
     }
 
     public spawnImmediate<T extends ComponentTypesQuery>(
-        componentTypes: T,
-        initializer?: (entity: Entity, components: ComponentInstancesFromQuery<T>) => void
+        entitiesCount: number | T,
+        componentTypes?: T | { (entity: Entity, components: ComponentInstancesFromQuery<T>): void },
+        initializer?: (entity: Entity, components: ComponentInstancesFromQuery<T>, iteration: number) => void
     ): void {
-        const entity = this.reusableEntities.pop() || this.ueid();
-
-        assert(entity !== null, 'Maximum entities reached.');
-
-        const components = new Array(componentTypes.length).fill(null);
-        let i = 0;
-
-        for (const componentType of componentTypes) {
-            components[i] = this.componentsPool.get(componentType) || new componentType();
-            i++;
+        if (typeof entitiesCount === 'number') {
+            // spawn multiple
+            this.spawnMultiple(entitiesCount as number, componentTypes as T, initializer);
+        } else {
+            // spawn single
+            this.spawnSingle(
+                entitiesCount as T,
+                componentTypes as undefined | { (entity: Entity, components: ComponentInstancesFromQuery<T>): void }
+            );
         }
+    }
 
-        this.registry.registerEntity(entity, components);
-
-        initializer && initializer(entity, components as unknown as ComponentInstancesFromQuery<T>);
+    public has<T extends ComponentType<any>>(entity: number, componentType: T): boolean {
+        return this.registry.hasComponent(entity, componentType);
     }
 
     public get<T extends ComponentType>(entity: Entity, componentType: T): Nullable<InstanceType<T>> {
@@ -292,6 +344,11 @@ export class ECSWorld implements World {
         return createQueryResult(records, [typesAll, typesSome]) as QueryResult<TAll, TSome>;
     }
 
+    public getTopic<T extends object>(topic: Abstract<T>): Topic<Instance<T>> {
+        assert(this.topics.has(topic), 'Topic not registered');
+        return this.topics.get(topic) as Topic<Instance<T>>;
+    }
+
     public step(deltaT: number): ECSWorld {
         // apply enqueued operations
         const operations = this.operationsQueue;
@@ -303,6 +360,9 @@ export class ECSWorld implements World {
             switch (currentOperation[0]) {
                 case WorldOpType.Create:
                     this.spawnImmediate(currentOperation[1], currentOperation[2]);
+                    break;
+                case WorldOpType.CreateMultiple:
+                    this.spawnImmediate(currentOperation[1], currentOperation[2], currentOperation[3]);
                     break;
                 case WorldOpType.Attach:
                     this.attachImmediate(currentOperation[1], currentOperation[2], currentOperation[3]);
@@ -320,9 +380,75 @@ export class ECSWorld implements World {
             operations.pop();
         }
 
+        // flush topics
+        for (const [, topic] of this.topics) {
+            topic.flush();
+        }
+
         // execute systems
         executeSystems(this.systems, deltaT);
 
         return this;
+    }
+
+    private spawnSingle<T extends ComponentTypesQuery>(
+        componentTypes: T,
+        initializer?: (entity: Entity, components: ComponentInstancesFromQuery<T>) => void
+    ): void {
+        const entity = this.reusableEntities.pop() || this.ueid();
+
+        assert(entity !== null, 'Maximum entities reached.');
+
+        const components = new Array(componentTypes.length).fill(null);
+        let i = 0;
+
+        for (const componentType of componentTypes) {
+            components[i] = this.componentsPool.get(componentType) || new componentType();
+            i++;
+        }
+
+        this.registry.registerEntity(entity, components);
+
+        initializer && initializer(entity, components as unknown as ComponentInstancesFromQuery<T>);
+    }
+
+    private spawnMultiple<T extends ComponentTypesQuery>(
+        count: number,
+        componentTypes: T,
+        initializer?: (entity: Entity, components: ComponentInstancesFromQuery<T>, iteration: number) => void
+    ): void {
+        if (count === 0) {
+            return;
+        }
+
+        const entities = new Array(count).fill(null);
+        const components = new Array(count).fill(null);
+
+        let i = 0;
+        for (i = 0; i < count; i++) {
+            const entity = this.reusableEntities.pop() || this.ueid();
+
+            assert(entity !== null, 'Maximum entities reached');
+
+            const entityComponents = new Array(componentTypes.length).fill(null);
+            let componentIndex = 0;
+
+            for (const componentType of componentTypes as T) {
+                entityComponents[componentIndex] = this.componentsPool.get(componentType) || new componentType();
+                componentIndex++;
+            }
+
+            entities[i] = entity;
+            components[i] = entityComponents;
+        }
+
+        this.registry.registerEntities(entities, components);
+
+        if (typeof initializer === 'function') {
+            let entityIndex;
+            for (entityIndex = 0; entityIndex < count; entityIndex++) {
+                initializer(entities[entityIndex], components[entityIndex], entityIndex);
+            }
+        }
     }
 }

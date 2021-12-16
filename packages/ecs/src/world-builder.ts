@@ -4,13 +4,17 @@ import {
     InjectableIdentifier,
     Factory,
     DSContainerBuilder,
-    Instance
+    Instance,
+    Abstract
 } from '@dark-star/di';
-import { SystemType } from './system';
 import { World, ECSWorld } from './world';
+import { SystemType } from './system';
+import { Module } from './module';
+import {} from './topic';
 
 export class WorldBuilder {
     private systems: SystemType[] = [];
+    private topics: Abstract<unknown>[] = [];
 
     constructor(private injectablesBuilder: ContainerBuilder = new DSContainerBuilder()) {}
 
@@ -39,9 +43,41 @@ export class WorldBuilder {
         return this;
     }
 
+    public registerTopic<T extends Abstract<unknown>>(topic: T): WorldBuilder {
+        this.topics.push(topic);
+
+        return this;
+    }
+
+    public registerModule({ systems = [], topics = [], singletons = [], transients = [] }: Module): WorldBuilder {
+        for (const system of systems) {
+            this.registerSystem(system);
+        }
+        for (const singleton of singletons) {
+            if (Array.isArray(singleton)) {
+                this.registerSingleton(singleton[0], singleton[1]);
+            } else {
+                this.registerSingleton(singleton);
+            }
+        }
+        for (const transient of transients) {
+            if (Array.isArray(transient)) {
+                this.registerTransient(transient[0], transient[1]);
+            } else {
+                this.registerTransient(transient);
+            }
+        }
+        for (const topic of topics) {
+            this.registerTopic(topic);
+        }
+
+        return this;
+    }
+
     public build = async (): Promise<World> =>
         ECSWorld.compile({
             systems: this.systems,
-            containerBuilder: this.injectablesBuilder
+            containerBuilder: this.injectablesBuilder,
+            topics: this.topics
         });
 }

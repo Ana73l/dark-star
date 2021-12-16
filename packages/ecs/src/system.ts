@@ -1,23 +1,18 @@
+import { injectable } from '@dark-star/di';
+
 export type SystemType<T extends System = System> = { new (...args: any): T };
 
-export interface System {
-    tickRate?: number;
-    ticksSinceLastExecution?: number;
+@injectable
+export abstract class System {
+    public tickRate: number = 1;
+    public ticksSinceLastExecution: number = 1;
 
-    execute(deltaT?: number): void;
+    constructor() {}
+
+    public abstract execute(deltaT?: number): void;
 }
 
-export const system = <T extends SystemType>(target: T): T => {
-    if (!target.prototype.tickRate) {
-        target.prototype.tickRate = 1;
-    }
-
-    if (!target.prototype.ticksSinceLastExecution) {
-        target.prototype.ticksSinceLastExecution = 1;
-    }
-
-    return target;
-};
+export const system = <T extends SystemType>(target: T): T => target;
 
 export const registerSystem = <T extends System>(systems: System[], system: T): void => {
     if (systems.find((sys) => sys.constructor === system.constructor)) {

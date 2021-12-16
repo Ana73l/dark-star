@@ -4,10 +4,12 @@ import { Position } from './components/position';
 import { Velocity } from './components/velocity';
 
 @system
-export class MovementSystem implements System {
+export class MovementSystem extends System {
     private entities: QueryResult<[typeof Position, typeof Velocity]>;
 
     constructor(world: World) {
+        super();
+
         this.entities = world.query([Position, Velocity]);
     }
 

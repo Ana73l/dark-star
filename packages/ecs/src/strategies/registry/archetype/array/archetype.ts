@@ -42,7 +42,7 @@ export const addEntityToArchetype = <T extends ComponentTypesQuery>(
     archetype: Archetype,
     entity: Entity,
     components: ComponentInstancesFromQuery<T>
-): number => {
+) => {
     const { entities, entityToIndex, componentsTable } = archetype;
     const entityIndex = entityToIndex[entity];
     // if entity is already contained do nothing
@@ -55,8 +55,6 @@ export const addEntityToArchetype = <T extends ComponentTypesQuery>(
     );
 
     entityToIndex[entity] = newEntityIndex;
-
-    return newEntityIndex;
 };
 
 export const removeEntityFromArchetype = (archetype: Archetype, entity: Entity): InstanceType<ComponentType>[] => {
