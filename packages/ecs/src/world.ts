@@ -10,7 +10,8 @@ import {
     ComponentType,
     ComponentTypesQuery,
     ComponentInstancesFromQuery,
-    ComponentTypesArrayFromQuerySignature
+    ComponentTypesArrayFromQuerySignature,
+    OptionalComponentInstancesFromQuery
 } from './component';
 import { QueryResult, createQueryResult } from './query';
 import { System, SystemType, executeSystems } from './system';
@@ -53,7 +54,7 @@ type DestroyWorldOp<T extends ComponentTypesQuery = []> = [
     WorldOpType.Destroy,
     Entity,
     T,
-    (components: ComponentInstancesFromQuery<T>) => void
+    (components: OptionalComponentInstancesFromQuery<T>) => void
 ];
 type WorldOp<T extends ComponentTypesQuery> =
     | CreateWorldOp<T>
@@ -124,14 +125,14 @@ export abstract class World {
 
     abstract destroy<T extends ComponentTypesQuery>(
         entity: Entity,
-        componentTypes: T,
-        reset?: (components: ComponentInstancesFromQuery<T>) => void
+        componentTypes?: T,
+        reset?: (components: OptionalComponentInstancesFromQuery<T>) => void
     ): void;
 
     abstract destroyImmediate<T extends ComponentTypesQuery>(
         entity: Entity,
-        componentTypes: T,
-        reset?: (components: ComponentInstancesFromQuery<T>) => void
+        componentTypes?: T,
+        reset?: (components: OptionalComponentInstancesFromQuery<T>) => void
     ): void;
 
     abstract query<
@@ -306,30 +307,31 @@ export class ECSWorld implements World {
 
     public destroy<T extends ComponentTypesQuery>(
         entity: Entity,
-        componentTypes: T,
-        reset?: (components: ComponentInstancesFromQuery<T>) => void
+        componentTypes?: T,
+        reset?: (components: OptionalComponentInstancesFromQuery<T>) => void
     ): void {
         this.operationsQueue.push([
             WorldOpType.Destroy,
             entity,
             componentTypes,
             // @ts-ignore
-            reset as (components: ComponentInstancesFromQuery<T>) => void
+            reset as (components: OptionalComponentInstancesFromQuery<T>) => void
         ]);
     }
 
     public destroyImmediate<T extends ComponentTypesQuery>(
         entity: Entity,
-        componentTypes: T,
-        reset?: (components: ComponentInstancesFromQuery<T>) => void
+        componentTypes?: T,
+        reset?: (components: OptionalComponentInstancesFromQuery<T>) => void
     ): void {
-        this.operationsQueue.push([
-            WorldOpType.Destroy,
-            entity,
-            componentTypes,
-            // @ts-ignore
-            reset as (components: ComponentInstancesFromQuery<T>) => void
-        ]);
+        const components = this.registry.unregisterEntity(entity);
+        this.reusableEntities.push(entity);
+
+        const componentsToReset = componentTypes?.map((componentType) =>
+            components.find((component: InstanceType<ComponentType>) => component.constructor === componentType)
+        );
+
+        reset && reset(componentsToReset as OptionalComponentInstancesFromQuery<T>);
     }
 
     public query<

@@ -1,10 +1,11 @@
 import { Module } from '@dark-star/ecs';
 
 import { ClearContextSystem } from './clear-context.system';
+import { RenderBackgroundSystem } from './render-background.system';
 import { RenderSpritesSystem } from './render-sprites.system';
 
 const renderingModule: Module = {
-    systems: [ClearContextSystem, RenderSpritesSystem]
+    systems: [ClearContextSystem, RenderBackgroundSystem, RenderSpritesSystem]
 };
 
 export default renderingModule;

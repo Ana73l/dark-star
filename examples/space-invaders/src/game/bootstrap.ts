@@ -5,9 +5,12 @@ import { createAssetLoader } from './asset-loader';
 import { AssetStore } from './asset-store';
 import { InputSystem, PlayerControlled } from './input-system';
 
-import { MovementSystem } from './movement/movement.system';
+import { ApplyMovementSystem } from './movement/apply-movement.system';
+import { PrepareMovementSystem } from './movement/prepare-movement.system';
+import { Movement } from './movement/movement.component';
 
 import RenderingModule from './rendering/rendering.module';
+import { Background } from './rendering/background.component';
 import { Sprite } from './rendering/sprite.component';
 
 import CollisionsModule from './collision-detection/collision.module';
@@ -16,14 +19,25 @@ import { RenderCollidersSystem } from './collision-detection/debug/render-collid
 import { Collider } from './collision-detection/collider.component';
 import { Shapes } from '../cd/shapes';
 
+import { FireWeaponSystem } from './combat/fire-weapon.system';
+import { ProjectileCollisionSystem } from './combat/projectile-colllision.system';
+
 import { ClearVelocitySytem } from './common/clear-velocity.system';
 import { Position } from './common/position.component';
 import { Velocity } from './common/velocity.component';
 
+import { player } from './entities/player';
+
 export const bootstrap = async (canvas: HTMLCanvasElement): Promise<World> => {
     const assetStore = await createAssetLoader()
-        .addSprite('player', 'assets/spaceships/playerShip1_green.png')
+        .addSprite('playerShip1', 'assets/spaceships/player/playerShip1_green.png')
+        .addSprite('playerShip1damage1', 'assets/spaceships/player/playerShip1_damage1.png')
+        .addSprite('playerShip1damage2', 'assets/spaceships/player/playerShip1_damage2.png')
+        .addSprite('playerShip1damage3', 'assets/spaceships/player/playerShip1_damage3.png')
+        .addSprite('laserGreen01', 'assets/lasers/laserGreen01.png')
+        .addSprite('laserGreen06', 'assets/lasers/laserGreen06.png')
         .addSprite('meteor1', 'assets/meteors/meteorBrown_big1.png')
+        .addSprite('blackBackground', 'assets/backgrounds/black.png')
         .loadAssets();
 
     const world = await new WorldBuilder()
@@ -32,11 +46,14 @@ export const bootstrap = async (canvas: HTMLCanvasElement): Promise<World> => {
         .registerSingleton(AssetStore, assetStore)
         .registerSystem(ClearVelocitySytem)
         .registerSystem(InputSystem)
-        .registerSystem(MovementSystem)
+        .registerSystem(FireWeaponSystem)
+        .registerSystem(PrepareMovementSystem)
+        .registerSystem(ApplyMovementSystem)
         .registerModule(CollisionsModule)
+        .registerSystem(ProjectileCollisionSystem)
         .registerModule(RenderingModule)
-        .registerSystem(RenderQuadtreeSystem)
-        .registerSystem(RenderCollidersSystem)
+        // .registerSystem(RenderQuadtreeSystem)
+        // .registerSystem(RenderCollidersSystem)
         .build();
 
     const getRandomInt = (start = 0, finish = 100): number => {
@@ -46,21 +63,13 @@ export const bootstrap = async (canvas: HTMLCanvasElement): Promise<World> => {
         return Math.floor(Math.random() * (f - s + 1)) + s;
     };
 
-    // spawn player
-    world.spawn([Position, Collider, Sprite, PlayerControlled, Velocity], (entity, [position, collider, sprite]) => {
-        sprite.image = assetStore.getSprite('player');
-        sprite.width = 70;
-        sprite.height = 50;
-
-        collider.shape = {
-            type: Shapes.Rectangle,
-            width: 70,
-            height: 50
-        };
-
-        position.y = 200;
-        position.x = 300;
+    // background
+    world.spawn([Background], (entity, [background]) => {
+        background.image = assetStore.getSprite('blackBackground');
     });
+
+    // spawn player
+    player(world, assetStore);
 
     // spawn meteors
     world.spawn(30, [Position, Collider, Sprite], (entity, [position, collider, sprite]) => {
@@ -77,13 +86,15 @@ export const bootstrap = async (canvas: HTMLCanvasElement): Promise<World> => {
         position.y = getRandomInt(0, canvas.clientHeight);
     });
 
-    world.spawn([Position, Collider, Velocity], (entity, [position, collider, velocity]) => {
+    world.spawn([Position, Collider, Movement, Velocity], (entity, [position, collider, movement, velocity]) => {
         collider.shape = {
             type: Shapes.Circle,
             radius: 20
         };
 
-        velocity.x = 200 / 1000;
+        movement.right = true;
+        movement.speed = 200 / 1000;
+
         position.y = 100;
         position.x = 100;
     });

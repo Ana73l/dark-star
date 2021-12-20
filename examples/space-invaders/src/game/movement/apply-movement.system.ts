@@ -4,7 +4,7 @@ import { Position } from '../common/position.component';
 import { Velocity } from '../common/velocity.component';
 
 @system
-export class MovementSystem extends System {
+export class ApplyMovementSystem extends System {
     private entities: QueryResult<[typeof Position, typeof Velocity]>;
 
     constructor(world: World) {
