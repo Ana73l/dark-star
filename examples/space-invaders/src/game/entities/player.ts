@@ -37,6 +37,7 @@ export const player = (world: World, assetStore: AssetStore): void => {
             weapon.projectileSprite = 'laserGreen06';
             weapon.projectileImpactSprite = 'laserGreen01';
             weapon.direction = { x: 0, y: -1 };
+            weapon.fireSound = assetStore.getSound('laser1');
 
             damagedSprite.width = sprite.width;
             damagedSprite.height = sprite.height;

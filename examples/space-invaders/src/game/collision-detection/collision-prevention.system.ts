@@ -19,19 +19,19 @@ export class CollisionPreventionSystem extends System {
     public execute(deltaT: number): void {
         const world = this.world;
 
-        for (const pair of this.collisionTopic) {
-            const colliderA = world.get(pair.first, Collider) as Collider;
-            const velocityA = world.get(pair.first, Velocity);
-            const positionA = world.get(pair.first, Position) as Position;
+        // for (const pair of this.collisionTopic) {
+        //     const colliderA = world.get(pair.first, Collider) as Collider;
+        //     const velocityA = world.get(pair.first, Velocity);
+        //     const positionA = world.get(pair.first, Position) as Position;
 
-            const colliderB = world.get(pair.second, Collider) as Collider;
-            const velocityB = world.get(pair.second, Velocity);
-            const positionB = world.get(pair.second, Position) as Position;
+        //     const colliderB = world.get(pair.second, Collider) as Collider;
+        //     const velocityB = world.get(pair.second, Velocity);
+        //     const positionB = world.get(pair.second, Position) as Position;
 
-            if (velocityA) {
-            }
-            if (velocityB) {
-            }
-        }
+        //     if (velocityA) {
+        //     }
+        //     if (velocityB) {
+        //     }
+        // }
     }
 }

@@ -20,4 +20,6 @@ export class Weapon {
     projectileImpactSprite: string;
     projectileSpeed: number = 0;
     direction: Vector2 = { x: 0, y: 0 };
+    // @ts-ignore
+    fireSound: HTMLAudioElement;
 }

@@ -38,6 +38,7 @@ export const bootstrap = async (canvas: HTMLCanvasElement): Promise<World> => {
         .addSprite('laserGreen06', 'assets/lasers/laserGreen06.png')
         .addSprite('meteor1', 'assets/meteors/meteorBrown_big1.png')
         .addSprite('blackBackground', 'assets/backgrounds/black.png')
+        .addSound('laser1', 'assets/sounds/sfx_laser1.ogg')
         .loadAssets();
 
     const world = await new WorldBuilder()

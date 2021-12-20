@@ -45,7 +45,7 @@ export class ProjectileCollisionSystem extends System {
         if (world.has(other, Projectile)) {
             return;
         }
-        console.log('lol');
+
         // if projectile has damage
         const damage = world.get(projectileId, Damage);
         if (damage) {

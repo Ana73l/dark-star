@@ -69,6 +69,13 @@ export class FireWeaponSystem extends System {
                         }
                     );
 
+                    if (weapon.fireSound) {
+                        weapon.fireSound.pause();
+                        weapon.fireSound.currentTime = 0;
+
+                        weapon.fireSound.play();
+                    }
+
                     weapon.timeSinceLastShot = 0;
                 }
             }
