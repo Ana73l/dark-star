@@ -18,8 +18,6 @@ export class ProjectileCollisionSystem extends System {
     public execute() {
         const world = this.world;
 
-        console.log(this.collisions);
-
         for (const { first, second } of this.collisions) {
             // collision with self
             if (first === second) {
@@ -39,6 +37,9 @@ export class ProjectileCollisionSystem extends System {
         const world = this.world;
 
         // entities already destroyed
+        if (!world.exists(projectileId) || !world.exists(other)) {
+            return;
+        }
 
         const projectile = world.get(projectileId, Projectile);
 

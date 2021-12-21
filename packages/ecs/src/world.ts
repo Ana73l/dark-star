@@ -10,7 +10,6 @@ import {
     ComponentType,
     ComponentTypesQuery,
     ComponentInstancesFromQuery,
-    ComponentTypesArrayFromQuerySignature,
     OptionalComponentInstancesFromQuery
 } from './component';
 import { QueryResult, createQueryResult } from './query';
@@ -316,6 +315,10 @@ export class ECSWorld implements World {
         componentTypes?: T,
         reset?: (components: OptionalComponentInstancesFromQuery<T>) => void
     ): void {
+        if (!this.registry.exists(entity)) {
+            return;
+        }
+
         this.operationsQueue.push([
             WorldOpType.Destroy,
             entity,
@@ -330,6 +333,10 @@ export class ECSWorld implements World {
         componentTypes?: T,
         reset?: (components: OptionalComponentInstancesFromQuery<T>) => void
     ): void {
+        if (!this.registry.exists(entity)) {
+            return;
+        }
+
         const components = this.registry.unregisterEntity(entity);
         this.reusableEntities.push(entity);
 

@@ -18,15 +18,17 @@ import { getRandomInt } from '../../utils/misc';
 const enemyColours = ['Black', 'Blue', 'Green', 'Red'];
 
 export const enemies = (world: World, assetStore: AssetStore): void => {
+    let row = 0;
+    let column = 0;
+
     world.spawn(
-        20,
+        45,
         [Position, Collider, Sprite, Movement, Weapon, Health, Velocity],
         (enemyId, [position, collider, sprite, movement, weapon, health], index) => {
             const modelType = getRandomInt(1, 5);
             const colour = getRandomInt(0, 3);
 
             sprite.image = assetStore.getSprite(`enemy${enemyColours[colour]}${modelType}`);
-
             sprite.width = 70;
             sprite.height = 50;
 
@@ -42,16 +44,23 @@ export const enemies = (world: World, assetStore: AssetStore): void => {
             weapon.projectileType = ProjectileType.Laser;
             weapon.projectileSprite = 'laserGreen06';
             weapon.projectileImpactSprite = 'laserGreen01';
-            weapon.direction = { x: 0, y: -1 };
+            weapon.direction = { x: 0, y: 1 };
             weapon.fireSound = assetStore.getSound('laser1');
 
             health.maxHealth = 1;
             health.currentHealth = health.maxHealth;
 
-            position.x = index * 70 + sprite.width / 2;
-            position.y = 200;
+            position.x = column * 70 + sprite.width / 2;
+            position.y = 50 + row * 100;
 
             movement.speed = 100 / 1000;
+
+            column++;
+
+            if (column === 15) {
+                column = 0;
+                row++;
+            }
         }
     );
 };

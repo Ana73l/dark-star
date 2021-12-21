@@ -37,7 +37,7 @@ export const bootstrap = async (canvas: HTMLCanvasElement): Promise<World> => {
         .addSprite('playerShip1damage1', 'assets/spaceships/player/playerShip1_damage1.png')
         .addSprite('playerShip1damage2', 'assets/spaceships/player/playerShip1_damage2.png')
         .addSprite('playerShip1damage3', 'assets/spaceships/player/playerShip1_damage3.png')
-        .addSprite('énemyBlack1', 'assets/spaceships/enemy/enemyBlack1.png')
+        .addSprite('enemyBlack1', 'assets/spaceships/enemy/enemyBlack1.png')
         .addSprite('enemyBlack2', 'assets/spaceships/enemy/enemyBlack2.png')
         .addSprite('enemyBlack3', 'assets/spaceships/enemy/enemyBlack3.png')
         .addSprite('enemyBlack4', 'assets/spaceships/enemy/enemyBlack4.png')
@@ -92,19 +92,19 @@ export const bootstrap = async (canvas: HTMLCanvasElement): Promise<World> => {
     enemies(world, assetStore);
 
     // spawn meteors
-    world.spawn(30, [Position, Collider, Sprite], (entity, [position, collider, sprite]) => {
-        sprite.image = assetStore.getSprite('meteor1');
-        sprite.height = 40;
-        sprite.width = 40;
+    // world.spawn(30, [Position, Collider, Sprite], (entity, [position, collider, sprite]) => {
+    //     sprite.image = assetStore.getSprite('meteor1');
+    //     sprite.height = 40;
+    //     sprite.width = 40;
 
-        collider.shape = {
-            type: Shapes.Circle,
-            radius: 20
-        };
+    //     collider.shape = {
+    //         type: Shapes.Circle,
+    //         radius: 20
+    //     };
 
-        position.x = getRandomInt(0, canvas.clientWidth);
-        position.y = getRandomInt(0, canvas.clientHeight);
-    });
+    //     position.x = getRandomInt(0, canvas.clientWidth);
+    //     position.y = getRandomInt(0, canvas.clientHeight);
+    // });
 
     world.spawn([Position, Collider, Movement, Velocity], (entity, [position, collider, movement, velocity]) => {
         collider.shape = {
