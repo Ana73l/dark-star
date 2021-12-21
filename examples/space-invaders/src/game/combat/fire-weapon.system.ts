@@ -76,7 +76,7 @@ export class FireWeaponSystem extends System {
                         weapon.fireSound.play();
                     }
 
-                    weapon.timeSinceLastShot = 0;
+                    weapon.timeSinceLastShot = weapon.timeSinceLastShot - weapon.fireRate * 1000;
                 }
             }
         }

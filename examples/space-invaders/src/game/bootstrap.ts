@@ -28,12 +28,35 @@ import { Velocity } from './common/velocity.component';
 
 import { player } from './entities/player';
 
+import { getRandomInt } from '../utils/misc';
+import { enemies } from './entities/enemies';
+
 export const bootstrap = async (canvas: HTMLCanvasElement): Promise<World> => {
     const assetStore = await createAssetLoader()
         .addSprite('playerShip1', 'assets/spaceships/player/playerShip1_green.png')
         .addSprite('playerShip1damage1', 'assets/spaceships/player/playerShip1_damage1.png')
         .addSprite('playerShip1damage2', 'assets/spaceships/player/playerShip1_damage2.png')
         .addSprite('playerShip1damage3', 'assets/spaceships/player/playerShip1_damage3.png')
+        .addSprite('énemyBlack1', 'assets/spaceships/enemy/enemyBlack1.png')
+        .addSprite('enemyBlack2', 'assets/spaceships/enemy/enemyBlack2.png')
+        .addSprite('enemyBlack3', 'assets/spaceships/enemy/enemyBlack3.png')
+        .addSprite('enemyBlack4', 'assets/spaceships/enemy/enemyBlack4.png')
+        .addSprite('enemyBlack5', 'assets/spaceships/enemy/enemyBlack5.png')
+        .addSprite('enemyBlue1', 'assets/spaceships/enemy/enemyBlue1.png')
+        .addSprite('enemyBlue2', 'assets/spaceships/enemy/enemyBlue2.png')
+        .addSprite('enemyBlue3', 'assets/spaceships/enemy/enemyBlue3.png')
+        .addSprite('enemyBlue4', 'assets/spaceships/enemy/enemyBlue4.png')
+        .addSprite('enemyBlue5', 'assets/spaceships/enemy/enemyBlue5.png')
+        .addSprite('enemyGreen1', 'assets/spaceships/enemy/enemyGreen1.png')
+        .addSprite('enemyGreen2', 'assets/spaceships/enemy/enemyGreen2.png')
+        .addSprite('enemyGreen3', 'assets/spaceships/enemy/enemyGreen3.png')
+        .addSprite('enemyGreen4', 'assets/spaceships/enemy/enemyGreen4.png')
+        .addSprite('enemyGreen5', 'assets/spaceships/enemy/enemyGreen5.png')
+        .addSprite('enemyRed1', 'assets/spaceships/enemy/enemyRed1.png')
+        .addSprite('enemyRed2', 'assets/spaceships/enemy/enemyRed2.png')
+        .addSprite('enemyRed3', 'assets/spaceships/enemy/enemyRed3.png')
+        .addSprite('enemyRed4', 'assets/spaceships/enemy/enemyRed4.png')
+        .addSprite('enemyRed5', 'assets/spaceships/enemy/enemyRed5.png')
         .addSprite('laserGreen01', 'assets/lasers/laserGreen01.png')
         .addSprite('laserGreen06', 'assets/lasers/laserGreen06.png')
         .addSprite('meteor1', 'assets/meteors/meteorBrown_big1.png')
@@ -57,13 +80,6 @@ export const bootstrap = async (canvas: HTMLCanvasElement): Promise<World> => {
         // .registerSystem(RenderCollidersSystem)
         .build();
 
-    const getRandomInt = (start = 0, finish = 100): number => {
-        const s = Math.ceil(start);
-        const f = Math.floor(finish);
-
-        return Math.floor(Math.random() * (f - s + 1)) + s;
-    };
-
     // background
     world.spawn([Background], (entity, [background]) => {
         background.image = assetStore.getSprite('blackBackground');
@@ -71,6 +87,9 @@ export const bootstrap = async (canvas: HTMLCanvasElement): Promise<World> => {
 
     // spawn player
     player(world, assetStore);
+
+    // spawn enemies
+    enemies(world, assetStore);
 
     // spawn meteors
     world.spawn(30, [Position, Collider, Sprite], (entity, [position, collider, sprite]) => {

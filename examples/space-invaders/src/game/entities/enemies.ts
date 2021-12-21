@@ -10,17 +10,23 @@ import { Movement } from '../movement/movement.component';
 
 import { ProjectileType, Weapon } from '../combat/weapon.component';
 import { Health } from '../combat/health.component';
-import { DamagedSprite } from '../rendering/damaged-sprite.component';
 
 import { Sprite } from '../rendering/sprite.component';
-import { PlayerControlled } from '../input-system';
 import { Shapes } from '../../cd/shapes';
+import { getRandomInt } from '../../utils/misc';
 
-export const player = (world: World, assetStore: AssetStore): void => {
+const enemyColours = ['Black', 'Blue', 'Green', 'Red'];
+
+export const enemies = (world: World, assetStore: AssetStore): void => {
     world.spawn(
-        [Position, Collider, Sprite, Movement, Weapon, Health, DamagedSprite, PlayerControlled, Velocity],
-        (playerId, [position, collider, sprite, movement, weapon, health, damagedSprite]) => {
-            sprite.image = assetStore.getSprite('playerShip1');
+        20,
+        [Position, Collider, Sprite, Movement, Weapon, Health, Velocity],
+        (enemyId, [position, collider, sprite, movement, weapon, health], index) => {
+            const modelType = getRandomInt(1, 5);
+            const colour = getRandomInt(0, 3);
+
+            sprite.image = assetStore.getSprite(`enemy${enemyColours[colour]}${modelType}`);
+
             sprite.width = 70;
             sprite.height = 50;
 
@@ -39,19 +45,13 @@ export const player = (world: World, assetStore: AssetStore): void => {
             weapon.direction = { x: 0, y: -1 };
             weapon.fireSound = assetStore.getSound('laser1');
 
-            damagedSprite.width = sprite.width;
-            damagedSprite.height = sprite.height;
-            damagedSprite.percentToSprite[80] = assetStore.getSprite('playerShip1damage1');
-            damagedSprite.percentToSprite[50] = assetStore.getSprite('playerShip1damage2');
-            damagedSprite.percentToSprite[30] = assetStore.getSprite('playerShip1damage3');
-
-            health.maxHealth = 100;
+            health.maxHealth = 1;
             health.currentHealth = health.maxHealth;
 
-            position.x = 300;
+            position.x = index * 70 + sprite.width / 2;
             position.y = 200;
 
-            movement.speed = 600 / 1000;
+            movement.speed = 100 / 1000;
         }
     );
 };

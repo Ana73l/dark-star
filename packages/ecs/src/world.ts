@@ -95,6 +95,8 @@ export abstract class World {
         initializer?: (entity: Entity, components: ComponentInstancesFromQuery<T>, iteration: number) => void
     ): void;
 
+    abstract exists(entity: Entity): boolean;
+
     abstract has<T extends ComponentType>(entity: Entity, componentType: T): boolean;
 
     abstract get<T extends ComponentType>(entity: Entity, componentType: T): Nullable<InstanceType<T>>;
@@ -235,6 +237,10 @@ export class ECSWorld implements World {
                 componentTypes as undefined | { (entity: Entity, components: ComponentInstancesFromQuery<T>): void }
             );
         }
+    }
+
+    public exists(entity: number): boolean {
+        return this.registry.exists(entity);
     }
 
     public has<T extends ComponentType<any>>(entity: number, componentType: T): boolean {
