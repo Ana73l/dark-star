@@ -36,11 +36,6 @@ export class ProjectileCollisionSystem extends System {
     private collision(projectileId: Entity, other: Entity) {
         const world = this.world;
 
-        // entities already destroyed
-        if (!world.exists(projectileId) || !world.exists(other)) {
-            return;
-        }
-
         const projectile = world.get(projectileId, Projectile);
 
         // collision with shooter

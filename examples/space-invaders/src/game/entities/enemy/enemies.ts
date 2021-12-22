@@ -1,21 +1,21 @@
 import { World } from '@dark-star/ecs';
 
-import { AssetStore } from '../asset-store';
+import { AssetStore } from '../../asset-store';
 
 import { Enemy } from './enemy.component';
 
-import { Position } from '../common/position.component';
-import { Velocity } from '../common/velocity.component';
+import { Position } from '../../common/position.component';
+import { Velocity } from '../../common/velocity.component';
 
-import { Collider } from '../collision-detection/collider.component';
-import { Movement } from '../movement/movement.component';
+import { Collider } from '../../collision-detection/collider.component';
+import { Movement } from '../../movement/movement.component';
 
-import { ProjectileType, Weapon } from '../combat/weapon.component';
-import { Health } from '../combat/health.component';
+import { ProjectileType, Weapon } from '../../combat/weapon.component';
+import { Health } from '../../combat/health.component';
 
-import { Sprite } from '../rendering/sprite.component';
-import { Shapes } from '../../cd/shapes';
-import { getRandomInt } from '../../utils/misc';
+import { Sprite } from '../../rendering/sprite.component';
+import { Shapes } from '../../../cd/shapes';
+import { getRandomInt } from '../../../utils/misc';
 
 const enemyColours = ['Black', 'Blue', 'Green', 'Red'];
 
@@ -24,7 +24,7 @@ export const enemies = (world: World, assetStore: AssetStore): void => {
     let column = 0;
 
     world.spawn(
-        45,
+        30,
         [Position, Collider, Sprite, Movement, Weapon, Health, Velocity, Enemy],
         (enemyId, [position, collider, sprite, movement, weapon, health], index) => {
             const modelType = getRandomInt(1, 5);
@@ -52,14 +52,14 @@ export const enemies = (world: World, assetStore: AssetStore): void => {
             health.maxHealth = 1;
             health.currentHealth = health.maxHealth;
 
-            position.x = column * 70 + sprite.width / 2;
+            position.x = column * 90 + sprite.width / 2;
             position.y = 50 + row * 100;
 
             movement.speed = 100 / 1000;
 
             column++;
 
-            if (column === 15) {
+            if (column === 10) {
                 column = 0;
                 row++;
             }

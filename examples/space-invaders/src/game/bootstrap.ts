@@ -3,34 +3,29 @@ import { World, WorldBuilder } from '@dark-star/ecs';
 import { Keyboard, createKeyboard } from './inputs/keyboard';
 import { createAssetLoader } from './asset-loader';
 import { AssetStore } from './asset-store';
-import { InputSystem, PlayerControlled } from './input-system';
 
 import { ApplyMovementSystem } from './movement/apply-movement.system';
 import { PrepareMovementSystem } from './movement/prepare-movement.system';
-import { Movement } from './movement/movement.component';
 
 import RenderingModule from './rendering/rendering.module';
 import { Background } from './rendering/background.component';
-import { Sprite } from './rendering/sprite.component';
 
 import CollisionsModule from './collision-detection/collision.module';
 import { RenderQuadtreeSystem } from './collision-detection/debug/render-quadtree.system';
 import { RenderCollidersSystem } from './collision-detection/debug/render-colliders.system';
-import { Collider } from './collision-detection/collider.component';
-import { Shapes } from '../cd/shapes';
 
 import { FireWeaponSystem } from './combat/fire-weapon.system';
 import { ProjectileCollisionSystem } from './combat/projectile-colllision.system';
 import { DeathSystem } from './combat/death.system';
 
 import { ClearVelocitySytem } from './common/clear-velocity.system';
-import { Position } from './common/position.component';
-import { Velocity } from './common/velocity.component';
 
-import { player } from './entities/player';
+import { player } from './entities/player/player';
+import { InputSystem } from './entities/player/player-input.system';
 
-import { getRandomInt } from '../utils/misc';
-import { enemies } from './entities/enemies';
+import { enemies } from './entities/enemy/enemies';
+import { EnemyMovementSystem } from './entities/enemy/enemy-movement.system';
+import { EnemyCombatSystem } from './entities/enemy/enemy-combat.system';
 
 export const bootstrap = async (canvas: HTMLCanvasElement): Promise<World> => {
     const assetStore = await createAssetLoader()
@@ -71,6 +66,8 @@ export const bootstrap = async (canvas: HTMLCanvasElement): Promise<World> => {
         .registerSingleton(AssetStore, assetStore)
         .registerSystem(ClearVelocitySytem)
         .registerSystem(InputSystem)
+        .registerSystem(EnemyMovementSystem)
+        .registerSystem(EnemyCombatSystem)
         .registerSystem(FireWeaponSystem)
         .registerSystem(PrepareMovementSystem)
         .registerSystem(ApplyMovementSystem)

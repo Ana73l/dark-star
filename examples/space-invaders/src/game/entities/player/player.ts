@@ -1,24 +1,24 @@
 import { World } from '@dark-star/ecs';
 
-import { AssetStore } from '../asset-store';
+import { AssetStore } from '../../asset-store';
 
-import { Position } from '../common/position.component';
-import { Velocity } from '../common/velocity.component';
+import { Position } from '../../common/position.component';
+import { Velocity } from '../../common/velocity.component';
 
-import { Collider } from '../collision-detection/collider.component';
-import { Movement } from '../movement/movement.component';
+import { Collider } from '../../collision-detection/collider.component';
+import { Movement } from '../../movement/movement.component';
 
-import { ProjectileType, Weapon } from '../combat/weapon.component';
-import { Health } from '../combat/health.component';
-import { DamagedSprite } from '../rendering/damaged-sprite.component';
+import { ProjectileType, Weapon } from '../../combat/weapon.component';
+import { Health } from '../../combat/health.component';
+import { DamagedSprite } from '../../rendering/damaged-sprite.component';
 
-import { Sprite } from '../rendering/sprite.component';
-import { PlayerControlled } from '../input-system';
-import { Shapes } from '../../cd/shapes';
+import { Sprite } from '../../rendering/sprite.component';
+import { Player } from './player.component';
+import { Shapes } from '../../../cd/shapes';
 
 export const player = (world: World, assetStore: AssetStore): void => {
     world.spawn(
-        [Position, Collider, Sprite, Movement, Weapon, Health, DamagedSprite, PlayerControlled, Velocity],
+        [Position, Collider, Sprite, Movement, Weapon, Health, DamagedSprite, Player, Velocity],
         (playerId, [position, collider, sprite, movement, weapon, health, damagedSprite]) => {
             sprite.image = assetStore.getSprite('playerShip1');
             sprite.width = 70;
