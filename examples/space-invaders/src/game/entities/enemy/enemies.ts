@@ -30,7 +30,7 @@ export const enemies = (world: World, assetStore: AssetStore): void => {
             const modelType = getRandomInt(1, 5);
             const colour = getRandomInt(0, 3);
 
-            sprite.image = assetStore.getSprite(`enemy${enemyColours[colour]}${modelType}`);
+            sprite.image = `enemy${enemyColours[colour]}${modelType}`;
             sprite.width = 70;
             sprite.height = 50;
 

@@ -42,7 +42,7 @@ export class FireWeaponSystem extends System {
                             posProjectile.x = position.x;
                             posProjectile.y = position.y;
 
-                            sprite.image = assets.getSprite(weapon.projectileSprite);
+                            sprite.image = weapon.projectileSprite;
                             sprite.height = 20;
                             sprite.width = 10;
 

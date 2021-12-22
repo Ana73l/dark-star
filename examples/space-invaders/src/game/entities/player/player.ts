@@ -20,7 +20,7 @@ export const player = (world: World, assetStore: AssetStore): void => {
     world.spawn(
         [Position, Collider, Sprite, Movement, Weapon, Health, DamagedSprite, Player, Velocity],
         (playerId, [position, collider, sprite, movement, weapon, health, damagedSprite]) => {
-            sprite.image = assetStore.getSprite('playerShip1');
+            sprite.image = 'playerShip1';
             sprite.width = 70;
             sprite.height = 50;
 
@@ -41,9 +41,9 @@ export const player = (world: World, assetStore: AssetStore): void => {
 
             damagedSprite.width = sprite.width;
             damagedSprite.height = sprite.height;
-            damagedSprite.percentToSprite[80] = assetStore.getSprite('playerShip1damage1');
-            damagedSprite.percentToSprite[50] = assetStore.getSprite('playerShip1damage2');
-            damagedSprite.percentToSprite[30] = assetStore.getSprite('playerShip1damage3');
+            damagedSprite.percentToSprite[80] = 'playerShip1damage1';
+            damagedSprite.percentToSprite[50] = 'playerShip1damage2';
+            damagedSprite.percentToSprite[30] = 'playerShip1damage3';
 
             health.maxHealth = 100;
             health.currentHealth = health.maxHealth;

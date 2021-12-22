@@ -1,5 +1,7 @@
 import { System, system, World, QueryResult } from '@dark-star/ecs';
 
+import { AssetStore } from '../asset-store';
+
 import { DamagedSprite } from './damaged-sprite.component';
 import { Health } from '../combat/health.component';
 import { Position } from '../common/position.component';
@@ -8,12 +10,13 @@ import { Position } from '../common/position.component';
 export class RenderDamageSystem extends System {
     private entities: QueryResult<[typeof Position, typeof Health, typeof DamagedSprite]>;
 
-    constructor(public world: World, private context: CanvasRenderingContext2D) {
+    constructor(public world: World, private context: CanvasRenderingContext2D, private assetStore: AssetStore) {
         super();
         this.entities = world.query([Position, Health, DamagedSprite]);
     }
 
     public execute(): void {
+        const assets = this.assetStore;
         const context = this.context;
 
         for (const [entities, [positions, healths, sprites]] of this.entities) {
@@ -36,7 +39,7 @@ export class RenderDamageSystem extends System {
                     }
                 }
 
-                const spriteImage = sprite.percentToSprite[minAboveCurrentPercent];
+                const spriteImage = assets.getSprite(sprite.percentToSprite[minAboveCurrentPercent]);
 
                 // if model is defined for current percentage bracket - render
                 spriteImage &&

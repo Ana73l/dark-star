@@ -81,7 +81,7 @@ export const bootstrap = async (canvas: HTMLCanvasElement): Promise<World> => {
 
     // background
     world.spawn([Background], (entity, [background]) => {
-        background.image = assetStore.getSprite('blackBackground');
+        background.image = 'blackBackground';
     });
 
     // spawn player
