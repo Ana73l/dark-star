@@ -2,6 +2,8 @@ import { World } from '@dark-star/ecs';
 
 import { AssetStore } from '../asset-store';
 
+import { Enemy } from './enemy.component';
+
 import { Position } from '../common/position.component';
 import { Velocity } from '../common/velocity.component';
 
@@ -23,7 +25,7 @@ export const enemies = (world: World, assetStore: AssetStore): void => {
 
     world.spawn(
         45,
-        [Position, Collider, Sprite, Movement, Weapon, Health, Velocity],
+        [Position, Collider, Sprite, Movement, Weapon, Health, Velocity, Enemy],
         (enemyId, [position, collider, sprite, movement, weapon, health], index) => {
             const modelType = getRandomInt(1, 5);
             const colour = getRandomInt(0, 3);

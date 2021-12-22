@@ -21,6 +21,7 @@ import { Shapes } from '../cd/shapes';
 
 import { FireWeaponSystem } from './combat/fire-weapon.system';
 import { ProjectileCollisionSystem } from './combat/projectile-colllision.system';
+import { DeathSystem } from './combat/death.system';
 
 import { ClearVelocitySytem } from './common/clear-velocity.system';
 import { Position } from './common/position.component';
@@ -75,6 +76,7 @@ export const bootstrap = async (canvas: HTMLCanvasElement): Promise<World> => {
         .registerSystem(ApplyMovementSystem)
         .registerModule(CollisionsModule)
         .registerSystem(ProjectileCollisionSystem)
+        .registerSystem(DeathSystem)
         .registerModule(RenderingModule)
         // .registerSystem(RenderQuadtreeSystem)
         // .registerSystem(RenderCollidersSystem)
@@ -105,19 +107,6 @@ export const bootstrap = async (canvas: HTMLCanvasElement): Promise<World> => {
     //     position.x = getRandomInt(0, canvas.clientWidth);
     //     position.y = getRandomInt(0, canvas.clientHeight);
     // });
-
-    world.spawn([Position, Collider, Movement, Velocity], (entity, [position, collider, movement, velocity]) => {
-        collider.shape = {
-            type: Shapes.Circle,
-            radius: 20
-        };
-
-        movement.right = true;
-        movement.speed = 200 / 1000;
-
-        position.y = 100;
-        position.x = 100;
-    });
 
     let prevTime = 0.0;
 

@@ -48,8 +48,8 @@ export const player = (world: World, assetStore: AssetStore): void => {
             health.maxHealth = 100;
             health.currentHealth = health.maxHealth;
 
-            position.x = 300;
-            position.y = 200;
+            position.x = 500;
+            position.y = 800;
 
             movement.speed = 600 / 1000;
         }
