@@ -25,8 +25,8 @@ export const enemies = (world: World, assetStore: AssetStore): void => {
 
     world.spawn(
         30,
-        [Position, Collider, Sprite, Movement, Weapon, Health, Velocity, Enemy],
-        (enemyId, [position, collider, sprite, movement, weapon, health], index) => {
+        [Position, Collider, Sprite, Movement, Weapon, Health, Enemy, Velocity],
+        (enemyId, [position, collider, sprite, movement, weapon, health, enemy], index) => {
             const modelType = getRandomInt(1, 5);
             const colour = getRandomInt(0, 3);
 
@@ -56,6 +56,9 @@ export const enemies = (world: World, assetStore: AssetStore): void => {
             position.y = 50 + row * 100;
 
             movement.speed = 100 / 1000;
+
+            enemy.row = row;
+            enemy.column = column;
 
             column++;
 

@@ -7,7 +7,7 @@ import { Weapon } from '../../combat/weapon.component';
 import { Player } from './player.component';
 
 @system
-export class InputSystem extends System {
+export class PlayerInputSystem extends System {
     private entities: QueryResult<[typeof Player], [typeof Movement, typeof Weapon]>;
 
     constructor(world: World, private keyboard: Keyboard) {

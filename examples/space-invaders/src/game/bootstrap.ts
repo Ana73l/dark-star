@@ -21,7 +21,7 @@ import { DeathSystem } from './combat/death.system';
 import { ClearVelocitySytem } from './common/clear-velocity.system';
 
 import { player } from './entities/player/player';
-import { InputSystem } from './entities/player/player-input.system';
+import { PlayerInputSystem } from './entities/player/player-input.system';
 
 import { enemies } from './entities/enemy/enemies';
 import { EnemyMovementSystem } from './entities/enemy/enemy-movement.system';
@@ -65,12 +65,12 @@ export const bootstrap = async (canvas: HTMLCanvasElement): Promise<World> => {
         .registerSingleton(CanvasRenderingContext2D, canvas.getContext('2d'))
         .registerSingleton(AssetStore, assetStore)
         .registerSystem(ClearVelocitySytem)
-        .registerSystem(InputSystem)
+        .registerSystem(PlayerInputSystem)
         .registerSystem(EnemyMovementSystem)
         .registerSystem(EnemyCombatSystem)
-        .registerSystem(FireWeaponSystem)
         .registerSystem(PrepareMovementSystem)
         .registerSystem(ApplyMovementSystem)
+        .registerSystem(FireWeaponSystem)
         .registerModule(CollisionsModule)
         .registerSystem(ProjectileCollisionSystem)
         .registerSystem(DeathSystem)
