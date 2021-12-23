@@ -15,10 +15,11 @@ import { RenderQuadtreeSystem } from './collision-detection/debug/render-quadtre
 import { RenderCollidersSystem } from './collision-detection/debug/render-colliders.system';
 
 import { FireWeaponSystem } from './combat/fire-weapon.system';
-import { ProjectileCollisionSystem } from './combat/projectile-colllision.system';
+import { ProjectileCollisionSystem } from './combat/projectile-collision.system';
 import { DeathSystem } from './combat/death.system';
 
 import { ClearVelocitySytem } from './common/clear-velocity.system';
+import { LifeTimeSystem } from './common/life-time.system';
 
 import { player } from './entities/player/player';
 import { PlayerInputSystem } from './entities/player/player-input.system';
@@ -74,6 +75,7 @@ export const bootstrap = async (canvas: HTMLCanvasElement): Promise<World> => {
         .registerModule(CollisionsModule)
         .registerSystem(ProjectileCollisionSystem)
         .registerSystem(DeathSystem)
+        .registerSystem(LifeTimeSystem)
         .registerModule(RenderingModule)
         // .registerSystem(RenderQuadtreeSystem)
         // .registerSystem(RenderCollidersSystem)

@@ -35,12 +35,13 @@ export class FireWeaponSystem extends System {
                 weapon.timeSinceLastShot += deltaT;
 
                 if (weapon.firing && weapon.timeSinceLastShot / 1000 >= weapon.fireRate) {
+                    // spawn a projectile
                     world.spawn(
                         [Projectile, Sprite, Collider, Position, Movement, Damage, Velocity],
                         (projectileId, [projectile, sprite, collider, posProjectile, movement, damage]) => {
                             projectile.shooter = entities[i];
-                            posProjectile.x = position.x;
-                            posProjectile.y = position.y;
+                            posProjectile.x = position.x + weapon.offset.x;
+                            posProjectile.y = position.y + weapon.offset.y;
 
                             sprite.image = weapon.projectileSprite;
                             sprite.height = 20;

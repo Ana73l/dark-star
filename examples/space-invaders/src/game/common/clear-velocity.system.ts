@@ -1,6 +1,6 @@
 import { System, system, World, QueryResult } from '@dark-star/ecs';
 
-import { Velocity } from '../common/velocity.component';
+import { Velocity } from './velocity.component';
 
 @system
 export class ClearVelocitySytem extends System {
