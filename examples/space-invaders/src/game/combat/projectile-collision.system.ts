@@ -63,10 +63,8 @@ export class ProjectileCollisionSystem extends System {
 
         // display explosion
         // @ts-ignore
-        if (world.has(projectile.shooter, Weapon)) {
-            // @ts-ignore
-            const weapon = world.get(projectile.shooter, Weapon) as Weapon;
-            // @ts-ignore
+        const weapon = world.get(projectile.shooter, Weapon);
+        if (weapon) {
             const position = world.get(projectileId, Position) as Position;
 
             world.spawn([Sprite, Position, LifeTime], (entity, [sprite, expPosition, lifeTime]) => {
