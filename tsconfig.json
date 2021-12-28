@@ -15,7 +15,8 @@
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
         "forceConsistentCasingInFileNames": true,
-        "target": "ES6"
+        "target": "ES6",
+        "types": ["reflect-metadata"]
     },
     "exclude": ["node_modules"]
 }

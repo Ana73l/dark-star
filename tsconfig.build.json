@@ -1,4 +1,4 @@
 {
     "files": [],
-    "references": [{ "path": "packages/di" }, { "path": "packages/ecs" }]
+    "references": [{ "path": "packages/di" }, { "path": "packages/ecs"}]
 }
