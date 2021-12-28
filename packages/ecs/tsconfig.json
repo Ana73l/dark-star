@@ -3,9 +3,7 @@
     "compilerOptions": {
         "rootDir": "src",
         "outDir": "./lib/cjs",
-        "paths": {
-            "@dark-star/di": ["../di"]
-        }
+        
     },
     "include": ["./src"],
     "references": [{ "path": "../di" }]
