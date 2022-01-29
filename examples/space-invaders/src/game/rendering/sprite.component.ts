@@ -4,6 +4,5 @@ import { component } from '@dark-star/ecs';
 export class Sprite {
     width: number = 0;
     height: number = 0;
-    // @ts-ignore
-    image: string;
+    image!: string;
 }

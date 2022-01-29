@@ -3,6 +3,5 @@ import { TypedShape } from '../../cd/shapes';
 
 @component
 export class Collider {
-    // @ts-ignore
-    shape: TypedShape;
+    shape!: TypedShape;
 }

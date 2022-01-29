@@ -27,19 +27,20 @@ world.spawn([Position, Velocity], (entity, [position, velocity]) => {
 -   componentTypes: `Array`, component types to assign to an entity
 -   initializer: `Function`, optional, initializer function for the components
 
-## spawnImmediate
+## spawn
 
-Spawns a new `Entity` in the world immediately
+Spawns new `Entity`s in the world on the next world step
 
 ```ts
-world.spawn([Position, Velocity], (entity, [position, velocity]) => {
+world.spawn(10, [Position, Velocity], (entity, [position, velocity], index) => {
     position.x = 10;
 });
 ```
 
 ### Arguments:
 
--   componentTypes: `Array`, component types to assign to an entity
+-   count: `Number`, number of entities to spawn
+-   componentTypes: `Array`, component types to assign to the entities
 -   initializer: `Function`, optional, initializer function for the components
 
 ## destroy
@@ -75,20 +76,27 @@ const position = world.get(entity, Position);
 ### Arguments:
 
 -   entity: `Entity`
--   componentType: `Component` class
+-   componentTypes: `Component`
+-   initializer: `Function`, optional,
 
 ## attach
 
-Attaches a `Component` instance to an `Entity`
+Attaches `Component`s to an `Entity`
 
 ```ts
-world.attach(entity, new Position());
+world.attach(entity, [Position, Velocity], ([position, velocity]) => {
+    position.x = 10;
+    position.y = 10;
+
+    velocity.x = 6;
+});
 ```
 
 ### Arguments:
 
 -   entity: `Entity`
--   component: `Component` instance
+-   componentTypes: `Array`, component types to assign to the entity
+-   initializer: `Function`, optional, initializer for the components
 
 ## detach
 

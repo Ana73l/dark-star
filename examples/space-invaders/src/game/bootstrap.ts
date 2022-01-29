@@ -77,8 +77,8 @@ export const bootstrap = async (canvas: HTMLCanvasElement): Promise<World> => {
         .registerSystem(DeathSystem)
         .registerSystem(LifeTimeSystem)
         .registerModule(RenderingModule)
-        // .registerSystem(RenderQuadtreeSystem)
-        // .registerSystem(RenderCollidersSystem)
+        .registerSystem(RenderQuadtreeSystem)
+        .registerSystem(RenderCollidersSystem)
         .build();
 
     // background
