@@ -1,0 +1,15 @@
+{
+	"name": "@dark-star/di",
+	"version": "0.0.1",
+	"keywords": [
+		"dependency",
+		"injection",
+		"di",
+		"container",
+		"dependency-injection"
+	],
+	"dependencies": {
+		"reflect-metadata": "^0.1.13",
+		"@dark-star/core": "*"
+	}
+}

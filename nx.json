@@ -1,15 +1,16 @@
 {
   "extends": "nx/presets/npm.json",
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
-  "npmScope": "@dark-star",
+  "npmScope": "dark-star",
   "affected": {
     "defaultBase": "master"
   },
   "tasksRunnerOptions": {
     "default": {
-      "runner": "nx/tasks-runners/default",
+      "runner": "@nrwl/nx-cloud",
       "options": {
-        "cacheableOperations": ["build", "lint", "test", "e2e"]
+        "cacheableOperations": ["build", "lint", "test", "e2e"],
+        "accessToken": "Mzk5NTcyMDEtMzg5NS00OWNiLTkwZGQtYWVhNGRjNjg4OTE1fHJlYWQtd3JpdGU="
       }
     }
   }

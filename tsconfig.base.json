@@ -1,20 +1,32 @@
 {
-  "compileOnSave": false,
-  "compilerOptions": {
-    "rootDir": ".",
-    "sourceMap": true,
-    "declaration": false,
-    "moduleResolution": "node",
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "importHelpers": true,
-    "target": "es2015",
-    "module": "esnext",
-    "lib": ["es2017", "dom"],
-    "skipLibCheck": true,
-    "skipDefaultLibCheck": true,
-    "baseUrl": ".",
-    "paths": {}
-  },
-  "exclude": ["node_modules", "tmp"]
+	"compileOnSave": false,
+	"compilerOptions": {
+		"rootDir": ".",
+		"sourceMap": true,
+		"declaration": false,
+		"moduleResolution": "node",
+		"emitDecoratorMetadata": true,
+		"experimentalDecorators": true,
+		"importHelpers": true,
+		"target": "ES2020",
+		"module": "CommonJS",
+		"lib": ["ES2020", "dom"],
+		"skipLibCheck": true,
+		"skipDefaultLibCheck": true,
+		"noImplicitOverride": true,
+		"forceConsistentCasingInFileNames": true,
+		"strict": true,
+		"strictNullChecks": true,
+		"baseUrl": ".",
+		"types": ["node"],
+		"paths": {
+			"@dark-star/core": ["packages/core/src/index.ts"],
+			"@dark-star/di": ["packages/di/src/index.ts"],
+			"@dark-star/ecs": ["packages/ecs/src/index.ts"],
+			"@dark-star/packages/ecs": ["packages/packages/ecs/src/index.ts"],
+			"@dark-star/schema": ["packages/schema/src/index.ts"],
+			"@dark-star/worker-pool": ["packages/worker-pool/src/index.ts"]
+		}
+	},
+	"exclude": ["node_modules", "tmp"]
 }

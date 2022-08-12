@@ -1,0 +1,27 @@
+{
+	"name": "@dark-star/ecs",
+	"version": "0.0.1",
+	"description": "Multithreaded TypeScript/JavaScript Entity Component System library",
+	"keywords": [
+		"dark",
+		"star",
+		"dark-star",
+		"darkstar",
+		"dark-star-ecs",
+		"ecs",
+		"entity",
+		"component",
+		"system",
+		"entity-component-system",
+		"entity-system",
+		"component-system",
+		"multithreaded",
+		"multithreading"
+	],
+	"dependencies": {
+		"@dark-star/core": "*",
+		"@dark-star/di": "*",
+		"@dark-star/schema": "*",
+		"@dark-star/worker-pool": "*"
+	}
+}
