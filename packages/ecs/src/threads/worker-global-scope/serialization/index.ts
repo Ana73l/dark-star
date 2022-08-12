@@ -1,12 +1,12 @@
 import { PrimitiveTypes, serializable } from '@dark-star/schema';
-import { $definition, schemas } from '@dark-star/schema/src/_internals_';
+import { $definition, schemas } from '@dark-star/schema';
 
-import { _internals_1 } from './_internals_1';
+import { registry_1 } from './registry_1';
 import { fieldDecorators } from './field-decorators';
 import { serialization_1 } from './serialization_1';
 
 const seedSerialization = (): string => `
-const _internals_1 = ${_internals_1};
+const registry_1 = ${registry_1};
 
 const PrimitiveTypes = ((PrimitiveTypes) => {
     ${Object.entries(PrimitiveTypes)
@@ -29,8 +29,7 @@ const serializable = ${serializable.toString()};
 
 const fieldDecorators = {
     ${Object.entries(fieldDecorators).map(
-		([primitiveType, decorator]) =>
-			`${Number(primitiveType)}: ${decorator.toString()}`
+		([primitiveType, decorator]) => `${Number(primitiveType)}: ${decorator.toString()}`
 	).join(`,
     `)}
 };
@@ -49,9 +48,7 @@ ${schemas.map((schema) => {
 
         ${Object.entries(definition).map(([fieldName, { type, args = [] }]) => {
 			if (type === PrimitiveTypes.Schema) {
-				return `fieldDecorators[${type}](schemas[${args[0] - 1}])(${
-					schema.name
-				}.prototype, ${fieldName})`;
+				return `fieldDecorators[${type}](schemas[${args[0] - 1}])(${schema.name}.prototype, ${fieldName})`;
 			} else {
 				return `fieldDecorators[${type}](...${args})(${schema.name}.prototype, ${fieldName})`;
 			}

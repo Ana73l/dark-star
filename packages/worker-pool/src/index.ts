@@ -27,6 +27,7 @@ export class WorkerPool implements Disposable {
 	private resolvers: Map<number, (data: any) => void> = new Map();
 	private backlog: { id: number; task: (data: any) => void; params: any }[] = [];
 	private taskIdCounter: number = 0;
+	private disposePromise?: Promise<void>;
 	private _isDisposed: boolean = false;
 
 	constructor({ threads, workerScript = '' }: WorkerPoolOpts) {
@@ -82,24 +83,34 @@ export class WorkerPool implements Disposable {
 	public async dispose(): Promise<void> {
 		assert(!this._isDisposed, 'Cannot dispose of already disposed WorkerPool');
 
-		await Promise.all(this.workers.map((worker) => worker.terminate));
-
-		while (this.workers.length) {
-			this.workers.pop();
+		if (this.disposePromise) {
+			return this.disposePromise;
 		}
 
-		this.resolvers.clear();
+		this.disposePromise = new Promise<void>(async (resolve) => {
+			await Promise.all(this.workers.map((worker) => worker.terminate));
 
-		while (this.idle.length) {
-			this.idle.pop();
-		}
+			while (this.workers.length) {
+				this.workers.pop();
+			}
 
-		while (this.backlog.length) {
-			this.backlog.pop();
-		}
+			this.resolvers.clear();
 
-		this.taskIdCounter = 0;
-		this._isDisposed = true;
+			while (this.idle.length) {
+				this.idle.pop();
+			}
+
+			while (this.backlog.length) {
+				this.backlog.pop();
+			}
+
+			this.taskIdCounter = 0;
+			this._isDisposed = true;
+
+			resolve();
+		});
+
+		return this.disposePromise;
 	}
 
 	private spawnWorker(workerId: number, url: string) {

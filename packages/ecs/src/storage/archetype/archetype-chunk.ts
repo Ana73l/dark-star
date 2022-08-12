@@ -1,5 +1,5 @@
 import { createSharedObjectArray, SharedObjectArray } from '@dark-star/schema';
-import { $id, $size } from '@dark-star/schema/src/_internals_';
+import { $id, $size } from '@dark-star/schema';
 
 import { ComponentType, ComponentTypeId } from '../../component';
 import { $entitiesArray, $componentsTable } from './__internals__';
@@ -28,11 +28,7 @@ export class ArchetypeChunk<T extends ComponentType[] = ComponentType[]> {
 
 			const buffer = new SharedArrayBuffer(bufferSize);
 
-			const sharedObjectArray = createSharedObjectArray(
-				componentType,
-				buffer,
-				{ length: capacity }
-			);
+			const sharedObjectArray = createSharedObjectArray(componentType, buffer, { length: capacity });
 
 			Object.defineProperty(sharedObjectArray, 'size', {
 				enumerable: true,
@@ -44,12 +40,8 @@ export class ArchetypeChunk<T extends ComponentType[] = ComponentType[]> {
 			layout.push(componentType[$id]!);
 		}
 
-		const entitiesBuffer = new SharedArrayBuffer(
-			capacity * Int32Array.BYTES_PER_ELEMENT
-		);
-		const entitiesArray = new Int32Array(entitiesBuffer, 0, capacity).fill(
-			0
-		);
+		const entitiesBuffer = new SharedArrayBuffer(capacity * Int32Array.BYTES_PER_ELEMENT);
+		const entitiesArray = new Int32Array(entitiesBuffer, 0, capacity).fill(0);
 
 		Object.defineProperty(entitiesArray, 'size', {
 			enumerable: true,
@@ -70,18 +62,10 @@ export class ArchetypeChunk<T extends ComponentType[] = ComponentType[]> {
 		return this[$size] === this.capacity;
 	}
 
-	public getComponentArray(
-		typeId: ComponentTypeId
-	): ComponentsArray<any> | undefined;
-	public getComponentArray<C extends ComponentType>(
-		type: C
-	): ComponentsArray<C> | undefined;
-	public getComponentArray<C extends ComponentType>(
-		type: ComponentTypeId | C
-	): ComponentsArray<C> | undefined {
-		const index = this.layout.indexOf(
-			typeof type === 'number' ? type : type[$id]!
-		);
+	public getComponentArray(typeId: ComponentTypeId): ComponentsArray<any> | undefined;
+	public getComponentArray<C extends ComponentType>(type: C): ComponentsArray<C> | undefined;
+	public getComponentArray<C extends ComponentType>(type: ComponentTypeId | C): ComponentsArray<C> | undefined {
+		const index = this.layout.indexOf(typeof type === 'number' ? type : type[$id]!);
 
 		return this[$componentsTable][index] as ComponentsArray<C> | undefined;
 	}

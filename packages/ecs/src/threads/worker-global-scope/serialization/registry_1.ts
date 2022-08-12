@@ -1,4 +1,4 @@
-export const _internals_1 = `{
+export const registry_1 = `{
     $id: Symbol('dark_star_schema_id'),
     $size: Symbol('dark_star_schema_size'),
     $definition: Symbol('dark_star_schema_definition'),

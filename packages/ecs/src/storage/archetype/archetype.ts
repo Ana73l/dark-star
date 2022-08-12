@@ -1,4 +1,4 @@
-import { $id, $size } from '@dark-star/schema/src/_internals_';
+import { $id, $size } from '@dark-star/schema';
 
 import { ComponentTypeId, ComponentType } from '../../component';
 
@@ -12,10 +12,7 @@ export class Archetype {
 	public readonly chunks: ArchetypeChunk[] = [];
 	public readonly schemas: ReadonlyArray<ComponentType>;
 
-	constructor(
-		componentTypes: Set<ComponentType>,
-		public readonly id: number
-	) {
+	constructor(componentTypes: Set<ComponentType>, public readonly id: number) {
 		const entityType = new Set<ComponentTypeId>();
 		const schemas = [];
 		const layout = [];
@@ -58,11 +55,7 @@ export class Archetype {
 			}
 		}
 
-		const newChunk = new ArchetypeChunk(
-			this.schemas,
-			this.chunkCapacity,
-			this.chunks.length
-		);
+		const newChunk = new ArchetypeChunk(this.schemas, this.chunkCapacity, this.chunks.length);
 		this.chunks.push(newChunk);
 
 		return newChunk;

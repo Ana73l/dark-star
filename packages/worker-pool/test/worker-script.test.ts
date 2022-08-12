@@ -23,8 +23,7 @@ describe('worker-script', () => {
         }
     });
 })()`;
-		console.log(expected);
-		console.log(WORKER_SCRIPT);
+
 		expect(WORKER_SCRIPT).toEqual(expected);
 	});
 });
