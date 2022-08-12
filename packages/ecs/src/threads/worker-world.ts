@@ -1,7 +1,7 @@
 import { createSharedObjectArray } from '@dark-star/schema';
 import { schemas } from '@dark-star/schema';
 
-import { ComponentType, ComponentTypeId } from '../component';
+import { ComponentType } from '../component';
 import { World } from '../world/world';
 import { ComponentInstancesFromTypes, OptionalComponentPartialsFromTypes } from '../query';
 

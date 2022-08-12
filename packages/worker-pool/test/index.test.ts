@@ -39,6 +39,13 @@ describe('worker-pool', () => {
 		expect(pool.isDisposed).toEqual(true);
 	});
 
+	it('Cannot be disposed of twice', async () => {
+		pool = new WorkerPool({ threads: 2 });
+
+		await pool.dispose();
+		expect(pool.dispose()).rejects.toThrow('Cannot dispose of already disposed WorkerPool');
+	});
+
 	it('Can accept a string of functions and classes definitions to be used in worker scopes', async () => {
 		const workerScopeDefinitions = [
 			class Utils {

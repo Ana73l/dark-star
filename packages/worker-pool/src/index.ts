@@ -88,7 +88,9 @@ export class WorkerPool implements Disposable {
 		}
 
 		this.disposePromise = new Promise<void>(async (resolve) => {
-			await Promise.all(this.workers.map((worker) => worker.terminate));
+			for (const worker of this.workers) {
+				await worker.terminate();
+			}
 
 			while (this.workers.length) {
 				this.workers.pop();
