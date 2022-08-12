@@ -18,14 +18,14 @@ type WorkerTaskResponse = {
 	error?: any;
 };
 
-export const isNode = typeof window === 'undefined';
+// @ts-ignore
+export const isNode = typeof process === 'object';
 
 export class WorkerPool implements Disposable {
 	private workers: Worker[] = [];
 	private idle: number[] = [];
 	private resolvers: Map<number, (data: any) => void> = new Map();
-	private backlog: { id: number; task: (data: any) => void; params: any }[] =
-		[];
+	private backlog: { id: number; task: (data: any) => void; params: any }[] = [];
 	private taskIdCounter: number = 0;
 	private _isDisposed: boolean = false;
 
@@ -59,9 +59,7 @@ export class WorkerPool implements Disposable {
 		return this._isDisposed;
 	}
 
-	public createTask = <TData, TResult>(
-		executable: (data: TData) => TResult
-	): Task<TData, TResult> => {
+	public createTask = <TData, TResult>(executable: (data: TData) => TResult): Task<TData, TResult> => {
 		return {
 			run: (data: TData): Promise<TResult> => {
 				const taskId = this.taskIdCounter++;
@@ -72,9 +70,7 @@ export class WorkerPool implements Disposable {
 					params: data,
 				});
 
-				const resolver = new Promise<TResult>((result) =>
-					this.resolvers.set(taskId, result)
-				);
+				const resolver = new Promise<TResult>((result) => this.resolvers.set(taskId, result));
 
 				this.runNext();
 
@@ -84,10 +80,7 @@ export class WorkerPool implements Disposable {
 	};
 
 	public async dispose(): Promise<void> {
-		assert(
-			!this._isDisposed,
-			'Cannot dispose of already disposed WorkerPool'
-		);
+		assert(!this._isDisposed, 'Cannot dispose of already disposed WorkerPool');
 
 		await Promise.all(this.workers.map((worker) => worker.terminate));
 

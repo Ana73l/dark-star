@@ -1,5 +1,5 @@
 {
-  "name": "@dark-star/core",
-  "private": true,
-  "version": "0.0.1"
+	"name": "@dark-star/core",
+	"description": "",
+	"version": "0.0.1"
 }

@@ -1,17 +1,17 @@
 {
-  "extends": "nx/presets/npm.json",
-  "$schema": "./node_modules/nx/schemas/nx-schema.json",
-  "npmScope": "dark-star",
-  "affected": {
-    "defaultBase": "master"
-  },
-  "tasksRunnerOptions": {
-    "default": {
-      "runner": "@nrwl/nx-cloud",
-      "options": {
-        "cacheableOperations": ["build", "lint", "test", "e2e"],
-        "accessToken": "Mzk5NTcyMDEtMzg5NS00OWNiLTkwZGQtYWVhNGRjNjg4OTE1fHJlYWQtd3JpdGU="
-      }
-    }
-  }
+	"extends": "nx/presets/npm.json",
+	"$schema": "./node_modules/nx/schemas/nx-schema.json",
+	"npmScope": "dark-star",
+	"affected": {
+		"defaultBase": "master"
+	},
+	"tasksRunnerOptions": {
+		"default": {
+			"runner": "@nrwl/nx-cloud",
+			"options": {
+				"cacheableOperations": ["build", "lint", "test", "e2e"],
+				"accessToken": "Mzk5NTcyMDEtMzg5NS00OWNiLTkwZGQtYWVhNGRjNjg4OTE1fHJlYWQtd3JpdGU="
+			}
+		}
+	}
 }

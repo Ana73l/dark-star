@@ -1,34 +1,42 @@
 {
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "packages/schema/src",
-  "projectType": "library",
-  "targets": {
-    "build": {
-      "executor": "@nrwl/js:tsc",
-      "outputs": ["{options.outputPath}"],
-      "options": {
-        "outputPath": "dist/packages/schema",
-        "main": "packages/schema/src/index.ts",
-        "tsConfig": "packages/schema/tsconfig.lib.json",
-        "assets": ["packages/schema/*.md"]
-      }
-    },
-    "lint": {
-      "executor": "@nrwl/linter:eslint",
-      "outputs": ["{options.outputFile}"],
-      "options": {
-        "lintFilePatterns": ["packages/schema/**/*.ts"]
-      }
-    }
-  },
-  "tags": [
-    "schema",
-    "serializable",
-    "shared",
-    "object",
-    "shared-object",
-    "buffer",
-    "sharedarraybuffer",
-    "shared-array-buffer"
-  ]
+	"$schema": "../../node_modules/nx/schemas/project-schema.json",
+	"sourceRoot": "packages/schema/src",
+	"projectType": "library",
+	"targets": {
+		"build": {
+			"executor": "@nrwl/js:tsc",
+			"outputs": ["{options.outputPath}"],
+			"options": {
+				"outputPath": "dist/packages/schema",
+				"main": "packages/schema/src/index.ts",
+				"tsConfig": "packages/schema/tsconfig.lib.json",
+				"assets": ["packages/schema/*.md"]
+			}
+		},
+		"lint": {
+			"executor": "@nrwl/linter:eslint",
+			"outputs": ["{options.outputFile}"],
+			"options": {
+				"lintFilePatterns": ["packages/schema/**/*.ts"]
+			}
+		},
+		"test": {
+			"executor": "@nrwl/jest:jest",
+			"outputs": ["coverage/packages/schema"],
+			"options": {
+				"jestConfig": "packages/schema/jest.config.ts",
+				"passWithNoTests": true
+			}
+		}
+	},
+	"tags": [
+		"schema",
+		"serializable",
+		"shared",
+		"object",
+		"shared-object",
+		"buffer",
+		"sharedarraybuffer",
+		"shared-array-buffer"
+	]
 }

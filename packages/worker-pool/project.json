@@ -1,34 +1,33 @@
 {
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "packages/worker-pool/src",
-  "projectType": "library",
-  "targets": {
-    "build": {
-      "executor": "@nrwl/js:tsc",
-      "outputs": ["{options.outputPath}"],
-      "options": {
-        "outputPath": "dist/packages/worker-pool",
-        "main": "packages/worker-pool/src/index.ts",
-        "tsConfig": "packages/worker-pool/tsconfig.lib.json",
-        "assets": ["packages/worker-pool/*.md"]
-      }
-    },
-    "lint": {
-      "executor": "@nrwl/linter:eslint",
-      "outputs": ["{options.outputFile}"],
-      "options": {
-        "lintFilePatterns": ["packages/worker-pool/**/*.ts"]
-      }
-    }
-  },
-  "tags": [
-    "schema",
-    "serializable",
-    "shared",
-    "object",
-    "shared-object",
-    "buffer",
-    "sharedarraybuffer",
-    "shared-array-buffer"
-  ]
+	"$schema": "../../node_modules/nx/schemas/project-schema.json",
+	"sourceRoot": "packages/worker-pool/src",
+	"projectType": "library",
+	"targets": {
+		"build": {
+			"executor": "@nrwl/js:tsc",
+			"outputs": ["{options.outputPath}"],
+			"options": {
+				"outputPath": "dist/packages/worker-pool",
+				"main": "packages/worker-pool/src/index.ts",
+				"tsConfig": "packages/worker-pool/tsconfig.lib.json",
+				"assets": ["packages/worker-pool/*.md"]
+			}
+		},
+		"lint": {
+			"executor": "@nrwl/linter:eslint",
+			"outputs": ["{options.outputFile}"],
+			"options": {
+				"lintFilePatterns": ["packages/worker-pool/**/*.ts"]
+			}
+		},
+		"test": {
+			"executor": "@nrwl/jest:jest",
+			"outputs": ["coverage/packages/worker-pool"],
+			"options": {
+				"jestConfig": "packages/worker-pool/jest.config.ts",
+				"passWithNoTests": true
+			}
+		}
+	},
+	"tags": ["worker", "pool", "worker-pool", "threads", "multithreading", "multi-threading"]
 }

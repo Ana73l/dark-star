@@ -1,26 +1,12 @@
 import { PrimitiveTypes, Schema, SchemaInstance } from './schema';
-import {
-	$definition,
-	$size,
-	$view,
-	$values,
-	$offset,
-	assignViewToInstance,
-	registerSchema,
-	$id,
-} from './_internals_';
+import { $definition, $size, $view, $values, $offset, assignViewToInstance, registerSchema, $id } from './registry';
 
-export type TypedFieldDecorator<T extends any> = <
-	K extends string,
-	V extends Schema & Record<K, T>
->(
+export type TypedFieldDecorator<T extends any> = <K extends string, V extends Schema & Record<K, T>>(
 	target: SchemaInstance<V>,
 	property: K
 ) => void;
 
-export type TypedFieldDecoratorFactory<T extends any> = (
-	...args: any[]
-) => TypedFieldDecorator<T>;
+export type TypedFieldDecoratorFactory<T extends any> = (...args: any[]) => TypedFieldDecorator<T>;
 
 export const int8 =
 	(): TypedFieldDecorator<number> =>
@@ -114,11 +100,7 @@ export const int16 =
 			},
 			set(value: number) {
 				if (this[$view]) {
-					this[$view].setInt16(
-						this[$offset] + offset,
-						value,
-						littleEndian
-					);
+					this[$view].setInt16(this[$offset] + offset, value, littleEndian);
 				}
 
 				if (this[$values]) {
@@ -149,19 +131,12 @@ export const uint16 =
 			enumerable: true,
 			get() {
 				return this[$view]
-					? this[$view].getUint16(
-							this[$offset] + offset,
-							littleEndian
-					  )
+					? this[$view].getUint16(this[$offset] + offset, littleEndian)
 					: (this[$values] && this[$values][property]) || 0;
 			},
 			set(value: number) {
 				if (this[$view]) {
-					this[$view].setUint16(
-						this[$offset] + offset,
-						value,
-						littleEndian
-					);
+					this[$view].setUint16(this[$offset] + offset, value, littleEndian);
 				}
 
 				if (this[$values]) {
@@ -197,11 +172,7 @@ export const int32 =
 			},
 			set(value: number) {
 				if (this[$view]) {
-					this[$view].setInt32(
-						this[$offset] + offset,
-						value,
-						littleEndian
-					);
+					this[$view].setInt32(this[$offset] + offset, value, littleEndian);
 				}
 
 				if (this[$values]) {
@@ -232,19 +203,12 @@ export const uint32 =
 			enumerable: true,
 			get() {
 				return this[$view]
-					? this[$view].setUint32(
-							this[$offset] + offset,
-							littleEndian
-					  )
+					? this[$view].setUint32(this[$offset] + offset, littleEndian)
 					: (this[$values] && this[$values][property]) || 0;
 			},
 			set(value: number) {
 				if (this[$view]) {
-					this[$view].getUint32(
-						this[$offset] + offset,
-						value,
-						littleEndian
-					);
+					this[$view].getUint32(this[$offset] + offset, value, littleEndian);
 				}
 
 				if (this[$values]) {
@@ -275,19 +239,12 @@ export const float32 =
 			enumerable: true,
 			get() {
 				return this[$view]
-					? this[$view].getFloat32(
-							this[$offset] + offset,
-							littleEndian
-					  )
+					? this[$view].getFloat32(this[$offset] + offset, littleEndian)
 					: (this[$values] && this[$values][property]) || 0;
 			},
 			set(value: number) {
 				if (this[$view]) {
-					this[$view].setFloat32(
-						this[$offset] + offset,
-						value,
-						littleEndian
-					);
+					this[$view].setFloat32(this[$offset] + offset, value, littleEndian);
 				}
 
 				if (this[$values]) {
@@ -318,19 +275,12 @@ export const float64 =
 			enumerable: true,
 			get() {
 				return this[$view]
-					? this[$view].getFloat64(
-							this[$offset] + offset,
-							littleEndian
-					  )
+					? this[$view].getFloat64(this[$offset] + offset, littleEndian)
 					: (this[$values] && this[$values][property]) || 0;
 			},
 			set(value: number) {
 				if (this[$view]) {
-					this[$view].setFloat64(
-						this[$offset] + offset,
-						value,
-						littleEndian
-					);
+					this[$view].setFloat64(this[$offset] + offset, value, littleEndian);
 				}
 
 				if (this[$values]) {
@@ -361,19 +311,12 @@ export const bigInt64 =
 			enumerable: true,
 			get() {
 				return this[$view]
-					? this[$view].getBigInt64(
-							this[$offset] + offset,
-							littleEndian
-					  )
+					? this[$view].getBigInt64(this[$offset] + offset, littleEndian)
 					: (this[$values] && this[$values][property]) || 0;
 			},
 			set(value: number) {
 				if (this[$view]) {
-					this[$view].setBigInt64(
-						this[$offset] + offset,
-						value,
-						littleEndian
-					);
+					this[$view].setBigInt64(this[$offset] + offset, value, littleEndian);
 				}
 
 				if (this[$values]) {
@@ -404,19 +347,12 @@ export const bigUint64 =
 			enumerable: true,
 			get() {
 				return this[$view]
-					? this[$view].getBigUint64(
-							this[$offset] + offset,
-							littleEndian
-					  )
+					? this[$view].getBigUint64(this[$offset] + offset, littleEndian)
 					: (this[$values] && this[$values][property]) || 0;
 			},
 			set(value: number) {
 				if (this[$view]) {
-					this[$view].setBigUint64(
-						this[$offset] + offset,
-						value,
-						littleEndian
-					);
+					this[$view].setBigUint64(this[$offset] + offset, value, littleEndian);
 				}
 
 				if (this[$values]) {
@@ -618,11 +554,7 @@ export const schema =
 				const instance: T = this[$values][property];
 
 				if (this[$view] !== this[$values][property][$view]) {
-					assignViewToInstance(
-						instance,
-						this[$view],
-						this[$offset] + offset
-					);
+					assignViewToInstance(instance, this[$view], this[$offset] + offset);
 				}
 
 				return instance;
@@ -641,9 +573,7 @@ export const schema =
 		ctor[$size] = offset + schemaType[$size]!;
 	};
 
-export const serializable: () => <T extends Schema & (new () => any)>(
-	target: T
-) => T = () => (target) => {
+export const serializable: () => <T extends Schema & (new () => any)>(target: T) => T = () => (target) => {
 	registerSchema(target);
 
 	target.prototype.toJSON = function () {
