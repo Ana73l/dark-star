@@ -1,5 +1,5 @@
 import { createSharedObjectArray } from '@dark-star/schema';
-import { schemas } from '@dark-star/schema/src/_internals_';
+import { schemas } from '@dark-star/schema';
 
 import { ComponentType, ComponentTypeId } from '../component';
 import { World } from '../world/world';

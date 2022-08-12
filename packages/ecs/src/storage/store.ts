@@ -235,6 +235,8 @@ export class EntityStore {
 				return chunk.getComponentArray(componentType)![record.indexInChunk];
 			}
 		}
+
+		return;
 	}
 
 	public attachComponents<T extends ComponentType[]>(
