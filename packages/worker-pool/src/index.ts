@@ -104,6 +104,15 @@ export class WorkerPool implements Disposable {
 	}
 
 	/**
+	 * Creates a new WorkerPool. See {@link WorkerPool}
+	 * @param {WorkerPoolConfig} config
+	 * @returns {WorkerPool}
+	 */
+	public static create(config: WorkerPoolConfig): WorkerPool {
+		return new WorkerPool(config);
+	}
+
+	/**
 	 * Number of workers spawned by the pool
 	 */
 	public get workersCount(): number {
