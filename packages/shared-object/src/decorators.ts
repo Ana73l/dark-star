@@ -1,5 +1,16 @@
-import { PrimitiveTypes, Schema, SchemaInstance } from './schema';
-import { $definition, $size, $view, $values, $offset, assignViewToInstance, registerSchema, $id } from './registry';
+import {
+	PrimitiveTypes,
+	Schema,
+	SchemaInstance,
+	$definition,
+	$size,
+	$view,
+	$values,
+	$offset,
+	assignViewToInstance,
+	registerSchema,
+	$id,
+} from '@dark-star/core';
 
 export type TypedFieldDecorator<T extends any> = <K extends string, V extends Schema & Record<K, T>>(
 	target: SchemaInstance<V>,

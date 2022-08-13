@@ -1,5 +1,5 @@
-import { createSharedObjectArray, SharedObjectArray } from '@dark-star/schema';
-import { $id, $size } from '@dark-star/schema';
+import { createSharedObjectArray, SharedObjectArray } from '@dark-star/shared-object';
+import { $id, $size } from '@dark-star/shared-object';
 
 import { ComponentType, ComponentTypeId } from '../../component';
 import { $entitiesArray, $componentsTable } from './__internals__';

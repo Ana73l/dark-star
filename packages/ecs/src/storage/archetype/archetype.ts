@@ -1,4 +1,4 @@
-import { $id, $size } from '@dark-star/schema';
+import { $id, $size } from '@dark-star/shared-object';
 
 import { ComponentTypeId, ComponentType } from '../../component';
 

@@ -1,19 +1,58 @@
-import { Schema, SchemaInstance } from './schema';
+import { Instance } from '../types';
+import { $definition, $id, $offset, $size, $values, $view } from './symbols';
+
+/**
+ * @hidden
+ * @enum
+ * Field types that can be encoded to a DataView
+ */
+export enum PrimitiveTypes {
+	Int8,
+	Uint8,
+	Int16,
+	Uint16,
+	Int32,
+	Uint32,
+	Float32,
+	Float64,
+	BigInt64,
+	BigUint64,
+	Boolean,
+	String8,
+	String16,
+	Schema,
+}
 
 /** @hidden */
-export const $id = Symbol('dark_star_schema_id');
+export type DefinitionField = {
+	type: PrimitiveTypes;
+	args?: any[];
+};
+
 /** @hidden */
-export const $size = Symbol('dark_star_schema_size');
+export type Definition = { [key: string]: DefinitionField };
+
 /** @hidden */
-export const $definition = Symbol('dark_star_schema_definition');
+export type SchemaId = number;
+
 /** @hidden */
-export const $offset = Symbol('dark_star_offset');
+export type Schema = {
+	[$id]?: number;
+	[$size]?: number;
+	[$definition]?: Definition;
+};
+
 /** @hidden */
-export const $view = Symbol('dark_star_array_view');
-/** @hidden */
-export const $values = Symbol('dark_star_values');
+export type SchemaInstance<T extends any> = Instance<T> & {
+	constructor: Schema;
+	[$offset]?: number;
+	[$view]?: DataView;
+	[$values]?: Partial<SchemaInstance<T>>;
+};
+
 /** @hidden */
 export const schemas: (Schema & (new () => any))[] = [];
+
 /**
  * @hidden
  *

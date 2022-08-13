@@ -1,11 +1,11 @@
 /* eslint-disable */
 export default {
-	displayName: 'schema',
+	displayName: 'shared-object',
 	preset: '../../jest.preset.js',
 	globals: {
 		'ts-jest': {
 			tsconfig: '<rootDir>/tsconfig.spec.json',
 		},
 	},
-	coverageDirectory: '../../coverage/packages/schema',
+	coverageDirectory: '../../coverage/packages/shared-object',
 };

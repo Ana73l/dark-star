@@ -1,4 +1,4 @@
-import { int32 } from '@dark-star/schema';
+import { int32 } from '@dark-star/shared-object';
 import { component, tag } from '../src/component';
 
 describe('component', () => {

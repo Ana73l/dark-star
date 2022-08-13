@@ -25,7 +25,7 @@
 			"@dark-star/di": ["packages/di/src/index.ts"],
 			"@dark-star/ecs": ["packages/ecs/src/index.ts"],
 			"@dark-star/packages/ecs": ["packages/packages/ecs/src/index.ts"],
-			"@dark-star/schema": ["packages/schema/src/index.ts"],
+			"@dark-star/shared-object": ["packages/shared-object/src/index.ts"],
 			"@dark-star/worker-pool": ["packages/worker-pool/src/index.ts"]
 		}
 	},

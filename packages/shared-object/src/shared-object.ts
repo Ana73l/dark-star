@@ -1,5 +1,4 @@
-import { Schema } from './schema';
-import { $offset, $size, $view, assignViewToInstance } from './registry';
+import { Schema, $offset, $size, $view, assignViewToInstance } from '@dark-star/core';
 
 /**
  * Represents an array of schemas. Readonly because buffers have fixed size.

@@ -5,7 +5,7 @@
 		"core": "packages/core",
 		"di": "packages/di",
 		"ecs": "packages/ecs",
-		"schema": "packages/schema",
+		"shared-object": "packages/shared-object",
 		"worker-pool": "packages/worker-pool"
 	}
 }

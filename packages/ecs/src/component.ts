@@ -1,6 +1,6 @@
 import { assert } from '@dark-star/core';
-import { Schema, serializable } from '@dark-star/schema';
-import { $definition, $size } from '@dark-star/schema';
+import { Schema, serializable } from '@dark-star/shared-object';
+import { $definition, $size } from '@dark-star/shared-object';
 
 /** @hidden */
 export type ComponentTypeId = number;

@@ -15,12 +15,9 @@ import {
 	uint32,
 	uint8,
 	TypedFieldDecoratorFactory,
-} from '@dark-star/schema';
+} from '@dark-star/shared-object';
 
-export const fieldDecorators: Record<
-	PrimitiveTypes,
-	TypedFieldDecoratorFactory<any>
-> = {
+export const fieldDecorators: Record<PrimitiveTypes, TypedFieldDecoratorFactory<any>> = {
 	[PrimitiveTypes.Int8]: int8,
 	[PrimitiveTypes.Uint8]: uint8,
 	[PrimitiveTypes.Int16]: int16,

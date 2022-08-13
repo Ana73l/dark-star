@@ -1,5 +1,5 @@
 {
-	"name": "@dark-star/schema",
+	"name": "@dark-star/shared-object",
 	"version": "0.0.1",
 	"dependencies": {
 		"@dark-star/core": "*"
@@ -7,6 +7,6 @@
 	"typedoc": {
 		"entryPoint": "./src/index.ts",
 		"readmeFile": "./README.md",
-		"displayName": "@dark-star/schema"
+		"displayName": "@dark-star/shared-object"
 	}
 }
