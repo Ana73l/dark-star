@@ -52,7 +52,7 @@ const buffer = new ArrayBuffer(100);
 const player = createdSharedObject(Entity, buffer);
 ```
 
-### Array of schemas
+### Array of objects
 
 ```ts
 import {
