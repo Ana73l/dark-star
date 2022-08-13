@@ -9,7 +9,7 @@ A [worker pool](https://en.wikipedia.org/wiki/Thread_pool) for NodeJS and browse
 
 ## Install
 
-    npm install @dark-star/worker-pool
+    npm i @dark-star/worker-pool
 
 ## API
 
