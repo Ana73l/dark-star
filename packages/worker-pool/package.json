@@ -10,6 +10,11 @@
 		"multi-threading"
 	],
 	"scripts": {},
+	"typedoc": {
+		"entryPoint": "./src/index.ts",
+		"readmeFile": "./README.md",
+		"displayName": "@dark-star/worker-pool"
+	},
 	"dependencies": {
 		"web-worker": "^1.2.0",
 		"@dark-star/core": "*"

@@ -23,5 +23,10 @@
 		"@dark-star/di": "*",
 		"@dark-star/schema": "*",
 		"@dark-star/worker-pool": "*"
+	},
+	"typedoc": {
+		"entryPoint": "./src/index.ts",
+		"readmeFile": "./README.md",
+		"displayName": "@dark-star/ecs"
 	}
 }

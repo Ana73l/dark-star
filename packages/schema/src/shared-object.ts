@@ -1,8 +1,18 @@
 import { Schema } from './schema';
 import { $offset, $size, $view, assignViewToInstance } from './registry';
 
+/**
+ * Represents an array of schemas. Readonly because buffers have fixed size.
+ * If array length is reached a new SharedObjectArray should be created to store extra data.
+ */
 export type SharedObjectArray<T extends Schema & (new () => any)> = ReadonlyArray<InstanceType<T>> & {
+	/**
+	 * @hidden
+	 */
 	[$view]: DataView;
+	/**
+	 * @hidden
+	 */
 	[$offset]: number;
 };
 

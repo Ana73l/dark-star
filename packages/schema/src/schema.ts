@@ -2,6 +2,11 @@ import { Instance } from '@dark-star/core';
 
 import { $definition, $id, $offset, $size, $values, $view } from './registry';
 
+/**
+ * @hidden
+ * @enum
+ * Field types that can be encoded to a DataView
+ */
 export enum PrimitiveTypes {
 	Int8,
 	Uint8,
@@ -19,21 +24,26 @@ export enum PrimitiveTypes {
 	Schema,
 }
 
+/** @hidden */
 export type DefinitionField = {
 	type: PrimitiveTypes;
 	args?: any[];
 };
 
+/** @hidden */
 export type Definition = { [key: string]: DefinitionField };
 
+/** @hidden */
 export type SchemaId = number;
 
+/** @hidden */
 export type Schema = {
 	[$id]?: number;
 	[$size]?: number;
 	[$definition]?: Definition;
 };
 
+/** @hidden */
 export type SchemaInstance<T extends any> = Instance<T> & {
 	constructor: Schema;
 	[$offset]?: number;

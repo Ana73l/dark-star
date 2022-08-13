@@ -22,6 +22,10 @@ export type WorldParams = {
 	threads: number;
 };
 
+/**
+ * @hidden
+ * Concrete implementation of {@link World}
+ */
 export class ECSWorld implements World {
 	private store!: EntityStore;
 	private deferredCommands!: DeferredCommandsProcessor;

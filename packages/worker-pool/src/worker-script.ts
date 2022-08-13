@@ -1,3 +1,7 @@
+/**
+ * @hidden
+ * Worker base allowing handling of tasks
+ */
 function main() {
 	addEventListener('message', (event: any) => {
 		const response: { id?: number; result?: any; error?: any } = {
