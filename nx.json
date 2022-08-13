@@ -13,5 +13,9 @@
 				"accessToken": "Mzk5NTcyMDEtMzg5NS00OWNiLTkwZGQtYWVhNGRjNjg4OTE1fHJlYWQtd3JpdGU="
 			}
 		}
+	},
+	"workspaceLayout": {
+		"libsDir": "packages",
+		"appsDir": "examples"
 	}
 }
