@@ -1,5 +1,5 @@
 {
 	"name": "@dark-star/core",
-	"description": "",
+	"description": "Set of utilities to be shared across @dark-star packages",
 	"version": "0.0.1"
 }
