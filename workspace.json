@@ -4,8 +4,8 @@
 	"projects": {
 		"core": "packages/core",
 		"di": "packages/di",
+		"ecs": "packages/ecs",
 		"schema": "packages/schema",
-		"worker-pool": "packages/worker-pool",
-		"ecs": "packages/ecs"
+		"worker-pool": "packages/worker-pool"
 	}
 }

@@ -11,6 +11,7 @@
 	"repository": "https://git@github.com/ana73l/dark-star",
 	"private": true,
 	"devDependencies": {
+		"@babel/plugin-syntax-flow": "^7.18.6",
 		"@nrwl/cli": "14.5.4",
 		"@nrwl/cypress": "14.5.4",
 		"@nrwl/eslint-plugin-nx": "14.5.4",
@@ -48,7 +49,7 @@
 		"typescript": "~4.7.2"
 	},
 	"workspaces": [
-		"examples/*",
+		"examples/**",
 		"packages/**"
 	],
 	"dependencies": {

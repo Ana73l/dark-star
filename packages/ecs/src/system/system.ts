@@ -5,28 +5,14 @@ import { ComponentTypesQuery } from '../query';
 import { JobHandle } from '../threads';
 import { WorldUpdateVersion } from '../world';
 
-import {
-	$planner,
-	$queries,
-	Planner,
-	System as ISystem,
-} from './planning/__internals__';
+import { $planner, $queries, Planner, System as ISystem } from './planning/__internals__';
 import { SystemLambdaFactory } from './system-job-factory';
 
-export type SystemType<T extends System = System> = (new (
-	...args: any[]
-) => T) & {
+export type SystemType<T extends System = System> = (new (...args: any[]) => T) & {
 	updateBefore?: SystemType;
 	updateAfter?: SystemType;
 	updateInGroup?: SystemType<SystemGroup>;
-	queryFields?: Record<
-		string,
-		[
-			all: ComponentTypesQuery,
-			some?: ComponentTypesQuery,
-			none?: ComponentType[]
-		]
-	>;
+	queryFields?: Record<string, [all: ComponentTypesQuery, some?: ComponentTypesQuery, none?: ComponentType[]]>;
 };
 
 export abstract class System implements ISystem {
@@ -76,11 +62,7 @@ export abstract class System implements ISystem {
 			`Error registering query in system ${this.constructor.name}: cannot register query after system initialization`
 		);
 
-		const factory = this[$planner]!.registerSystemQuery(this)<
-			TAll,
-			TSome,
-			TNone
-		>(all, some, none);
+		const factory = this[$planner]!.registerSystemQuery(this)<TAll, TSome, TNone>(all, some, none);
 
 		this[$queries].push(factory);
 
@@ -88,7 +70,7 @@ export abstract class System implements ISystem {
 	}
 
 	[$planner]: Planner | undefined;
-	[$queries]: SystemLambdaFactory<any, any>[] = [];
+	[$queries]: SystemLambdaFactory<ComponentType[], ComponentType[], ComponentType[]>[] = [];
 }
 
 export abstract class SystemGroup extends System {

@@ -1,6 +1,6 @@
 import { ComponentType } from '../component';
 import { Entity } from '../entity';
-import { ComponentTypesQuery, ComponentInstancesFromTypes } from '../query';
+import { ComponentTypesQuery, ComponentInstancesFromTypes, ComponentInstancesFromQuery } from '../query';
 
 export enum EntityLambdaTypes {
 	Each,
@@ -8,27 +8,19 @@ export enum EntityLambdaTypes {
 }
 
 export type EntityEachLambda<
-	T extends ComponentTypesQuery,
-	TAll extends ComponentTypesQuery,
-	TSome extends ComponentTypesQuery = [],
-	TNone extends ComponentType[] = []
+	T,
+	TAll,
+	TSome,
+	TNone
 	// @ts-ignore
-> = (...components: ComponentInstancesFromTypes<T, TAll, TSome, TNone>) => void;
+> = (...components: ComponentInstancesFromQuery<T, TAll, TSome, TNone>) => void;
 
-export type EntityEachLambdaWithEntities<
-	T extends ComponentTypesQuery,
-	TAll extends ComponentTypesQuery,
-	TSome extends ComponentTypesQuery = [],
-	TNone extends ComponentType[] = []
-> = (
+export type EntityEachLambdaWithEntities<T, TAll, TSome, TNone> = (
 	entity: Entity,
 	// @ts-ignore
-	...components: ComponentInstancesFromTypes<T, TAll, TSome, TNone>
+	...components: ComponentInstancesFromQuery<T, TAll, TSome, TNone>
 ) => void;
 
-export type EntityLambda<
-	T extends ComponentTypesQuery,
-	TAll extends ComponentTypesQuery,
-	TSome extends ComponentTypesQuery = [],
-	TNone extends ComponentType[] = []
-> = EntityEachLambda<T, TAll, TSome, TNone> | EntityEachLambdaWithEntities<T, TAll, TSome, TNone>;
+export type EntityLambda<T, TAll, TSome, TNone> =
+	| EntityEachLambda<T, TAll, TSome, TNone>
+	| EntityEachLambdaWithEntities<T, TAll, TSome, TNone>;
