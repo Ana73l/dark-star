@@ -1,6 +1,5 @@
-import { Disposable, assert, createUIDGenerator } from '@dark-star/core';
+import { Disposable, assert, createUIDGenerator, $id, $view } from '@dark-star/core';
 import { TaskRunner, WorkerPool } from '@dark-star/worker-pool';
-import { $id, $view } from '@dark-star/shared-object';
 
 import { ComponentType, ComponentTypeId } from '../component';
 import {

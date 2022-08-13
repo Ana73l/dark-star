@@ -1,5 +1,5 @@
+import { PrimitiveTypes } from '@dark-star/core';
 import {
-	PrimitiveTypes,
 	bigInt64,
 	bigUint64,
 	bool,

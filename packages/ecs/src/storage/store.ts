@@ -1,5 +1,4 @@
-import { assert, createUIDGenerator, UINT32_MAX } from '@dark-star/core';
-import { $definition, $id, $size } from '@dark-star/shared-object';
+import { $definition, $id, $size, assert, createUIDGenerator, UINT32_MAX } from '@dark-star/core';
 
 import { Archetype, EntityType } from './archetype/archetype';
 

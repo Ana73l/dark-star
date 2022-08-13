@@ -21,7 +21,7 @@
 	"dependencies": {
 		"@dark-star/core": "*",
 		"@dark-star/di": "*",
-		"@dark-star/schema": "*",
+		"@dark-star/shared-object": "*",
 		"@dark-star/worker-pool": "*"
 	},
 	"typedoc": {

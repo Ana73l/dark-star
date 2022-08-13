@@ -1,5 +1,5 @@
-import { PrimitiveTypes, serializable } from '@dark-star/shared-object';
-import { $definition, schemas } from '@dark-star/shared-object';
+import { $definition, schemas, PrimitiveTypes } from '@dark-star/core';
+import { serializable } from '@dark-star/shared-object';
 
 import { registry_1 } from './registry_1';
 import { fieldDecorators } from './field-decorators';
