@@ -4,8 +4,10 @@ import { ComponentType } from '../component';
 import { Entity } from '../entity';
 import { ComponentInstancesFromTypes, OptionalComponentPartialsFromTypes } from '../query';
 
+/** @hidden Current world version. Used to track for changes. */
 export type WorldUpdateVersion = number;
 
+/** */
 export abstract class World implements Disposable {
 	abstract readonly version: WorldUpdateVersion;
 	abstract readonly isDisposed: boolean;

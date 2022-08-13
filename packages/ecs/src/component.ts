@@ -13,18 +13,42 @@ export type Tag<T extends any = any> = {
 };
 
 /**
- * @category Component
- * Decorator. Designates the target class as a component. Component constructors cannot accept arguments.
+ * Decorator. Designates the target class as a component.
+ *
+ * @remarks
+ * Component constructors cannot accept arguments.
  *
  * @returns The target component constructor
+ *
+ * @example
+ * ```ts
+ * @component()
+ * class Position {
+ * 	@float64()
+ *	x: number = 0;
+ *
+ * 	@float64()
+ *	y: number = 0;
+ *
+ *	@float64()
+ *	z: number = 0;
+ * }
+ * ```
  */
 export const component: <T extends ComponentType>() => (target: T) => T = () => serializable();
 
 /**
- * @category Component
- * Decorator. Designates the target class as a tag. Tag constructors cannot accept arguments and tag prototypes cannot have properties.
+ * Decorator. Designates the target class as a tag.
+ *
+ * @remarks
+ * Tag constructors cannot accept arguments and tag prototypes cannot have properties.
  *
  * @returns The target tag constructor
+ *
+ * ```ts
+ * @tag()
+ * class Active {}
+ * ```
  */
 export const tag: <T extends ComponentType<Tag>>() => (target: T) => T =
 	() =>

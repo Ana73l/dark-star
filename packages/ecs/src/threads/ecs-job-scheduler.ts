@@ -1,5 +1,5 @@
 import { Disposable, assert, createUIDGenerator } from '@dark-star/core';
-import { Task, WorkerPool } from '@dark-star/worker-pool';
+import { TaskRunner, WorkerPool } from '@dark-star/worker-pool';
 import { $id, $view } from '@dark-star/schema';
 
 import { ComponentType, ComponentTypeId } from '../component';
@@ -21,7 +21,7 @@ import {
 } from './worker-world';
 import { DeferredCommandsProcessor } from '../storage/deferred-commands-processor';
 
-type ECSTask = Task<any, any>;
+type ECSTask = TaskRunner<any, any>;
 
 export interface ECSJob<
 	T extends ComponentTypesQuery,
@@ -36,8 +36,8 @@ export interface ECSJob<
 	withChanges: boolean;
 }
 
-type EntityEachRunner = Task<EntityEachLambdaWorkerParams, EnqueuedWorkerWorldCommands>;
-type EntityEachWithEntitiesRunner = Task<EntityEachWithEntitiesLambdaWorkerParams, EnqueuedWorkerWorldCommands>;
+type EntityEachRunner = TaskRunner<EntityEachLambdaWorkerParams, EnqueuedWorkerWorldCommands>;
+type EntityEachWithEntitiesRunner = TaskRunner<EntityEachWithEntitiesLambdaWorkerParams, EnqueuedWorkerWorldCommands>;
 
 export class ECSJobScheduler implements Disposable {
 	private readers: Map<ComponentTypeId, Set<JobId>> = new Map();

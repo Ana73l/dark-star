@@ -4,7 +4,7 @@ import { Disposable, assert } from '@dark-star/core';
 import { WORKER_SCRIPT } from './worker-script';
 
 /** Configuration object used to create a new WorkerPool */
-export type WorkerPoolOpts = {
+export type WorkerPoolConfig = {
 	/** Number of worker threads to be spawned by the pool */
 	threads: number;
 	/**
@@ -16,16 +16,22 @@ export type WorkerPoolOpts = {
 	 * const workerScript = `
 	 * const add = (a, b) => a + b;
 	 * const mul = (a, b) => a * b;
-	 *
-	 * const workerPoolOpts: WorkerPoolOpts = {
-	 *     threads: 4,
-	 * 	   workerScript
-	 * }
 	 * `;
+	 *
+	 * const config: WorkerPoolConfig = {
+	 *	threads: 4,
+	 *	workerScript
+	 * };
 	 * ```
 	 */
 	workerScript?: string;
 };
+
+/**
+ * @callback executable
+ * @param {any} data - Input object
+ * @returns The result of the callback being called on the input object
+ */
 
 /**
  * A runnable task
@@ -33,7 +39,7 @@ export type WorkerPoolOpts = {
  * @typeParam TData - Type of input object that will be passed to a worker thread
  * @typeParam TResult - Type of returned object from the worker thread
  */
-export type Task<TData, TResult> = {
+export type TaskRunner<TData, TResult> = {
 	/**
 	 * Run an instance of the task parallel to other tasks
 	 *
@@ -57,7 +63,6 @@ type WorkerTaskResponse = {
  * @constant
  * Indicates whether current environment is node
  */
-
 // @ts-ignore
 export const isNode: boolean = typeof process === 'object';
 
@@ -76,7 +81,7 @@ export class WorkerPool implements Disposable {
 	/**
 	 * Used to create a new WorkerPool
 	 */
-	constructor({ threads, workerScript = '' }: WorkerPoolOpts) {
+	constructor({ threads, workerScript = '' }: WorkerPoolConfig) {
 		assert(
 			threads > 0,
 			`Cannot construct ${this.constructor.name}: number of workers cannot be less than one (passed ${threads})`
@@ -113,12 +118,6 @@ export class WorkerPool implements Disposable {
 	}
 
 	/**
-	 * @callback executable
-	 * @param {any} data - Input object
-	 * @returns The result of the callback being called on the input object
-	 */
-
-	/**
 	 * Create a task factory.
 	 * Tasks scheduled from a single factory are unique independent instance and thus can be scheduled multiple times.
 	 *
@@ -126,9 +125,26 @@ export class WorkerPool implements Disposable {
 	 * @typeParam TResult - Type of object the executable callback returns
 	 *
 	 * @param {executable} executable - The function that will be called on a worker thread
-	 * @returns {Task} - Task factory that will be used to schedule tasks using a common callback
+	 * @returns {TaskRunner<TData, TResult>} - Task factory that will be used to schedule tasks using a common callback
+	 *
+	 * ```ts
+	 * // recursive inefficient implementation
+	 * function fibonacci(input: number): number {
+	 * 	return input < 2 ? input : fibonacci(input - 2) + fibonacci(input - 1);
+	 * }
+	 *
+	 * const pool = new WorkerPool({ threads: 3 });
+	 * const runFibonacci = workerPool.createTask(fibonacci);
+	 * `;
+	 * ```
 	 */
-	public createTask = <TData, TResult>(executable: (data: TData) => TResult): Task<TData, TResult> => {
+	public createTask = <TData, TResult>(executable: (data: TData) => TResult): TaskRunner<TData, TResult> => {
+		/**
+		 * ```ts
+		 * // tasks will be executed in parallel on different threads
+		 * const results = await Promise.all([runFibonacci(3), [runFibonacci(9), [runFibonacci(6)]);
+		 * ```
+		 */
 		return {
 			run: (data: TData): Promise<TResult> => {
 				const taskId = this.taskIdCounter++;
@@ -150,7 +166,7 @@ export class WorkerPool implements Disposable {
 
 	/**
 	 * Terminate the worker threads spawned by the pool and clear its structures
-	 *
+	 * @throws Will throw an error if WorkerPool instance has already been disposed of
 	 * @returns {Promise<void>}
 	 */
 	public async dispose(): Promise<void> {

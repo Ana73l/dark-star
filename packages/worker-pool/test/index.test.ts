@@ -12,7 +12,7 @@ describe('worker-pool', () => {
 
 	it('Does not allow less than 1 thread', () => {
 		expect(() => new WorkerPool({ threads: 0 })).toThrow(
-			'Cannot construct WorkerPool: number of workers cannot be less than one (passed 0)'
+			`Cannot construct ${WorkerPool.name}: number of workers cannot be less than one (passed 0)`
 		);
 	});
 
