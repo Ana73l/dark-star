@@ -1,5 +1,5 @@
-import { $definition, $id, $size, schemas } from '../src/registry';
-import { serializable, int8, float64, int16, int32, string16, Schema, schema, PrimitiveTypes } from '../src/index';
+import { $definition, $id, $size, Schema, PrimitiveTypes, schemas } from '@dark-star/core';
+import { serializable, int8, float64, int16, int32, string16, schema } from '../src/index';
 
 describe('decorators', () => {
 	const oldSchemasSize = schemas.length;
