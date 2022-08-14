@@ -67,6 +67,12 @@ type WorkerTaskResponse = {
 export const isNode: boolean = typeof process === 'object';
 
 /**
+ * @constant
+ * Number of CPU cores
+ */
+export const coresCount: number = isNode ? require('os').cpus().length : navigator.hardwareConcurrency;
+
+/**
  * A worker pool used to create task, schedulable on multiple threads
  */
 export class WorkerPool implements Disposable {
