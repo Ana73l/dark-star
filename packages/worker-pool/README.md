@@ -76,3 +76,7 @@ Promise
         ...
     })
 ```
+
+## Docs
+
+API documentation can be found [here](https://ana73l.github.io/dark-star/modules/_dark_star_worker_pool)

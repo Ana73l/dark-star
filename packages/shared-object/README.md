@@ -21,7 +21,7 @@ import {
 	int8,
 	float64,
 	schema,
-	createdSharedObject,
+	createSharedObject,
 } from '@dark-star/shared-object';
 
 @serializable()
@@ -49,7 +49,7 @@ class Entity {
 }
 
 const buffer = new ArrayBuffer(100);
-const player = createdSharedObject(Entity, buffer);
+const player = createSharedObject(Entity, buffer);
 ```
 
 ### Array of objects
@@ -80,3 +80,7 @@ const vectors = createSharedObjectArray(Vector3, buffer, {
 	length: 100,
 });
 ```
+
+## Docs
+
+API documentation can be found [here](https://ana73l.github.io/dark-star/modules/_dark_star_shared_object)
