@@ -70,6 +70,7 @@ export const isNode: boolean = typeof process === 'object';
  * @constant
  * Number of CPU cores
  */
+// @ts-ignore
 export const coresCount: number = isNode ? require('os').cpus().length : navigator.hardwareConcurrency;
 
 /**
