@@ -2,17 +2,15 @@ import { InjectableIdentifier, InjectableData, Container } from './types';
 import { ScopeType } from './scopeType';
 import { RegistrationType } from './registration-type';
 
+/**
+ * @hidden
+ * Implementation of the {@link Container} interface
+ */
 export class DSContainer implements Container {
-	private readonly singletons = new Map<
-		InjectableIdentifier<unknown>,
-		unknown
-	>();
+	private readonly singletons = new Map<InjectableIdentifier<unknown>, unknown>();
 
 	public constructor(
-		private readonly injectables: ReadonlyMap<
-			InjectableIdentifier<unknown>,
-			InjectableData<unknown>
-		>
+		private readonly injectables: ReadonlyMap<InjectableIdentifier<unknown>, InjectableData<unknown>>
 	) {}
 
 	public get<T>(identifier: InjectableIdentifier<T>): T {
@@ -23,10 +21,7 @@ export class DSContainer implements Container {
 		const data = this.findInjectableDataOrThrow(identifier);
 
 		// if scope is singleton and is already registered
-		if (
-			data.scope === ScopeType.Singleton &&
-			this.singletons.has(identifier)
-		) {
+		if (data.scope === ScopeType.Singleton && this.singletons.has(identifier)) {
 			return this.singletons.get(identifier) as T;
 		}
 
@@ -50,9 +45,7 @@ export class DSContainer implements Container {
 		return instance;
 	}
 
-	private findInjectableDataOrThrow<T>(
-		identifier: InjectableIdentifier<T>
-	): InjectableData<T> {
+	private findInjectableDataOrThrow<T>(identifier: InjectableIdentifier<T>): InjectableData<T> {
 		const injectable = this.injectables.get(identifier);
 
 		if (!injectable) {

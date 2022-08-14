@@ -8,6 +8,11 @@
 		"container",
 		"dependency-injection"
 	],
+	"typedoc": {
+		"entryPoint": "./src/index.ts",
+		"readmeFile": "./README.md",
+		"displayName": "@dark-star/di"
+	},
 	"dependencies": {
 		"reflect-metadata": "^0.1.13",
 		"@dark-star/core": "*"

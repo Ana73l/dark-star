@@ -1,47 +1,36 @@
 import { ClassType, Instance } from '@dark-star/core';
 
-import {
-	InjectableIdentifier,
-	Factory,
-	InjectableData,
-	Container,
-} from './types';
-import { DSContainer } from './container';
+import { InjectableIdentifier, Factory, InjectableData, Container } from './types';
+import { DSContainer } from './ds-container';
 import { ScopeType } from './scopeType';
 import { RegistrationType } from './registration-type';
 
 import { getConstructorDependencies } from './utils/dependency';
 
-export interface ContainerBuilder {
-	registerTransient<T>(constructor: ClassType<T>): ContainerBuilder;
-	registerTransient<T>(
-		identifier: InjectableIdentifier<T>,
-		constructor: ClassType<T> | Factory<T>
-	): ContainerBuilder;
+/**
+ * Class that builds a {@link Container}.
+ * Provides methods for registering injectable classes, factories and instances to the container.
+ */
+export class ContainerBuilder {
+	private readonly injectables: Map<InjectableIdentifier<unknown>, InjectableData<unknown>> = new Map();
 
-	registerSingleton<T>(constructor: ClassType<T>): ContainerBuilder;
-	registerSingleton<T>(
-		identifier: InjectableIdentifier<T>,
-		constructor: ClassType<T> | Factory<T>
-	): ContainerBuilder;
-	registerSingleton<T>(
-		identifier: InjectableIdentifier<T>,
-		instance: Instance<T>
-	): ContainerBuilder;
-
-	build(): Container;
-}
-
-export class DSContainerBuilder implements ContainerBuilder {
-	private readonly injectables: Map<
-		InjectableIdentifier<unknown>,
-		InjectableData<unknown>
-	> = new Map();
-
+	/**
+	 * Registers a transient provider in the container.
+	 * The container will inject a new instance of the provider in each dependee.
+	 *
+	 * @typeParam T - Type of the object created by the factory/ constructor
+	 * @param {InjectableIdentifier<T>} identifier - Class whose prototype matches T
+	 * @param {ClassType<T> | Factory<T>} constructor - Class or function that creates an object matching T
+	 * @returns {ContainerBuilder}
+	 *
+	 * @remarks
+	 * Instances cannot be passed to registerTransient since they are singletons in the container.
+	 * To pass instances use {@link ContainerBuilder.registerSingleton}.
+	 */
 	public registerTransient<T>(
 		identifier: InjectableIdentifier<T>,
 		constructor?: ClassType<T> | Factory<T>
-	): DSContainerBuilder {
+	): ContainerBuilder {
 		const scope = ScopeType.Transient;
 
 		if (constructor?.prototype?.constructor) {
@@ -70,23 +59,26 @@ export class DSContainerBuilder implements ContainerBuilder {
 		return this;
 	}
 
+	/**
+	 * Registers a singleton provider in the container.
+	 * The container will hold and inject a single instance of the provider in each dependee.
+	 *
+	 * @typeParam T - Type of the object created by the factory/ constructor
+	 * @param {InjectableIdentifier<T>} identifier - Class whose prototype matches T
+	 * @param {ClassType<T> | Factory<T> | Instance<T>} constructor - Class or function that creates an object matching T
+	 * @returns {ContainerBuilder}
+	 */
 	public registerSingleton<T>(
 		identifier: InjectableIdentifier<T>,
 		constructor?: ClassType<T> | Factory<T> | Instance<T>
-	): DSContainerBuilder {
+	): ContainerBuilder {
 		const scope = ScopeType.Singleton;
 
-		if (
-			constructor &&
-			(constructor as any).prototype &&
-			(constructor as any).prototype.constructor
-		) {
+		if (constructor && (constructor as any).prototype && (constructor as any).prototype.constructor) {
 			this.injectables.set(identifier, {
 				scope,
 				type: RegistrationType.Class,
-				dependencies: getConstructorDependencies(
-					constructor as ClassType<T>
-				),
+				dependencies: getConstructorDependencies(constructor as ClassType<T>),
 				class: constructor as ClassType<T>,
 			});
 		} else if (typeof constructor === 'function') {
@@ -115,6 +107,11 @@ export class DSContainerBuilder implements ContainerBuilder {
 		return this;
 	}
 
+	/**
+	 * Creates a container from which instances of the providers can be retrieved
+	 *
+	 * @returns {Container}
+	 */
 	public build(): Container {
 		return new DSContainer(this.injectables);
 	}

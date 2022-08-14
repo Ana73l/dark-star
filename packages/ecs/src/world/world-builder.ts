@@ -1,10 +1,5 @@
 import { ClassType, Instance } from '@dark-star/core';
-import {
-	Factory,
-	InjectableIdentifier,
-	DSContainerBuilder,
-	ContainerBuilder,
-} from '@dark-star/di';
+import { Factory, InjectableIdentifier, ContainerBuilder as DSContainerBuilder, ContainerBuilder } from '@dark-star/di';
 
 import { SystemType } from '../system';
 
@@ -15,9 +10,7 @@ export class WorldBuilder {
 	private systems: SystemType[] = [];
 	private threads: number = 0;
 
-	constructor(
-		private containerBuilder: ContainerBuilder = new DSContainerBuilder()
-	) {}
+	constructor(private containerBuilder: ContainerBuilder = new DSContainerBuilder()) {}
 
 	public useThreads(threadsCount: number = 1): WorldBuilder {
 		this.threads = threadsCount;

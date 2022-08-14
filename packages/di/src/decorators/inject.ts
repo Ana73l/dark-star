@@ -1,1 +1,2 @@
-export const inject = () => {};
+/** @hidden */
+export const inject = () => () => {};
