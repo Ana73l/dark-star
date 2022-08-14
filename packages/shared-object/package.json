@@ -1,6 +1,8 @@
 {
 	"name": "@dark-star/shared-object",
 	"version": "0.0.1",
+	"description": "Utility providing abstraction over (de)serializing complex structures to ArrayBuffers.",
+	"repository": "https://github.com/Ana73l/dark-star.git",
 	"dependencies": {
 		"@dark-star/core": "*"
 	},

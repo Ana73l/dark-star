@@ -1,6 +1,8 @@
 {
 	"name": "@dark-star/worker-pool",
 	"version": "0.0.1",
+	"description": "A worker pool for NodeJS and browsers.",
+	"repository": "https://github.com/Ana73l/dark-star.git",
 	"keywords": [
 		"worker",
 		"pool",
