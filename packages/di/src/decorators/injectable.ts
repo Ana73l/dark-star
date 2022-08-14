@@ -1,6 +1,15 @@
 /**
  * Class decorator marking a target as injectable.
  * Allows the target to be injected and to be injected to.
+ *
+ * @returns {ClassDecorator}
+ *
+ * ```ts
+ * @injectable()
+ * class UserService {
+ * 	// ...
+ * }
+ * ```
  */
 export const injectable: () => ClassDecorator =
 	() =>
