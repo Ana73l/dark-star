@@ -23,6 +23,7 @@ export class ContainerBuilder {
 	 * @param {ClassType | Factory} constructor - Class or function that creates an object matching T
 	 * @returns {ContainerBuilder}
 	 *
+	 * @example
 	 * ```ts
 	 * // using 'interface' and factory
 	 * abstract class ILogger {
@@ -106,6 +107,7 @@ export class ContainerBuilder {
 	 * @param {ClassType | Factory | Instance} constructor - Class or function that creates an object matching T
 	 * @returns {ContainerBuilder}
 	 *
+	 * @example
 	 * ```ts
 	 * // using 'interface' and instance
 	 * abstract class IModels {

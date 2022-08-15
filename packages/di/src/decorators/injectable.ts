@@ -4,6 +4,7 @@
  *
  * @returns {ClassDecorator}
  *
+ * @example
  * ```ts
  * @injectable()
  * class UserService {

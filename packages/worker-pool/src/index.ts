@@ -12,6 +12,8 @@ export type WorkerPoolConfig = {
 	 *
 	 * Use this property to set up initial worker global scope.
 	 * Functions and classes defined in this string will be available to be called from tasks.
+	 *
+	 * @example
 	 * ```ts
 	 * const workerScript = `
 	 * const add = (a, b) => a + b;
@@ -143,6 +145,7 @@ export class WorkerPool implements Disposable {
 	 * @param {executable} executable - The function that will be called on a worker thread
 	 * @returns {TaskRunner<TData, TResult>} - Task factory that will be used to schedule tasks using a common callback
 	 *
+	 * @example
 	 * ```ts
 	 * // recursive inefficient implementation
 	 * function fibonacci(input: number): number {
@@ -156,6 +159,7 @@ export class WorkerPool implements Disposable {
 	 */
 	public createTask = <TData, TResult>(executable: (data: TData) => TResult): TaskRunner<TData, TResult> => {
 		/**
+		 * @example
 		 * ```ts
 		 * // tasks will be executed in parallel on different threads
 		 * const results = await Promise.all([runFibonacci(3), [runFibonacci(9), [runFibonacci(6)]);
