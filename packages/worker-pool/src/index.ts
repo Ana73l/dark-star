@@ -44,9 +44,15 @@ export type WorkerPoolConfig = {
 export type TaskRunner<TData, TResult> = {
 	/**
 	 * Run an instance of the task parallel to other tasks
-	 *
+	 * @example
+	 * ```ts
+	 * // tasks will be executed in parallel on different threads
+	 * const results = await Promise.all([runFibonacci(3), [runFibonacci(9), [runFibonacci(6)]);
+	 * ```
 	 * @param {TData} data - The input object for the callback function
 	 * @returns {TResult} - The result of the callback function
+	 *
+	 *
 	 */
 	run(data: TData): Promise<TResult>;
 };
@@ -184,13 +190,6 @@ export class WorkerPool implements Disposable {
 	 * ```
 	 */
 	public createTask = <TData, TResult>(executable: (data: TData) => TResult): TaskRunner<TData, TResult> => {
-		/**
-		 * @example
-		 * ```ts
-		 * // tasks will be executed in parallel on different threads
-		 * const results = await Promise.all([runFibonacci(3), [runFibonacci(9), [runFibonacci(6)]);
-		 * ```
-		 */
 		return {
 			run: (data: TData): Promise<TResult> => {
 				const taskId = this.taskIdCounter++;

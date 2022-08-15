@@ -4,8 +4,8 @@
 	"license": "MIT",
 	"author": "Bozhidar Dimitrov",
 	"scripts": {
-		"test": "nx run-many --target=test",
-		"build": "nx run-many --target=build",
+		"test": "nx affected --target=test",
+		"build": "nx affected --target=build",
 		"build:doc": "typedoc --out docs --entryPointStrategy packages ."
 	},
 	"repository": "https://git@github.com/ana73l/dark-star",
