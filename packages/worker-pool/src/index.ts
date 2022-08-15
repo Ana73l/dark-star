@@ -218,7 +218,7 @@ export class WorkerPool implements Disposable {
 	 * ```ts
 	 * const pool = WorkerPool.create({ threads: 4});
 	 *
-	 * const shutdown = async () {
+	 * const shutdown = async () => {
 	 * 	await pool.dispose();
 	 * }
 	 * ```
