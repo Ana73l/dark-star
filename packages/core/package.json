@@ -1,5 +1,10 @@
 {
 	"name": "@dark-star/core",
 	"description": "Set of utilities to be shared across @dark-star packages",
-	"version": "0.0.1"
+	"version": "0.0.1",
+	"typedoc": {
+		"entryPoint": "./src/index.ts",
+		"readmeFile": "./README.md",
+		"displayName": "@dark-star/core"
+	}
 }

@@ -1,7 +1,12 @@
-# core
+# @dark-star/core
 
-This library was generated with [Nx](https://nx.dev).
+Set of utilities shared across @dark-star packages.
 
-## Running lint
+Includes:
 
-Run `nx lint core` to execute the lint via [ESLint](https://eslint.org/).
+-   Utility types and definitions
+-   Utils/ helpers shared between @dark-star packages
+
+This package should not be consumed directly as its API is constantly subject to change. Consume directly at your own risk.
+
+More information can be found [here](https://ana73l.github.io/dark-star/modules/_dark_star_core)
