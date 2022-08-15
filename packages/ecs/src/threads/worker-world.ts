@@ -32,8 +32,6 @@ export class WorkerWorld implements Pick<World, 'spawn' | 'attach' | 'detach' | 
 	private detachComponentsCommands: DetachComponentsCommand[] = [];
 	private destroyEntityCommands: DestroyEntityCommand[] = [];
 
-	constructor(private isThreaded: boolean = true) {}
-
 	public spawn(): void;
 	public spawn<T extends ComponentType<any>[]>(componentTypes?: T): void;
 	public spawn<T extends ComponentType<any>[]>(

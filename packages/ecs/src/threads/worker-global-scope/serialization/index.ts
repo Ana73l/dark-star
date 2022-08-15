@@ -1,31 +1,18 @@
 import { $definition, schemas, PrimitiveTypes } from '@dark-star/core';
 import { serializable } from '@dark-star/shared-object';
 
-import { registry_1 } from './registry_1';
+import { core_1 } from './core_1';
 import { fieldDecorators } from './field-decorators';
-import { serialization_1 } from './serialization_1';
+import { shared_object_1 } from './shared_object_1';
 
 const seedSerialization = (): string => `
-const registry_1 = ${registry_1};
-
-const PrimitiveTypes = ((PrimitiveTypes) => {
-    ${Object.entries(PrimitiveTypes)
-		.map(([name, value]) =>
-			typeof name === 'string' && typeof value === 'number'
-				? `PrimitiveTypes[PrimitiveTypes["${name}"] = ${value}] = "${name}";`
-				: typeof name === 'number' && typeof value === 'string'
-				? `PrimitiveTypes[PrimitiveTypes[${value}] = "${name}"] = ${value};`
-				: ''
-		)
-		.filter((e) => e !== '').join(`
-        `)}
-})({});
-
-const schema_1 = { PrimitiveTypes };
+const core_1 = ${core_1};
 
 const schemas = [];
 
 const serializable = ${serializable.toString()};
+
+const shared_object_1 = ${shared_object_1};
 
 const fieldDecorators = {
     ${Object.entries(fieldDecorators).map(
@@ -33,8 +20,6 @@ const fieldDecorators = {
 	).join(`,
     `)}
 };
-
-const serialization_1 = ${serialization_1};
 `;
 
 export const createWorkerSchemaScope = (): string => `
@@ -50,11 +35,11 @@ ${schemas.map((schema) => {
 			if (type === PrimitiveTypes.Schema) {
 				return `fieldDecorators[${type}](schemas[${args[0] - 1}])(${schema.name}.prototype, ${fieldName})`;
 			} else {
-				return `fieldDecorators[${type}](...${args})(${schema.name}.prototype, ${fieldName})`;
+				return `fieldDecorators[${type}](${args.join(',')})(${schema.name}.prototype, ${fieldName})`;
 			}
 		}).join(`;
             `)}
-        serializable(${schema.name});
+        serializable()(${schema.name});
     `;
 })}
 `;

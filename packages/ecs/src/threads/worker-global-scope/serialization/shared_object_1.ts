@@ -1,5 +1,5 @@
 // tslint:disable-next-line: variable-name
-export const serialization_1 = `{
+export const shared_object_1 = `{
     createSharedObjectArray(
         schemaType,
         buffer,
