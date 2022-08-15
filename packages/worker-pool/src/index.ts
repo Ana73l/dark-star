@@ -89,6 +89,24 @@ export class WorkerPool implements Disposable {
 
 	/**
 	 * Used to create a new WorkerPool
+	 * Supports definition of custom worker global scope
+	 *
+	 * @param {WorkerPoolConfig} config - Configuration for the newly created WorkerPool
+	 * @throws if {@link WorkerPoolConfig.threads} is less than 1
+	 *
+	 * @example
+	 * ```ts
+	 * // without worker global scope
+	 * const pool = new WorkerPool({ threads: coresCount - 1 });
+	 *
+	 * // with worker global scope
+	 * const worker = `
+	 * const add = (a, b) => a + b;
+	 * const mul = (a, b) => a * b;
+	 * `;
+	 *
+	 * const pool = new WorkerPool({ threads: coresCount - 1, workerScript: worker });
+	 * ```
 	 */
 	constructor({ threads, workerScript = '' }: WorkerPoolConfig) {
 		assert(
@@ -114,14 +132,21 @@ export class WorkerPool implements Disposable {
 
 	/**
 	 * Creates a new WorkerPool. See {@link WorkerPool}
+	 *
 	 * @param {WorkerPoolConfig} config
 	 * @returns {WorkerPool}
+	 *
+	 * @example
+	 * ```ts
+	 * const workerPool = WorkerPool.create({ threads: 4 });
+	 * ```
 	 */
 	public static create(config: WorkerPoolConfig): WorkerPool {
 		return new WorkerPool(config);
 	}
 
 	/**
+	 * @readonly
 	 * Number of workers spawned by the pool
 	 */
 	public get workersCount(): number {
@@ -129,6 +154,7 @@ export class WorkerPool implements Disposable {
 	}
 
 	/**
+	 * @readonly
 	 * Indicates whether current WorkerPool instance has been disposed
 	 */
 	public get isDisposed(): boolean {
@@ -188,6 +214,15 @@ export class WorkerPool implements Disposable {
 	 * Terminate the worker threads spawned by the pool and clear its structures
 	 * @throws Will throw an error if WorkerPool instance has already been disposed of
 	 * @returns {Promise<void>}
+	 *
+	 * @example
+	 * ```ts
+	 * const pool = WorkerPool.create({ threads: 4});
+	 *
+	 * const shutdown = async () {
+	 * 	await pool.dispose();
+	 * }
+	 * ```
 	 */
 	public async dispose(): Promise<void> {
 		assert(!this._isDisposed, 'Cannot dispose of already disposed WorkerPool');
