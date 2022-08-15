@@ -30,6 +30,7 @@ export type FixedLengthArray<T extends any[] = any[]> = Exclude<T, ['push', 'pop
  * @typeParam X - The value
  * @typeParam A - The array
  *
+ * @example
  * ```ts
  * const a: InArray<3, [2, 3, -1]> = true; // ok
  * const b: InArray<4, [1, 2, 3]> = true; // Type 'true' is not assignable to type 'false'
@@ -40,6 +41,7 @@ export type InArray<X, A extends readonly unknown[]> = X extends A[number] ? tru
  * Utility type for checking whether an array has only unique values
  * @typeParam A - The array
  *
+ * @example
  * ```ts
  * const a: IsUniqueArray<[1, 2, 3]> = true; // ok
  * const b: IsUniqueArray<[2, 2, 3]> = true; // type boolean is not assignable to type [never, "Encountered value with duplicates:", 2]

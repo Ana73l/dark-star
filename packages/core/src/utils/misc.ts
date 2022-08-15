@@ -10,6 +10,7 @@ export const UINT32_MAX = 4294967295;
  * @param {number} [start=1] - Initial value
  * @returns {number | null}
  *
+ * @example
  * ```ts
  * // without initial value
  * let uid = createUIDGenerator();
@@ -33,13 +34,14 @@ export const createUIDGenerator = (start: number = 1) => {
 
 /**
  * Asserts a logical expression and throws an error if expression is false
+ * @param {boolean} expression - Logical expression that evaluates to true or false
+ * @param {string} [message=''] - Error message to be displayed if expression evaluates to false
  *
+ * @example
  * ```ts
  * assert(1 === 2); // Uncaught Error
  * assert(1 === 2, 'Custom error message'); // Uncaught Error: Custom error message
  * ```
- * @param {boolean} expression - Logical expression that evaluates to true or false
- * @param {string} [message=''] - Error message to be displayed if expression evaluates to false
  */
 export function assert(expression: boolean, message: string = ''): asserts expression {
 	if (!expression) {
