@@ -17,5 +17,12 @@
 	"workspaceLayout": {
 		"libsDir": "packages",
 		"appsDir": "examples"
+	},
+	"generators": {
+		"@nrwl/react": {
+			"application": {
+				"babel": true
+			}
+		}
 	}
 }

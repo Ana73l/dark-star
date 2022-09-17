@@ -1,26 +1,17 @@
-import { ComponentType } from '../component';
 import { Entity } from '../entity';
-import { ComponentTypesQuery, ComponentInstancesFromTypes, ComponentInstancesFromQuery } from '../query';
-
-export enum EntityLambdaTypes {
-	Each,
-	EachWithEntities,
-}
+import { ComponentTypesQuery, ComponentInstancesFromQuery, ComponentTypes } from '../query';
+import { ECSEachJob } from '../system/ecs-jobs/ecs-each';
 
 export type EntityEachLambda<
-	T,
-	TAll,
-	TSome,
-	TNone
-	// @ts-ignore
-> = (...components: ComponentInstancesFromQuery<T, TAll, TSome, TNone>) => void;
+	T extends ComponentTypesQuery,
+	TAll extends ComponentTypes,
+	TSome extends ComponentTypes,
+	TNone extends ComponentTypes
+> = (components: ComponentInstancesFromQuery<T, TAll, TSome, TNone>) => void;
 
-export type EntityEachLambdaWithEntities<T, TAll, TSome, TNone> = (
-	entity: Entity,
-	// @ts-ignore
-	...components: ComponentInstancesFromQuery<T, TAll, TSome, TNone>
-) => void;
-
-export type EntityLambda<T, TAll, TSome, TNone> =
-	| EntityEachLambda<T, TAll, TSome, TNone>
-	| EntityEachLambdaWithEntities<T, TAll, TSome, TNone>;
+export type EntityEachLambdaWithEntities<
+	T extends ComponentTypesQuery,
+	TAll extends ComponentTypes,
+	TSome extends ComponentTypes,
+	TNone extends ComponentTypes
+> = (entity: Entity, components: ComponentInstancesFromQuery<T, TAll, TSome, TNone>) => void;

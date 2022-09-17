@@ -1,18 +1,18 @@
 import { assert } from '@dark-star/core';
 
 import { ComponentType } from '../component';
-import { ComponentTypesQuery } from '../query';
+import { ComponentTypes, ComponentTypesQuery } from '../query';
 import { JobHandle } from '../threads';
 import { WorldUpdateVersion } from '../world';
 
 import { $planner, $queries, Planner, System as ISystem } from './planning/__internals__';
-import { SystemLambdaFactory } from './system-job-factory';
+import { Query } from './system-job-factory';
 
 export type SystemType<T extends System = System> = (new (...args: any[]) => T) & {
 	updateBefore?: SystemType;
 	updateAfter?: SystemType;
 	updateInGroup?: SystemType<SystemGroup>;
-	queryFields?: Record<string, [all: ComponentTypesQuery, some?: ComponentTypesQuery, none?: ComponentType[]]>;
+	queryFields?: Record<string, [all: ComponentTypes, some?: ComponentTypes, none?: ComponentTypes]>;
 };
 
 export abstract class System implements ISystem {
@@ -52,17 +52,17 @@ export abstract class System implements ISystem {
 
 	public abstract update(): Promise<void>;
 
-	protected query<
-		TAll extends ComponentTypesQuery,
-		TSome extends ComponentTypesQuery = [],
-		TNone extends ComponentType[] = []
-	>(all: TAll, some?: TSome, none?: TNone) {
+	protected query<TAll extends ComponentTypes, TSome extends ComponentTypes = [], TNone extends ComponentTypes = []>(
+		all: TAll,
+		some?: TSome,
+		none?: TNone
+	): Query<TAll, TSome, TNone> {
 		assert(
 			this[$planner] !== undefined,
 			`Error registering query in system ${this.constructor.name}: cannot register query after system initialization`
 		);
 
-		const factory = this[$planner]!.registerSystemQuery(this)<TAll, TSome, TNone>(all, some, none);
+		const factory = this[$planner]!.registerSystemQuery(this)<TAll, TSome, TNone>(all, some, none) as any;
 
 		this[$queries].push(factory);
 
@@ -70,7 +70,7 @@ export abstract class System implements ISystem {
 	}
 
 	[$planner]: Planner | undefined;
-	[$queries]: SystemLambdaFactory<ComponentType[], ComponentType[], ComponentType[]>[] = [];
+	[$queries]: Query<ComponentTypes, ComponentTypes, ComponentTypes>[] = [];
 }
 
 export abstract class SystemGroup extends System {

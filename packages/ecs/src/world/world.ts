@@ -16,10 +16,7 @@ export abstract class World implements Disposable {
 	abstract spawn(): void;
 	abstract spawn<T extends ComponentType[]>(componentTypes: T): void;
 	abstract spawn<T extends ComponentType[]>(componentTypes: T, init: OptionalComponentPartialsFromTypes<T>): void;
-	abstract spawn<T extends ComponentType[]>(
-		componentTypes: T,
-		init: (...components: ComponentInstancesFromTypes<T>) => void
-	): void;
+	abstract spawn<T extends ComponentType[]>(componentTypes: T, init: (components: ComponentInstancesFromTypes<T>) => void): void;
 
 	abstract exists(entity: Entity): boolean;
 
@@ -28,15 +25,11 @@ export abstract class World implements Disposable {
 	abstract get<T extends ComponentType>(entity: Entity, componentType: T): InstanceType<T> | undefined;
 
 	abstract attach<T extends ComponentType[]>(entity: Entity, componentTypes: T): void;
+	abstract attach<T extends ComponentType[]>(entity: Entity, componentTypes: T, init: OptionalComponentPartialsFromTypes<T>): void;
 	abstract attach<T extends ComponentType[]>(
 		entity: Entity,
 		componentTypes: T,
-		init: OptionalComponentPartialsFromTypes<T>
-	): void;
-	abstract attach<T extends ComponentType[]>(
-		entity: Entity,
-		componentTypes: T,
-		init: (component: ComponentInstancesFromTypes<T>) => void
+		init: (components: ComponentInstancesFromTypes<T>) => void
 	): void;
 
 	abstract detach<T extends ComponentType[]>(entity: Entity, componentTypes: T): void;

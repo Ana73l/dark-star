@@ -1,25 +1,19 @@
 import { Disposable, Instance, assert } from '@dark-star/core';
 
 import { ComponentType } from '../../component';
-import {
-	ComponentAccessFlags,
-	ComponentQueryDescriptor,
-	ComponentTypesQuery,
-	convertDescriptorsToQuery,
-	convertQueryToDescriptors,
-} from '../../query';
+import { ComponentAccessFlags, ComponentQueryDescriptor, ComponentTypes, convertQueryToDescriptors } from '../../query';
 import { EntityStore } from '../../storage/store';
 
 import { System, SystemGroup, SystemType } from '../system';
 import { Planner as IPlanner, $scheduler } from './__internals__';
 import { RootSystem } from './root-system';
-import { SystemLambdaFactory } from '../system-job-factory';
+import { Query } from '../system-job-factory';
 import { ECSJobScheduler } from '../../threads/ecs-job-scheduler';
 
 export class Planner implements IPlanner, Disposable {
 	private queries: Map<System, [ComponentQueryDescriptor[]]> = new Map();
 	private disposed: boolean = false;
-	private lambdaFactories: SystemLambdaFactory<any, any, any>[] = [];
+	private lambdaFactories: Query<any, any, any>[] = [];
 
 	constructor(private store: EntityStore, private systems: System[]) {}
 
@@ -28,18 +22,12 @@ export class Planner implements IPlanner, Disposable {
 	}
 
 	public registerSystemQuery(system: System) {
-		return <
-			TAll extends ComponentTypesQuery,
-			TSome extends ComponentTypesQuery = [],
-			TNone extends ComponentType[] = []
-		>(
+		return <TAll extends ComponentTypes, TSome extends ComponentTypes, TNone extends ComponentTypes>(
 			all: TAll,
 			some?: TSome,
 			none?: TNone
-		): SystemLambdaFactory<TAll, TSome, TNone> => {
-			const components = convertQueryToDescriptors(all).concat(
-				convertQueryToDescriptors(some || [])
-			);
+		): Query<TAll, TSome, TNone> => {
+			const components = convertQueryToDescriptors(all).concat(convertQueryToDescriptors(some || []));
 
 			if (this.queries.has(system)) {
 				this.queries.get(system)!.push(components);
@@ -47,13 +35,9 @@ export class Planner implements IPlanner, Disposable {
 				this.queries.set(system, [components]);
 			}
 
-			const record = this.store.registerQuery(
-				convertDescriptorsToQuery(all) as ComponentType[],
-				convertDescriptorsToQuery(some || []) as ComponentType[],
-				none
-			);
+			const record = this.store.registerQuery(all, some, none);
 
-			const factory = new SystemLambdaFactory<TAll, TSome, TNone>(record);
+			const factory = new Query(record);
 
 			this.lambdaFactories.push(factory);
 
@@ -106,9 +90,7 @@ export class Planner implements IPlanner, Disposable {
 				`System group ${systemGroupType.name} not registered in world.`
 			);
 
-			const systemGroup = systemInstances.get(
-				systemGroupType
-			) as SystemGroup;
+			const systemGroup = systemInstances.get(systemGroupType) as SystemGroup;
 			const currentSystemsInGroup = systemsInGroup.get(systemGroupType)!;
 
 			// add systems to group
@@ -152,10 +134,7 @@ export class Planner implements IPlanner, Disposable {
 	}
 }
 
-export function calculateOrderByAttributes(
-	systemA: System,
-	systemB: System
-): number {
+export function calculateOrderByAttributes(systemA: System, systemB: System): number {
 	const aSystemType = systemA.constructor as SystemType;
 	const bSystemType = systemB.constructor as SystemType;
 
@@ -194,10 +173,7 @@ export function calculateOrderByComponentQueries(
 						// if system reads data that later system writes
 						// or writes data that later system reads - 2nd is dependent on first
 						// if both systems write - they're equal, but still dependent
-						if (
-							current.flag === ComponentAccessFlags.Read &&
-							other.flag === ComponentAccessFlags.Write
-						) {
+						if (current.flag === ComponentAccessFlags.Read && other.flag === ComponentAccessFlags.Write) {
 							result += -1;
 						} else if (
 							current.flag === ComponentAccessFlags.Write &&

@@ -8,22 +8,24 @@ export enum ComponentAccessFlags {
 	Write,
 }
 
-export type ReadComponentAccess<T extends ComponentType = ComponentType> = {
+export interface ReadComponentAccess<T extends ComponentType = ComponentType> {
 	type: T;
 	flag: ComponentAccessFlags.Read;
-};
-export type WriteComponentAccess<T extends ComponentType = ComponentType> = {
+}
+export interface WriteComponentAccess<T extends ComponentType = ComponentType> {
 	type: T;
 	flag: ComponentAccessFlags.Write;
-};
+}
+export interface WriteComponentAccess<T extends ComponentType = ComponentType> {
+	type: T;
+	flag: ComponentAccessFlags.Write;
+}
 
-export type ComponentQueryDescriptor<T extends ComponentType = ComponentType> =
-	| ReadComponentAccess<T>
-	| WriteComponentAccess<T>;
+export type ComponentQueryDescriptor<T extends ComponentType = ComponentType> = ReadComponentAccess<T> | WriteComponentAccess<T>;
 
-export type ComponentTypesQuery =
-	| [ComponentQueryDescriptor | ComponentType]
-	| (ComponentQueryDescriptor | ComponentType)[];
+export type ComponentTypes = [ComponentType] | ComponentType[];
+
+export type ComponentTypesQuery = [ComponentQueryDescriptor | ComponentType] | (ComponentQueryDescriptor | ComponentType)[];
 
 export type ComponentInstancesFromTypes<T> = {
 	[P in keyof T]: T[P] extends ComponentType<infer U> ? U : never;
@@ -41,28 +43,15 @@ export type ComponentTypesFromQuery<T> = {
 	[P in keyof T]: T[P] extends ComponentType ? T[P] : T[P] extends ComponentQueryDescriptor<infer U> ? U : never;
 };
 
-export type ComponentInstanceFromQuery<
-	TComponent extends ComponentType,
-	TAll extends ComponentTypesQuery,
-	TSome extends ComponentTypesQuery = [],
-	TNone extends ComponentType[] = []
-> = InArray<TComponent, TNone> extends true
-	? never
-	: InArray<TComponent, TAll> extends true
-	? InstanceType<TComponent>
-	: InArray<TComponent, TSome> extends true
-	? InstanceType<TComponent> | undefined
-	: never;
-
 export type ComponentInstancesFromQuery<
 	TDescriptors extends ComponentTypesQuery,
-	TAll extends ComponentType[],
-	TSome extends ComponentType[] = [],
-	TNone extends ComponentType[] = []
+	TAll extends ComponentTypes,
+	TSome extends ComponentTypes = [],
+	TNone extends ComponentTypes = []
 > = {
 	[P in keyof TDescriptors]: TDescriptors[P] extends ComponentQueryDescriptor<infer U>
 		? InArray<U, TNone> extends true
-			? [never, 'Value not registered in query', U]
+			? [never, 'Component type excluded from query', U]
 			: InArray<U, TAll> extends true
 			? TDescriptors[P] extends WriteComponentAccess
 				? InstanceType<U>
@@ -71,32 +60,31 @@ export type ComponentInstancesFromQuery<
 			? TDescriptors[P] extends WriteComponentAccess
 				? InstanceType<U> | undefined
 				: Readonly<InstanceType<U>> | undefined
-			: [never, 'Value not registered in query', U]
+			: [never, 'Component type not registered in query', U]
 		: TDescriptors[P] extends ComponentType
 		? InArray<TDescriptors[P], TNone> extends true
-			? [never, 'Value not registered in query', TDescriptors[P]]
+			? [never, 'Component type excluded from query', TDescriptors[P]]
 			: InArray<TDescriptors[P], TAll> extends true
 			? InstanceType<TDescriptors[P]>
 			: InArray<TDescriptors[P], TSome> extends true
 			? InstanceType<TDescriptors[P]> | undefined
-			: [never, 'Value not registered in query', TDescriptors[P]]
+			: [never, 'Component type not registered in query', TDescriptors[P]]
 		: never;
 };
 
 export type QueryRecordLayout = [all: Int32Array, some: Int32Array, none?: ComponentTypeId[]];
 
-export type QueryRecord<
-	TAll extends ComponentTypesQuery,
-	TSome extends ComponentTypesQuery = [],
-	TNone extends ComponentTypesQuery = []
-> = [layout: QueryRecordLayout, archetypes: Archetype[]];
+export type QueryRecord<TAll extends ComponentTypes, TSome extends ComponentTypes = [], TNone extends ComponentTypes = []> = [
+	layout: QueryRecordLayout,
+	archetypes: Archetype[]
+];
 
-export const read = <T extends ComponentType>(componentType: T): ComponentQueryDescriptor<T> => ({
+export const read = <T extends ComponentType>(componentType: T): ReadComponentAccess<T> => ({
 	type: componentType,
 	flag: ComponentAccessFlags.Read,
 });
 
-export const write = <T extends ComponentType>(componentType: T): ComponentQueryDescriptor<T> => ({
+export const write = <T extends ComponentType>(componentType: T): WriteComponentAccess<T> => ({
 	type: componentType,
 	flag: ComponentAccessFlags.Write,
 });
@@ -107,10 +95,17 @@ export const convertQueryToDescriptors = <T extends ComponentTypesQuery>(query: 
 	);
 
 export const convertDescriptorsToQuery = <T extends ComponentTypesQuery>(query: T): ComponentTypesFromQuery<T> =>
-	query.map((descriptor: any) =>
-		typeof descriptor === 'function' ? descriptor : descriptor.type
-	) as ComponentTypesFromQuery<T>;
+	query.map((descriptor: any) => (typeof descriptor === 'function' ? descriptor : descriptor.type)) as ComponentTypesFromQuery<T>;
 
+export const queryHasWriter = <T extends ComponentTypesQuery>(query: T): boolean => {
+	for (const descriptor of query) {
+		if (typeof descriptor === 'function' || descriptor.flag === ComponentAccessFlags.Write) {
+			return true;
+		}
+	}
+
+	return false;
+};
 // export const createQueryResult = <
 //     TAll extends ComponentTypesQuery = ComponentTypesQuery,
 //     TSome extends ComponentTypesQuery = []

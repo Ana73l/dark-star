@@ -1,0 +1,80 @@
+{
+	"$schema": "../../node_modules/nx/schemas/project-schema.json",
+	"sourceRoot": "examples/space-invaders/src",
+	"projectType": "application",
+	"targets": {
+		"build": {
+			"executor": "@nrwl/web:webpack",
+			"outputs": ["{options.outputPath}"],
+			"defaultConfiguration": "production",
+			"options": {
+				"compiler": "babel",
+				"outputPath": "dist/examples/space-invaders",
+				"index": "examples/space-invaders/src/index.html",
+				"baseHref": "/",
+				"main": "examples/space-invaders/src/main.tsx",
+				"polyfills": "examples/space-invaders/src/polyfills.ts",
+				"tsConfig": "examples/space-invaders/tsconfig.app.json",
+				"assets": ["examples/space-invaders/src/favicon.ico", "examples/space-invaders/src/assets"],
+				"styles": ["examples/space-invaders/src/styles.scss"],
+				"scripts": [],
+				"webpackConfig": "@nrwl/react/plugins/webpack"
+			},
+			"configurations": {
+				"development": {
+					"extractLicenses": false,
+					"optimization": false,
+					"sourceMap": true,
+					"vendorChunk": true
+				},
+				"production": {
+					"fileReplacements": [
+						{
+							"replace": "examples/space-invaders/src/environments/environment.ts",
+							"with": "examples/space-invaders/src/environments/environment.prod.ts"
+						}
+					],
+					"optimization": true,
+					"outputHashing": "all",
+					"sourceMap": false,
+					"namedChunks": false,
+					"extractLicenses": true,
+					"vendorChunk": false
+				}
+			}
+		},
+		"serve": {
+			"executor": "@nrwl/web:dev-server",
+			"defaultConfiguration": "development",
+			"options": {
+				"buildTarget": "space-invaders:build",
+				"hmr": true
+			},
+			"configurations": {
+				"development": {
+					"buildTarget": "space-invaders:build:development"
+				},
+				"production": {
+					"buildTarget": "space-invaders:build:production",
+					"hmr": false
+				}
+			}
+		},
+		"lint": {
+			"executor": "@nrwl/linter:eslint",
+			"outputs": ["{options.outputFile}"],
+			"options": {
+				"lintFilePatterns": ["examples/space-invaders/**/*.{ts,tsx,js,jsx}"]
+			}
+		},
+		"test": {
+			"executor": "@nrwl/jest:jest",
+			"outputs": ["coverage/examples/space-invaders"],
+			"options": {
+				"jestConfig": "examples/space-invaders/jest.config.ts",
+				"passWithNoTests": true
+			}
+		}
+	},
+	"tags": ["space-invaders", "example"]
+}

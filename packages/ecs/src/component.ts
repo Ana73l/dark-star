@@ -23,14 +23,7 @@ export type Tag<T extends any = any> = {
  * ```ts
  * @component()
  * class Position {
- * 	@float64()
- *	x: number = 0;
- *
- * 	@float64()
- *	y: number = 0;
- *
- *	@float64()
- *	z: number = 0;
+ * 	// ...
  * }
  * ```
  */

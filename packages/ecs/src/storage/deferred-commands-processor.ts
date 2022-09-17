@@ -2,25 +2,18 @@ import { Disposable } from '@dark-star/core';
 
 import { Entity } from '../entity';
 import { ComponentType } from '../component';
-import {
-	ComponentInstancesFromTypes,
-	OptionalComponentPartialsFromTypes,
-} from '../query';
+import { ComponentInstancesFromTypes, ComponentTypes, OptionalComponentPartialsFromTypes } from '../query';
 import { EntityStore } from './store';
 
-export type CreateEntityCommand<T extends ComponentType[]> = {
+export type CreateEntityCommand<T extends ComponentTypes> = {
 	componentTypes?: T;
-	init?:
-		| ((...components: ComponentInstancesFromTypes<T>) => void)
-		| OptionalComponentPartialsFromTypes<T>;
+	init?: ((components: ComponentInstancesFromTypes<T>) => void) | OptionalComponentPartialsFromTypes<T>;
 };
 
-export type AttachComponentsCommand<T extends ComponentType[]> = {
+export type AttachComponentsCommand<T extends ComponentTypes> = {
 	entity: Entity;
 	componentTypes: T;
-	init?:
-		| ((...components: ComponentInstancesFromTypes<T>) => void)
-		| OptionalComponentPartialsFromTypes<T>;
+	init?: ((components: ComponentInstancesFromTypes<T>) => void) | OptionalComponentPartialsFromTypes<T>;
 };
 
 export type DetachComponentsCommand = {
@@ -45,9 +38,7 @@ export class DeferredCommandsProcessor implements Disposable {
 
 	public create<T extends ComponentType[]>(
 		componentTypes?: T,
-		init?: (
-			...components: ComponentInstancesFromTypes<T>
-		) => void | OptionalComponentPartialsFromTypes<T>
+		init?: (components: ComponentInstancesFromTypes<T>) => void | OptionalComponentPartialsFromTypes<T>
 	): void {
 		this.createEntityCommands.push({ componentTypes, init });
 	}
@@ -55,9 +46,7 @@ export class DeferredCommandsProcessor implements Disposable {
 	public attach<T extends ComponentType[]>(
 		entity: Entity,
 		componentTypes?: T,
-		init?: (
-			...components: ComponentInstancesFromTypes<T>
-		) => void | OptionalComponentPartialsFromTypes<T>
+		init?: (components: ComponentInstancesFromTypes<T>) => void | OptionalComponentPartialsFromTypes<T>
 	): void {
 		this.attachComponentsCommands.push({ entity, componentTypes, init });
 	}
@@ -78,45 +67,25 @@ export class DeferredCommandsProcessor implements Disposable {
 		let commandIndex;
 
 		const createCommandsCount = createEntityCommands.length;
-		for (
-			commandIndex = 0;
-			commandIndex < createCommandsCount;
-			commandIndex++
-		) {
+		for (commandIndex = 0; commandIndex < createCommandsCount; commandIndex++) {
 			const command = createEntityCommands[commandIndex];
 			this.store.createEntity(command.componentTypes, command.init);
 		}
 
 		const attachCommandsCount = attachComponentsCommands.length;
-		for (
-			commandIndex = 0;
-			commandIndex < attachCommandsCount;
-			commandIndex++
-		) {
+		for (commandIndex = 0; commandIndex < attachCommandsCount; commandIndex++) {
 			const command = attachComponentsCommands[commandIndex];
-			this.store.attachComponents(
-				command.entity,
-				command.componentTypes,
-				command.init
-			);
+			this.store.attachComponents(command.entity, command.componentTypes, command.init);
 		}
 
 		const detachCommandsCount = detachComponentsCommands.length;
-		for (
-			commandIndex = 0;
-			commandIndex < detachCommandsCount;
-			commandIndex++
-		) {
+		for (commandIndex = 0; commandIndex < detachCommandsCount; commandIndex++) {
 			const command = detachComponentsCommands[commandIndex];
 			this.store.detachComponents(command.entity, command.componentTypes);
 		}
 
 		const destroyCommandsCount = destroyEntityCommands.length;
-		for (
-			commandIndex = 0;
-			commandIndex < destroyCommandsCount;
-			commandIndex++
-		) {
+		for (commandIndex = 0; commandIndex < destroyCommandsCount; commandIndex++) {
 			const entity = destroyEntityCommands[commandIndex];
 			this.store.destroyEntity(entity);
 		}

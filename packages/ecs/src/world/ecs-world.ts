@@ -53,6 +53,7 @@ export class ECSWorld implements World {
 		const planner = new Planner(world.store, systemInstances);
 
 		for (const system of systemInstances) {
+			// @ts-ignore
 			system[$planner] = planner;
 
 			// add queries marked by decorator to instance
@@ -96,13 +97,10 @@ export class ECSWorld implements World {
 	public spawn<T extends ComponentType[]>(): void;
 	public spawn<T extends ComponentType[]>(componentTypes: T): void;
 	public spawn<T extends ComponentType[]>(componentTypes: T, init?: OptionalComponentPartialsFromTypes<T>): void;
-	public spawn<T extends ComponentType[]>(
-		componentTypes: T,
-		init: (...components: ComponentInstancesFromTypes<T>) => void
-	): void;
+	public spawn<T extends ComponentType[]>(componentTypes: T, init: (components: ComponentInstancesFromTypes<T>) => void): void;
 	public spawn<T extends ComponentType[]>(
 		componentTypes?: T,
-		init?: (...components: ComponentInstancesFromTypes<T>) => void | OptionalComponentPartialsFromTypes<T>
+		init?: (components: ComponentInstancesFromTypes<T>) => void | OptionalComponentPartialsFromTypes<T>
 	): void {
 		this.deferredCommands.create(componentTypes, init);
 	}
@@ -120,20 +118,16 @@ export class ECSWorld implements World {
 	}
 
 	public attach<T extends ComponentType[]>(entity: Entity, componentTypes: T): void;
+	public attach<T extends ComponentType[]>(entity: Entity, componentTypes: T, init?: OptionalComponentPartialsFromTypes<T>): void;
 	public attach<T extends ComponentType[]>(
 		entity: Entity,
 		componentTypes: T,
-		init?: OptionalComponentPartialsFromTypes<T>
+		init: (components: ComponentInstancesFromTypes<T>) => void
 	): void;
 	public attach<T extends ComponentType[]>(
 		entity: Entity,
 		componentTypes: T,
-		init: (...components: ComponentInstancesFromTypes<T>) => void
-	): void;
-	public attach<T extends ComponentType[]>(
-		entity: Entity,
-		componentTypes: T,
-		init?: (...components: ComponentInstancesFromTypes<T>) => void | OptionalComponentPartialsFromTypes<T>
+		init?: (components: ComponentInstancesFromTypes<T>) => void | OptionalComponentPartialsFromTypes<T>
 	): void {
 		this.deferredCommands.attach(entity, componentTypes, init);
 	}
@@ -160,6 +154,7 @@ export class ECSWorld implements World {
 			await this.systemProcessor.execute(this._version, deltaT);
 
 			this._version++;
+
 			this.stepInProgress = false;
 
 			resolve();

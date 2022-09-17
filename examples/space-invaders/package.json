@@ -1,0 +1,12 @@
+{
+	"name": "@dark-star/space-invaders",
+	"description": "Example project using @dark-star toolkit to build a minimalistic game",
+	"dependencies": {
+		"core-js": "^3.6.5",
+		"react": "18.2.0",
+		"react-dom": "18.2.0",
+		"regenerator-runtime": "0.13.7",
+		"@dark-star/ecs": "*",
+		"@dark-star/shared-object": "*"
+	}
+}

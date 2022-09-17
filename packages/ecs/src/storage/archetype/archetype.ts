@@ -31,7 +31,6 @@ export class Archetype {
 		this.entityType = entityType;
 		this.schemas = schemas;
 		this.chunkCapacity = 16000 / entitySize;
-
 		this.findOrCreateAvailableChunk();
 	}
 

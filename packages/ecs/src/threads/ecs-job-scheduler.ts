@@ -1,42 +1,34 @@
-import { Disposable, assert, createUIDGenerator, $id, $view } from '@dark-star/core';
+import { Disposable, assert, createUIDGenerator, $id, $view, schemas } from '@dark-star/core';
 import { TaskRunner, WorkerPool } from '@dark-star/worker-pool';
 
 import { ComponentType, ComponentTypeId } from '../component';
 import {
 	ComponentAccessFlags,
 	ComponentQueryDescriptor,
+	ComponentTypes,
 	ComponentTypesQuery,
 	convertDescriptorsToQuery,
+	queryHasWriter,
 	QueryRecord,
 } from '../query';
 
-import { $dependencies, Job, JobId, JobHandle } from './job';
-import { EntityLambdaTypes, EntityEachLambda, EntityEachLambdaWithEntities, EntityLambda } from './entity-lambda';
+import { $dependencies, JobId, JobHandle } from './job';
+import { EntityEachLambda, EntityEachLambdaWithEntities } from './entity-lambda';
 import {
 	EnqueuedWorkerWorldCommands,
 	EntityEachLambdaWorkerParams,
+	EntityEachParallelLambdaWorkerParams,
 	EntityEachWithEntitiesLambdaWorkerParams,
+	EntityEachWithEntitiesParallelLambdaWorkerParams,
 	WorkerWorld,
 } from './worker-world';
 import { DeferredCommandsProcessor } from '../storage/deferred-commands-processor';
-
-type ECSTask = TaskRunner<any, any>;
-
-export interface ECSJob<
-	T extends ComponentTypesQuery,
-	TAll extends ComponentTypesQuery,
-	TSome extends ComponentTypesQuery = [],
-	TNone extends ComponentType[] = []
-> extends Job {
-	readonly query: QueryRecord<TAll, TSome>;
-	readonly accessDescriptors: ComponentQueryDescriptor[];
-	readonly lambdaType: EntityLambdaTypes;
-	readonly lambda: EntityLambda<T, TAll, TSome, TNone>;
-	withChanges: boolean;
-}
+import { WorldUpdateVersion } from '../world';
 
 type EntityEachRunner = TaskRunner<EntityEachLambdaWorkerParams, EnqueuedWorkerWorldCommands>;
 type EntityEachWithEntitiesRunner = TaskRunner<EntityEachWithEntitiesLambdaWorkerParams, EnqueuedWorkerWorldCommands>;
+type EntityEachParallelRunner = TaskRunner<EntityEachParallelLambdaWorkerParams, EnqueuedWorkerWorldCommands>;
+type EntityEachWithEntitiesParallelRunner = TaskRunner<EntityEachWithEntitiesParallelLambdaWorkerParams, EnqueuedWorkerWorldCommands>;
 
 export class ECSJobScheduler implements Disposable {
 	private readers: Map<ComponentTypeId, Set<JobId>> = new Map();
@@ -49,98 +41,54 @@ export class ECSJobScheduler implements Disposable {
 	private disposed: boolean = false;
 
 	private entityEachRunner: EntityEachRunner;
+	private entityEachParallelRunner: EntityEachParallelRunner;
 	private entityEachWithEntitiesRunner: EntityEachWithEntitiesRunner;
+	private entityEachWithEntitiesParallelRunner: EntityEachWithEntitiesParallelRunner;
 
-	constructor(private workerPool: WorkerPool, private deferedCommandsProcessor: DeferredCommandsProcessor) {
+	constructor(workerPool: WorkerPool, private deferedCommandsProcessor: DeferredCommandsProcessor) {
 		this.entityEachRunner = workerPool.createTask((data: EntityEachLambdaWorkerParams) => {
 			// @ts-ignore
 			return (world as WorkerWorld).handleEntityEachLambda(data);
+		});
+
+		this.entityEachParallelRunner = workerPool.createTask((data: EntityEachParallelLambdaWorkerParams) => {
+			// @ts-ignore
+			return (worker as WorkerWorld).handleEntityEachParallelLambda(data);
 		});
 
 		this.entityEachWithEntitiesRunner = workerPool.createTask((data: EntityEachWithEntitiesLambdaWorkerParams) => {
 			// @ts-ignore
 			return (world as WorkerWorld).handleEntityEachWithEntitiesLambda(data);
 		});
+
+		this.entityEachWithEntitiesParallelRunner = workerPool.createTask((data: EntityEachWithEntitiesParallelLambdaWorkerParams) => {
+			// @ts-ignore
+			return (world as WorkerWorld).handleEntityEachWithEntitiesParallelLambda(data);
+		});
 	}
 
-	public get isDisposed(): boolean {
-		return this.disposed;
-	}
-
-	public scheduleJob<
+	public scheduleEntityEachLambda<
 		T extends ComponentTypesQuery,
-		TAll extends ComponentTypesQuery,
-		TSome extends ComponentTypesQuery = [],
-		TNone extends ComponentType[] = []
-	>(job: ECSJob<T, TAll, TSome, TNone>, deps?: JobHandle[]): JobHandle {
-		const id = this.uid()!;
-		const type = job.lambdaType;
-		const query = job.query;
-		const accessDescriptors = job.accessDescriptors;
-		const lambda = job.lambda;
-
-		let handle;
-
-		switch (type) {
-			case EntityLambdaTypes.Each:
-				handle = this.scheduleEntityEachLambda(
-					id,
-					query,
-					accessDescriptors,
-					lambda as EntityEachLambda<T, TAll, TSome, TNone>,
-					deps
-				);
-				break;
-			case EntityLambdaTypes.EachWithEntities:
-				handle = this.scheduleEntityEachWithEntitiesLambda(
-					id,
-					query,
-					accessDescriptors,
-					// @ts-ignore
-					lambda as EntityEachLambdaWithEntities<T, TAll, TSome, TNone>,
-					deps
-				);
-				break;
-			default:
-				throw new Error(`Attempting to schedule invalid Entity Lambda type ${type}`);
-		}
-
-		this.jobHandles.set(id, handle);
-
-		// if there are no dependencies - add to ready to run list
-		if (handle[$dependencies]?.size === 0) {
-			handle.complete();
-		}
-
-		return handle;
-	}
-
-	public dispose(): void {
-		this.disposed = true;
-
-		this.jobHandles.clear();
-		this.jobToDependees.clear();
-		this.readers.clear();
-		this.lastWriter.clear();
-	}
-
-	private scheduleEntityEachLambda<
-		T extends ComponentTypesQuery,
-		TAll extends ComponentTypesQuery,
-		TSome extends ComponentTypesQuery = [],
-		TNone extends ComponentType[] = []
+		TAll extends ComponentTypes,
+		TSome extends ComponentTypes,
+		TNone extends ComponentTypes
 	>(
-		id: number,
 		query: QueryRecord<TAll, TSome>,
 		accessDescriptors: ComponentQueryDescriptor[],
 		lambda: EntityEachLambda<T, TAll, TSome, TNone>,
+		currentWorldVersion: WorldUpdateVersion,
+		withChanges: boolean = false,
+		parallel: boolean = false,
 		deps?: JobHandle[]
 	): JobHandle {
-		const dependencies = this.getDependencies(id, accessDescriptors, deps);
+		const id = this.uid()!;
+		const dependencies = this.getDependenciesAndRegisterJob(id, accessDescriptors, deps);
 
-		const layout = convertDescriptorsToQuery(accessDescriptors).map((type) => type[$id]!);
+		const layout = new Int32Array(convertDescriptorsToQuery(accessDescriptors).map((type) => type[$id]!));
+		const stringifiedLambda = lambda.toString();
+		const hasWriter = queryHasWriter(accessDescriptors);
+
 		const archetypes = query[1];
-
 		const archetypesCount = archetypes.length;
 		let archetypeIndex;
 
@@ -163,6 +111,11 @@ export class ECSJobScheduler implements Disposable {
 
 					// execute only if there are entities in the chunk
 					if (chunkSize > 0) {
+						// if change filter is applied and chunk hasn't been written to - skip
+						if (withChanges && currentWorldVersion > chunk.worldVersion) {
+							continue;
+						}
+
 						const componentArrayBuffers: (SharedArrayBuffer | undefined)[] = [];
 
 						for (const componentType of layout) {
@@ -172,6 +125,10 @@ export class ECSJobScheduler implements Disposable {
 						}
 
 						buffers.push([chunkSize, componentArrayBuffers]);
+
+						if (hasWriter) {
+							chunk.worldVersion = currentWorldVersion;
+						}
 					}
 				}
 			}
@@ -194,20 +151,40 @@ export class ECSJobScheduler implements Disposable {
 					return promise;
 				}
 
-				promise = new Promise(async (resolve) => {
-					await this.completeJobs(dependencies);
+				promise = parallel
+					? new Promise(async (resolve) => {
+							await this.completeJobs(dependencies);
 
-					const enqueuedCommands = await this.entityEachRunner.run([
-						new Int32Array(layout.length).map((_, index) => layout[index]),
-						buffers,
-						lambda.toString(),
-					]);
+							const tasks: Promise<any>[] = [];
 
-					this.markAsComplete(id);
+							for (const buffer of buffers) {
+								tasks.push(this.entityEachParallelRunner.run([layout, buffer[0], buffer[1], stringifiedLambda]));
+							}
 
-					isComplete = true;
-					resolve();
-				});
+							const workerResponses = await Promise.all(tasks);
+
+							for (const commands of workerResponses) {
+								this.deferCommands(commands);
+							}
+
+							this.markAsComplete(id);
+
+							isComplete = true;
+
+							resolve();
+					  })
+					: new Promise(async (resolve) => {
+							await this.completeJobs(dependencies);
+
+							const commands = await this.entityEachRunner.run([layout, buffers, stringifiedLambda]);
+
+							this.deferCommands(commands);
+
+							this.markAsComplete(id);
+
+							isComplete = true;
+							resolve();
+					  });
 
 				return promise;
 			},
@@ -215,21 +192,27 @@ export class ECSJobScheduler implements Disposable {
 		};
 	}
 
-	private scheduleEntityEachWithEntitiesLambda<
+	public scheduleEntityEachWithEntitiesLambda<
 		T extends ComponentTypesQuery,
-		TAll extends ComponentTypesQuery,
-		TSome extends ComponentTypesQuery = [],
-		TNone extends ComponentType[] = []
+		TAll extends ComponentTypes,
+		TSome extends ComponentTypes,
+		TNone extends ComponentTypes
 	>(
-		id: number,
 		query: QueryRecord<TAll, TSome, TNone>,
 		accessDescriptors: ComponentQueryDescriptor[],
 		lambda: EntityEachLambdaWithEntities<T, TAll, TSome, TNone>,
+		currentWorldVersion: WorldUpdateVersion,
+		withChanges: boolean = false,
+		parallel: boolean = false,
 		deps?: JobHandle[]
 	): JobHandle {
-		const dependencies = this.getDependencies(id, accessDescriptors, deps);
+		const id = this.uid()!;
+		const dependencies = this.getDependenciesAndRegisterJob(id, accessDescriptors, deps);
 
-		const layout = convertDescriptorsToQuery(accessDescriptors).map((type) => type[$id]!);
+		const layout = new Int32Array(convertDescriptorsToQuery(accessDescriptors).map((type) => type[$id]!));
+		const stringifiedLambda = lambda.toString();
+		const hasWriter = queryHasWriter(accessDescriptors);
+
 		const archetypes = query[1];
 
 		const archetypesCount = archetypes.length;
@@ -254,6 +237,11 @@ export class ECSJobScheduler implements Disposable {
 
 					// execute only if there are entities in the chunk
 					if (chunkSize > 0) {
+						// if change filter is applied and chunk hasn't been written to - skip
+						if (withChanges && currentWorldVersion > chunk.worldVersion) {
+							continue;
+						}
+
 						const componentArrayBuffers: (SharedArrayBuffer | undefined)[] = [];
 
 						for (const componentType of layout) {
@@ -263,6 +251,10 @@ export class ECSJobScheduler implements Disposable {
 						}
 
 						buffers.push([chunkSize, chunk.getEntitiesArray(), componentArrayBuffers]);
+
+						if (hasWriter) {
+							chunk.worldVersion = currentWorldVersion;
+						}
 					}
 				}
 			}
@@ -285,20 +277,47 @@ export class ECSJobScheduler implements Disposable {
 					return promise;
 				}
 
-				promise = new Promise(async (resolve) => {
-					await this.completeJobs(dependencies);
+				promise = parallel
+					? new Promise(async (resolve) => {
+							await this.completeJobs(dependencies);
 
-					await this.entityEachWithEntitiesRunner.run([
-						new Int32Array(layout.length).map((_, index) => layout[index]),
-						buffers,
-						lambda.toString(),
-					]);
+							const tasks: Promise<any>[] = [];
 
-					this.markAsComplete(id);
+							for (const buffer of buffers) {
+								tasks.push(
+									this.entityEachWithEntitiesParallelRunner.run([
+										layout,
+										buffer[0],
+										buffer[1],
+										buffer[2],
+										stringifiedLambda,
+									])
+								);
+							}
+							const workerResponse = await Promise.all(tasks);
 
-					isComplete = true;
-					resolve();
-				});
+							for (const commands of workerResponse) {
+								this.deferCommands(commands);
+							}
+
+							this.markAsComplete(id);
+
+							isComplete = true;
+
+							resolve();
+					  })
+					: new Promise(async (resolve) => {
+							await this.completeJobs(dependencies);
+
+							const commands = await this.entityEachWithEntitiesRunner.run([layout, buffers, stringifiedLambda]);
+
+							this.deferCommands(commands);
+
+							this.markAsComplete(id);
+
+							isComplete = true;
+							resolve();
+					  });
 
 				return promise;
 			},
@@ -306,30 +325,75 @@ export class ECSJobScheduler implements Disposable {
 		};
 	}
 
-	public async completeJobs(dependencies: Set<JobId>): Promise<void> {
-		const jobHandles = this.jobHandles;
-		const jobs: (() => Promise<void>)[] = [];
+	public get isDisposed(): boolean {
+		return this.disposed;
+	}
 
-		for (const jobId of dependencies) {
-			if (jobHandles.has(jobId)) {
-				jobs.push(jobHandles.get(jobId)!.complete);
+	public async completeJobs(jobIds: Set<JobId>): Promise<void> {
+		if (jobIds.size > 0) {
+			const jobHandles = this.jobHandles;
+			const jobs: (() => Promise<void>)[] = [];
+
+			for (const jobId of jobIds) {
+				if (jobHandles.has(jobId)) {
+					jobs.push(jobHandles.get(jobId)!.complete);
+				}
+			}
+
+			await Promise.all(jobs);
+		}
+	}
+
+	public getDependencies(accessDescriptors: ComponentQueryDescriptor[]): Set<JobId> {
+		const writers = this.lastWriter;
+		const readers = this.readers;
+		const dependencies = new Set<JobId>();
+
+		const descriptorsCount = accessDescriptors.length;
+		let descriptorIndex;
+
+		for (descriptorIndex = 0; descriptorIndex < descriptorsCount; descriptorIndex++) {
+			const descriptor = accessDescriptors[descriptorIndex];
+			const componentType = descriptor.type;
+			const componentTypeId = componentType[$id]!;
+			const flag = descriptor.flag;
+
+			// flag access is Read
+			if (flag === ComponentAccessFlags.Read) {
+				// set dependencies to last prior writer
+				if (writers.has(componentTypeId)) {
+					const lastWriter = writers.get(componentTypeId)!;
+					dependencies.add(lastWriter);
+				}
+			}
+			// flag access is Write
+			else {
+				// add prior readers to dependencies
+				if (readers.has(componentTypeId)) {
+					const componentReaders = readers.get(componentTypeId)!;
+
+					for (const readerId of componentReaders) {
+						if (!dependencies.has(readerId)) {
+							dependencies.add(readerId);
+						}
+					}
+				}
+				// add last writer to dependencies
+				if (writers.has(componentTypeId)) {
+					dependencies.add(writers.get(componentTypeId)!);
+				}
 			}
 		}
 
-		await Promise.all(jobs);
+		return dependencies;
 	}
 
-	private getDependencies(
-		id: JobId,
-		accessDescriptors: ComponentQueryDescriptor[],
-		initial?: JobHandle[]
-	): Set<JobId> {
+	public getDependenciesAndRegisterJob(id: JobId, accessDescriptors: ComponentQueryDescriptor[], initial?: JobHandle[]): Set<JobId> {
 		const writers = this.lastWriter;
 		const readers = this.readers;
 		const jobToDependees = this.jobToDependees;
 
-		const dependencies: Set<JobId> =
-			initial && initial.length > 0 ? new Set(initial.map((handle) => handle.id)) : new Set();
+		const dependencies: Set<JobId> = initial && initial.length > 0 ? new Set(initial.map((handle) => handle.id)) : new Set();
 
 		const descriptorsCount = accessDescriptors.length;
 		let descriptorIndex;
@@ -393,6 +457,15 @@ export class ECSJobScheduler implements Disposable {
 		return dependencies;
 	}
 
+	public dispose(): void {
+		this.disposed = true;
+
+		this.jobHandles.clear();
+		this.jobToDependees.clear();
+		this.readers.clear();
+		this.lastWriter.clear();
+	}
+
 	private markAsComplete(id: JobId): void {
 		const jobToDependees = this.jobToDependees;
 		const jobHandles = this.jobHandles;
@@ -424,5 +497,41 @@ export class ECSJobScheduler implements Disposable {
 
 		// unregister job
 		jobHandles.delete(id);
+	}
+
+	private deferCommands([create, attach, detach, destroy]: EnqueuedWorkerWorldCommands): void {
+		for (const [componentTypeIds, instances] of create) {
+			if (componentTypeIds) {
+				const componentTypes = componentTypeIds.map((id) => schemas[id - 1]);
+
+				if (instances) {
+					this.deferedCommandsProcessor.create(componentTypes, instances as any);
+				} else {
+					this.deferedCommandsProcessor.create(componentTypes);
+				}
+			} else {
+				this.deferedCommandsProcessor.create();
+			}
+		}
+
+		for (const [entity, componentTypeIds, instances] of attach) {
+			const componentTypes = componentTypeIds.map((id) => schemas[id - 1]);
+
+			if (instances) {
+				this.deferedCommandsProcessor.attach(entity, componentTypes, instances as any);
+			} else {
+				this.deferedCommandsProcessor.attach(entity, componentTypes);
+			}
+		}
+
+		for (const [entity, componentTypeIds] of detach) {
+			const componentTypes = componentTypeIds.map((id) => schemas[id - 1]);
+
+			this.deferedCommandsProcessor.detach(entity, componentTypes);
+		}
+
+		for (const entity of destroy) {
+			this.deferedCommandsProcessor.destroy(entity);
+		}
 	}
 }

@@ -1,4 +1,4 @@
-import { Schema, $offset, $size, $view, assignViewToInstance } from '@dark-star/core';
+import { Schema, $offset, $size, $view, assignViewToInstance, assert } from '@dark-star/core';
 
 /**
  * Represents an array of schemas. Readonly because buffers have fixed size.
@@ -43,10 +43,12 @@ export function createSharedObjectArray<T extends Schema & (new () => any)>(
 		stride += schemaSize;
 	}
 
-	return Object.assign(Object.freeze(array), {
-		[$view]: view,
-		[$offset]: offset,
-	}) as SharedObjectArray<T>;
+	return Object.freeze(
+		Object.assign(array, {
+			[$view]: view,
+			[$offset]: offset,
+		})
+	) as SharedObjectArray<T>;
 }
 
 export function createSharedObject<T extends Schema & (new () => any)>(

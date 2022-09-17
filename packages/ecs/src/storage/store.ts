@@ -4,7 +4,7 @@ import { Archetype, EntityType } from './archetype/archetype';
 
 import { Entity } from '../entity';
 import { ComponentType, ComponentTypeId } from '../component';
-import { QueryRecord, OptionalComponentPartialsFromTypes, ComponentInstancesFromTypes } from '../query';
+import { QueryRecord, OptionalComponentPartialsFromTypes, ComponentInstancesFromTypes, ComponentTypes } from '../query';
 
 import { $componentsTable, $entitiesArray } from './archetype/__internals__';
 
@@ -72,7 +72,7 @@ export class EntityStore {
 	private uid = createUIDGenerator(1);
 
 	private archetypes: Archetype[] = [];
-	private queries: QueryRecord<ComponentType[], ComponentType[], ComponentType[]>[] = [];
+	private queries: QueryRecord<ComponentTypes, ComponentTypes, ComponentTypes>[] = [];
 
 	public createEntity<T extends ComponentType[]>(
 		componentTypes?: T,
@@ -476,9 +476,9 @@ export class EntityStore {
 	}
 
 	public registerQuery<
-		TAll extends ComponentType[],
-		TSome extends ComponentType[] = [],
-		TNone extends ComponentType[] = []
+		TAll extends ComponentTypes,
+		TSome extends ComponentTypes = [],
+		TNone extends ComponentTypes = []
 	>(all: TAll, some?: TSome, none?: TNone): QueryRecord<TAll, TSome, TNone> {
 		const queryAll = new Int32Array(all.map((componentType) => componentType[$id]!));
 		const querySome = new Int32Array((some || []).map((componentType) => componentType[$id]!));
