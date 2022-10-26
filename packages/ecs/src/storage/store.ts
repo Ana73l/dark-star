@@ -1,12 +1,11 @@
 import { $definition, $id, $size, assert, createUIDGenerator, UINT32_MAX } from '@dark-star/core';
 
-import { Archetype, EntityType } from './archetype/archetype';
-
 import { Entity } from '../entity';
 import { ComponentType, ComponentTypeId } from '../component';
 import { QueryRecord, OptionalComponentPartialsFromTypes, ComponentInstancesFromTypes, ComponentTypes } from '../query';
 
 import { $componentsTable, $entitiesArray } from './archetype/__internals__';
+import { Archetype, EntityType } from './archetype/archetype';
 
 export const matchEntityTypes = (toMatch: Set<ComponentType>, entityType: EntityType): boolean => {
 	if (toMatch.size !== entityType.size) {
@@ -74,10 +73,10 @@ export class EntityStore {
 	private archetypes: Archetype[] = [];
 	private queries: QueryRecord<ComponentTypes, ComponentTypes, ComponentTypes>[] = [];
 
-	public createEntity<T extends ComponentType[]>(
+	public createEntity<T extends ComponentTypes>(
 		componentTypes?: T,
-		initial?: OptionalComponentPartialsFromTypes<T> | ((...values: ComponentInstancesFromTypes<T>) => void)
-	): void {
+		initial?: OptionalComponentPartialsFromTypes<T> | ((values: ComponentInstancesFromTypes<T>) => void)
+	): Entity {
 		const entity = this.reusableEntities.pop() || this.uid();
 
 		assert(entity !== null, `Entity limit ${UINT32_MAX} reached.`);
@@ -90,12 +89,28 @@ export class EntityStore {
 
 		chunk[$entitiesArray][oldChunkSize] = entity;
 
+		// register in stored entities
+		this.entities.set(entity, {
+			archetype,
+			chunkIndex: chunk.id,
+			indexInChunk: oldChunkSize,
+		});
+
 		// if initial values are passed - set them
 		if (componentTypes && initial) {
 			const componentTypesArgLength = componentTypes.length;
 			let componentTypeIndex;
 
-			if (Array.isArray(initial)) {
+			if (typeof initial === 'function') {
+				const componentInstances = [];
+				for (componentTypeIndex = 0; componentTypeIndex < componentTypesArgLength; componentTypeIndex++) {
+					const componentType = componentTypes[componentTypeIndex];
+					const componentArray = chunk.getComponentArray(componentType);
+					componentInstances.push(componentArray ? componentArray[oldChunkSize] : undefined);
+				}
+
+				initial(componentInstances as ComponentInstancesFromTypes<T>);
+			} else {
 				for (componentTypeIndex = 0; componentTypeIndex < componentTypesArgLength; componentTypeIndex++) {
 					const componentType = componentTypes[componentTypeIndex];
 					const definition = componentType[$definition];
@@ -117,20 +132,14 @@ export class EntityStore {
 						}
 					}
 				}
-			} else {
-				const componentInstances = [];
-				for (componentTypeIndex = 0; componentTypeIndex < componentTypesArgLength; componentTypeIndex++) {
-					const componentType = componentTypes[componentTypeIndex];
-					const componentArray = chunk.getComponentArray(componentType)!;
-					componentInstances.push(componentArray[oldChunkSize]);
-				}
-
-				initial(...(componentInstances as ComponentInstancesFromTypes<T>));
 			}
 		}
 
 		// increment chunk size
 		chunk[$size]++;
+		chunk.worldVersion = this.currentWorldVersion;
+
+		return entity;
 	}
 
 	public destroyEntity(entity: Entity): void {
@@ -149,32 +158,31 @@ export class EntityStore {
 
 		if (toRemoveIndex === lastElementIndex) {
 			entities[lastElementIndex] = 0;
-			chunk[$size]--;
+		} else {
+			const lastElementEntity = entities[lastElementIndex];
 
-			return;
-		}
+			// swap last element data with removed entity data
+			chunk[$entitiesArray][toRemoveIndex] = lastElementEntity;
+			for (const componentsArray of chunk[$componentsTable]) {
+				const lastInstance = componentsArray[lastElementIndex];
+				const toRemoveInstance = componentsArray[toRemoveIndex];
 
-		const lastElementEntity = entities[lastElementIndex];
+				const componentType = toRemoveInstance.constructor;
+				const fields = componentType[$definition]!;
 
-		// swap last element data with removed entity data
-		chunk[$entitiesArray][toRemoveIndex] = lastElementEntity;
-		for (const componentsArray of chunk[$componentsTable]) {
-			const lastInstance = componentsArray[lastElementIndex];
-			const toRemoveInstance = componentsArray[toRemoveIndex];
-
-			const componentType = toRemoveInstance.constructor;
-			const fields = componentType[$definition]!;
-
-			// copy values of last element in place of removed entity to avoid gaps
-			// tslint:disable-next-line: forin
-			for (const fieldName in fields) {
-				toRemoveInstance[fieldName] = lastInstance[fieldName];
+				// copy values of last element in place of removed entity to avoid gaps
+				// tslint:disable-next-line: forin
+				for (const fieldName in fields) {
+					toRemoveInstance[fieldName] = lastInstance[fieldName];
+				}
 			}
+
+			// update swapped entity's record
+			this.entities.get(lastElementEntity)!.indexInChunk = toRemoveIndex;
+			this.reusableEntities.push(entity);
 		}
 
-		// update swapped entity's record
-		this.entities.get(lastElementEntity)!.indexInChunk = toRemoveIndex;
-		this.reusableEntities.push(entity);
+		this.entities.delete(entity);
 
 		chunk[$size]--;
 	}
@@ -193,7 +201,7 @@ export class EntityStore {
 		}
 	}
 
-	public hasAnyComponent<T extends ComponentType[]>(entity: Entity, componentTypes: T): boolean {
+	public hasAnyComponent<T extends ComponentTypes>(entity: Entity, componentTypes: T): boolean {
 		if (this.entities.has(entity)) {
 			const entityType = this.entities.get(entity)!.archetype.entityType;
 
@@ -207,7 +215,7 @@ export class EntityStore {
 		return false;
 	}
 
-	public hasAllComponents<T extends ComponentType[]>(entity: Entity, componentTypes: T): boolean {
+	public hasAllComponents<T extends ComponentTypes>(entity: Entity, componentTypes: T): boolean {
 		if (this.entities.has(entity)) {
 			const entityType = this.entities.get(entity)!.archetype.entityType;
 
@@ -238,10 +246,10 @@ export class EntityStore {
 		return;
 	}
 
-	public attachComponents<T extends ComponentType[]>(
+	public attachComponents<T extends ComponentTypes>(
 		entity: Entity,
 		componentTypes: T,
-		initial?: OptionalComponentPartialsFromTypes<T> | ((...values: ComponentInstancesFromTypes<T>) => void)
+		initial?: OptionalComponentPartialsFromTypes<T> | ((values: ComponentInstancesFromTypes<T>) => void)
 	): void {
 		assert(this.entities.has(entity), `Error attaching components to entity ${entity} - entity does not exist`);
 
@@ -306,17 +314,24 @@ export class EntityStore {
 				oldChunk[$size]--;
 				newChunk[$size]++;
 
+				newChunk.worldVersion = this.currentWorldVersion;
+
 				if (initial) {
 					const componentTypesArgLength = componentTypes.length;
 					let componentTypeIndex;
 
-					if (Array.isArray(initial)) {
+					if (typeof initial === 'function') {
+						const componentInstances = [];
+						for (componentTypeIndex = 0; componentTypeIndex < componentTypesArgLength; componentTypeIndex++) {
+							const componentType = componentTypes[componentTypeIndex];
+							const componentArray = newChunk.getComponentArray(componentType);
+							componentInstances.push(componentInstances.push(componentArray ? componentArray[newIndex] : undefined));
+						}
+
+						initial(componentInstances as ComponentInstancesFromTypes<T>);
+					} else {
 						if (initial.length > 0) {
-							for (
-								componentTypeIndex = 0;
-								componentTypeIndex < componentTypesArgLength;
-								componentTypeIndex++
-							) {
+							for (componentTypeIndex = 0; componentTypeIndex < componentTypesArgLength; componentTypeIndex++) {
 								const componentType = componentTypes[componentTypeIndex];
 								const definition = componentType[$definition];
 
@@ -339,32 +354,24 @@ export class EntityStore {
 								}
 							}
 						}
-					} else {
-						const componentInstances = [] as unknown as ComponentInstancesFromTypes<T>;
-						for (
-							componentTypeIndex = 0;
-							componentTypeIndex < componentTypesArgLength;
-							componentTypeIndex++
-						) {
-							const componentType = componentTypes[componentTypeIndex];
-							const componentArray = newChunk.getComponentArray(componentType)!;
-							componentInstances.push(componentArray[newIndex]);
-						}
-
-						initial(...componentInstances);
 					}
 				}
 			} else if (initial) {
 				const componentTypesArgLength = componentTypes.length;
 				let componentTypeIndex;
 
-				if (Array.isArray(initial)) {
+				if (typeof initial === 'function') {
+					const componentInstances = [];
+					for (componentTypeIndex = 0; componentTypeIndex < componentTypesArgLength; componentTypeIndex++) {
+						const componentType = componentTypes[componentTypeIndex];
+						const componentArray = oldChunk.getComponentArray(componentType)!;
+						componentInstances.push(componentArray[oldIndex]);
+					}
+
+					initial(componentInstances as ComponentInstancesFromTypes<T>);
+				} else {
 					if (initial.length > 0) {
-						for (
-							componentTypeIndex = 0;
-							componentTypeIndex < componentTypesArgLength;
-							componentTypeIndex++
-						) {
+						for (componentTypeIndex = 0; componentTypeIndex < componentTypesArgLength; componentTypeIndex++) {
 							const componentType = componentTypes[componentTypeIndex];
 							const definition = componentType[$definition];
 
@@ -387,21 +394,12 @@ export class EntityStore {
 							}
 						}
 					}
-				} else {
-					const componentInstances = [] as unknown as ComponentInstancesFromTypes<T>;
-					for (componentTypeIndex = 0; componentTypeIndex < componentTypesArgLength; componentTypeIndex++) {
-						const componentType = componentTypes[componentTypeIndex];
-						const componentArray = oldChunk.getComponentArray(componentType)!;
-						componentInstances.push(componentArray[oldIndex]);
-					}
-
-					initial(...componentInstances);
 				}
 			}
 		}
 	}
 
-	public detachComponents<T extends ComponentType[]>(entity: Entity, componentTypes: T): void {
+	public detachComponents<T extends ComponentTypes>(entity: Entity, componentTypes: T): void {
 		assert(this.entities.has(entity), `Error detaching components from entity ${entity} - entity does not exist`);
 
 		// only execute if there are components to detach
@@ -425,7 +423,7 @@ export class EntityStore {
 			}
 
 			// apply structural changes if archetype actually changes
-			if (!entityTypeHasAll(newEntityType, oldEntityType)) {
+			if (newEntityType.size !== oldEntityType.size) {
 				// save last element entity data in old chunk
 				const oldChunkLastElementIndex = oldChunk.size - 1;
 				const oldChunkLastEntity = oldChunk[$entitiesArray][oldChunkLastElementIndex];
@@ -475,11 +473,11 @@ export class EntityStore {
 		}
 	}
 
-	public registerQuery<
-		TAll extends ComponentTypes,
-		TSome extends ComponentTypes = [],
-		TNone extends ComponentTypes = []
-	>(all: TAll, some?: TSome, none?: TNone): QueryRecord<TAll, TSome, TNone> {
+	public registerQuery<TAll extends ComponentTypes, TSome extends ComponentTypes = [], TNone extends ComponentTypes = []>(
+		all: TAll,
+		some?: TSome,
+		none?: TNone
+	): QueryRecord<TAll, TSome, TNone> {
 		const queryAll = new Int32Array(all.map((componentType) => componentType[$id]!));
 		const querySome = new Int32Array((some || []).map((componentType) => componentType[$id]!));
 		const queryNone = (none || []).map((componentType) => componentType[$id]!);
@@ -496,11 +494,7 @@ export class EntityStore {
 			const currentNone = layout[2] || [];
 
 			// potential match
-			if (
-				queryAllSize === currentAll.length &&
-				querySomeSize === currentSome.length &&
-				queryNoneSize === currentNone.length
-			) {
+			if (queryAllSize === currentAll.length && querySomeSize === currentSome.length && queryNoneSize === currentNone.length) {
 				// compare required components
 				for (const componentTypeId of currentAll) {
 					if (queryAll.indexOf(componentTypeId) < 0) {
@@ -525,7 +519,7 @@ export class EntityStore {
 			}
 		}
 
-		// populate the query record with all matching archetypes. future archetpes will be added via createArchetype
+		// populate the query record with all matching archetypes. future archetypes will be added via createArchetype
 		const matchingArchetypes: Archetype[] = [];
 
 		const archetypes = this.archetypes;
@@ -541,7 +535,11 @@ export class EntityStore {
 			}
 		}
 
-		return [[queryAll, querySome, queryNone], matchingArchetypes];
+		const record = [[queryAll, querySome, queryNone], matchingArchetypes] as QueryRecord<TAll, TSome, TNone>;
+
+		this.queries.push(record);
+
+		return record;
 	}
 
 	private createArchetype(componentTypes: Set<ComponentType>): Archetype {

@@ -30,7 +30,7 @@ export class Archetype {
 
 		this.entityType = entityType;
 		this.schemas = schemas;
-		this.chunkCapacity = 16000 / entitySize;
+		this.chunkCapacity = entitySize > 0 ? Math.floor(16000 / entitySize) : Math.floor(16000 / Uint32Array.BYTES_PER_ELEMENT);
 		this.findOrCreateAvailableChunk();
 	}
 

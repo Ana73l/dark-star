@@ -4,11 +4,17 @@ import { Position } from '../../__components__/position';
 import { Velocity } from '../../__components__/velocity';
 
 describe('archetype', () => {
-	const archetype = new Archetype(new Set([Position, Velocity]), 0);
+	it('Can initialize Archetype with component types', () => {
+		expect(() => new Archetype(new Set([Position, Velocity]), 0)).not.toThrow();
+	});
+
+	it('Can initialize Archetype without component types', () => {
+		expect(() => new Archetype(new Set(), 0)).not.toThrow();
+	});
 
 	describe('count', () => {
-		it('It returns the number of entities registered in the archetype chunks', () => {
-			expect(archetype.count).toEqual(0);
+		it('Returns the number of entities registered in the archetype chunks', () => {
+			expect(new Archetype(new Set(), 0).count).toEqual(0);
 		});
 	});
 });

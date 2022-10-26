@@ -1,7 +1,7 @@
 import { Disposable } from '@dark-star/core';
 
 import { JobId } from '../threads';
-import { $dependencies } from '../threads/job';
+import { $dependencies } from '../threads/jobs/job';
 import { WorldUpdateVersion } from '../world';
 import { $queries, $scheduler } from './planning/__internals__';
 
@@ -11,7 +11,7 @@ export class SystemProcessor implements Disposable {
 	private disposed: boolean = false;
 	private flattenedSystems: System[];
 
-	constructor(private rootSystem: SystemGroup) {
+	constructor(rootSystem: SystemGroup) {
 		this.flattenedSystems = rootSystem.flatten();
 	}
 
@@ -21,10 +21,7 @@ export class SystemProcessor implements Disposable {
 
 	public dispose(): void {}
 
-	public async execute(
-		currentWorldVersion: WorldUpdateVersion,
-		deltaT?: number
-	): Promise<void> {
+	public async execute(currentWorldVersion: WorldUpdateVersion, deltaT?: number): Promise<void> {
 		const systems = this.flattenedSystems;
 		const systemsCount = this.flattenedSystems.length;
 		let systemIndex;
@@ -43,7 +40,7 @@ export class SystemProcessor implements Disposable {
 
 					await system.update();
 
-					if (system[$queries]) {
+					if (system[$queries].length) {
 						const scheduler = system[$queries][0][$scheduler];
 
 						if (scheduler) {
@@ -53,14 +50,9 @@ export class SystemProcessor implements Disposable {
 							for (const factory of system[$queries]) {
 								if (factory.currentJobHandle) {
 									const handle = factory.currentJobHandle;
-									const handleDependencies =
-										handle[$dependencies];
+									const handleDependencies = handle[$dependencies];
 
-									if (
-										!handle.isComplete &&
-										handleDependencies &&
-										handleDependencies.size > 0
-									) {
+									if (!handle.isComplete && handleDependencies && handleDependencies.size > 0) {
 										for (const jobId of handleDependencies) {
 											dependencies.add(jobId);
 										}
@@ -76,7 +68,7 @@ export class SystemProcessor implements Disposable {
 								get isComplete() {
 									return isComplete;
 								},
-								complete: async () => {
+								complete: async function () {
 									if (isComplete) {
 										return;
 									}
@@ -85,16 +77,13 @@ export class SystemProcessor implements Disposable {
 										return promise;
 									}
 
-									promise = new Promise<void>(
-										async (resolve) => {
-											await scheduler.completeJobs(
-												dependencies
-											);
+									const complete = async function (resolve: (value: void | PromiseLike<void>) => void) {
+										await scheduler.completeJobs(dependencies);
 
-											isComplete = true;
-											resolve();
-										}
-									);
+										isComplete = true;
+										resolve();
+									};
+									promise = new Promise<void>(complete);
 								},
 							};
 						}

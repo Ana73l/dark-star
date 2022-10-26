@@ -1,12 +1,12 @@
-import { ComponentQueryDescriptor, ComponentTypes, ComponentTypesQuery, convertQueryToDescriptors, QueryRecord } from '../query';
+import { ComponentTypes, ComponentTypesQuery, convertQueryToDescriptors, QueryRecord } from '../query';
 import { WorldUpdateVersion } from '../world';
-import { ECSJobScheduler } from '../threads/ecs-job-scheduler';
-import { JobHandle } from '../threads/job';
+import { JobScheduler } from '../threads/job-scheduler';
+import { JobHandle } from '../threads/jobs/job';
 import { EntityEachLambda, EntityEachLambdaWithEntities } from '../threads/entity-lambda';
 
 import { $scheduler } from './planning/__internals__';
-import { ECSEachJob } from './ecs-jobs/ecs-each';
-import { ECSEachWithEntitiesJob } from './ecs-jobs/ecs-each-with-entities';
+import { ECSEachJob } from '../threads/jobs/ecs-each';
+import { ECSEachWithEntitiesJob } from '../threads/jobs/ecs-each-with-entities';
 
 export class Query<TAll extends ComponentTypes, TSome extends ComponentTypes = [], TNone extends ComponentTypes = []> {
 	public lastWorldVersion: WorldUpdateVersion = -1;
@@ -14,7 +14,7 @@ export class Query<TAll extends ComponentTypes, TSome extends ComponentTypes = [
 
 	private withChanges: boolean = false;
 
-	[$scheduler]?: ECSJobScheduler;
+	[$scheduler]?: JobScheduler;
 
 	constructor(private query: QueryRecord<TAll, TSome, TNone>) {}
 

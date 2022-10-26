@@ -2,7 +2,7 @@ import { Disposable } from '@dark-star/core';
 
 import { ComponentType } from '../component';
 import { Entity } from '../entity';
-import { ComponentInstancesFromTypes, OptionalComponentPartialsFromTypes } from '../query';
+import { ComponentTypes, ComponentInstancesFromTypes, OptionalComponentPartialsFromTypes } from '../query';
 
 /** @hidden Current world version. Used to track for changes. */
 export type WorldUpdateVersion = number;
@@ -14,9 +14,9 @@ export abstract class World implements Disposable {
 	abstract readonly isStepInProgress: boolean;
 
 	abstract spawn(): void;
-	abstract spawn<T extends ComponentType[]>(componentTypes: T): void;
-	abstract spawn<T extends ComponentType[]>(componentTypes: T, init: OptionalComponentPartialsFromTypes<T>): void;
-	abstract spawn<T extends ComponentType[]>(componentTypes: T, init: (components: ComponentInstancesFromTypes<T>) => void): void;
+	abstract spawn<T extends ComponentTypes>(componentTypes: T): void;
+	abstract spawn<T extends ComponentTypes>(componentTypes: T, init: OptionalComponentPartialsFromTypes<T>): void;
+	abstract spawn<T extends ComponentTypes>(componentTypes: T, init: (components: ComponentInstancesFromTypes<T>) => void): void;
 
 	abstract exists(entity: Entity): boolean;
 
@@ -24,15 +24,15 @@ export abstract class World implements Disposable {
 
 	abstract get<T extends ComponentType>(entity: Entity, componentType: T): InstanceType<T> | undefined;
 
-	abstract attach<T extends ComponentType[]>(entity: Entity, componentTypes: T): void;
-	abstract attach<T extends ComponentType[]>(entity: Entity, componentTypes: T, init: OptionalComponentPartialsFromTypes<T>): void;
-	abstract attach<T extends ComponentType[]>(
+	abstract attach<T extends ComponentTypes>(entity: Entity, componentTypes: T): void;
+	abstract attach<T extends ComponentTypes>(entity: Entity, componentTypes: T, init: OptionalComponentPartialsFromTypes<T>): void;
+	abstract attach<T extends ComponentTypes>(
 		entity: Entity,
 		componentTypes: T,
 		init: (components: ComponentInstancesFromTypes<T>) => void
 	): void;
 
-	abstract detach<T extends ComponentType[]>(entity: Entity, componentTypes: T): void;
+	abstract detach<T extends ComponentTypes>(entity: Entity, componentTypes: T): void;
 
 	abstract destroy(entity: Entity): void;
 

@@ -1,7 +1,6 @@
 import { assert } from '@dark-star/core';
 
-import { ComponentType } from '../component';
-import { ComponentTypes, ComponentTypesQuery } from '../query';
+import { ComponentTypes } from '../query';
 import { JobHandle } from '../threads';
 import { WorldUpdateVersion } from '../world';
 

@@ -18,7 +18,7 @@
 				"assets": ["examples/space-invaders/src/favicon.ico", "examples/space-invaders/src/assets"],
 				"styles": ["examples/space-invaders/src/styles.scss"],
 				"scripts": [],
-				"webpackConfig": "@nrwl/react/plugins/webpack"
+				"webpackConfig": "examples/space-invaders/webpack.config.js"
 			},
 			"configurations": {
 				"development": {

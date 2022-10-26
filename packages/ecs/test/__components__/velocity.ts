@@ -1,5 +1,5 @@
-import { component } from '../../src/component';
 import { float64 } from '@dark-star/shared-object';
+import { component } from '../../src/component';
 
 @component()
 export class Velocity {

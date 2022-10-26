@@ -115,10 +115,7 @@ export class WorkerPool implements Disposable {
 	 * ```
 	 */
 	constructor({ threads, workerScript = '' }: WorkerPoolConfig) {
-		assert(
-			threads > 0,
-			`Cannot construct ${this.constructor.name}: number of workers cannot be less than one (passed ${threads})`
-		);
+		assert(threads > 0, `Cannot construct ${this.constructor.name}: number of workers cannot be less than one (passed ${threads})`);
 
 		const script = isNode
 			? `data:text/javascript,${workerScript} ${WORKER_SCRIPT}`
@@ -230,30 +227,34 @@ export class WorkerPool implements Disposable {
 			return this.disposePromise;
 		}
 
-		this.disposePromise = new Promise<void>(async (resolve) => {
-			for (const worker of this.workers) {
+		// @babel SyntaxError: Cannot convert non-arrow function to a function expression.
+		const self = this;
+		const dispose = async function (resolve: (value: void | PromiseLike<void>) => void) {
+			for (const worker of self.workers) {
 				await worker.terminate();
 			}
 
-			while (this.workers.length) {
-				this.workers.pop();
+			while (self.workers.length) {
+				self.workers.pop();
 			}
 
-			this.resolvers.clear();
+			self.resolvers.clear();
 
-			while (this.idle.length) {
-				this.idle.pop();
+			while (self.idle.length) {
+				self.idle.pop();
 			}
 
-			while (this.backlog.length) {
-				this.backlog.pop();
+			while (self.backlog.length) {
+				self.backlog.pop();
 			}
 
-			this.taskIdCounter = 0;
-			this._isDisposed = true;
+			self.taskIdCounter = 0;
+			self._isDisposed = true;
 
 			resolve();
-		});
+		};
+
+		this.disposePromise = new Promise<void>(dispose);
 
 		return this.disposePromise;
 	}

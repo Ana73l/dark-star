@@ -28,8 +28,9 @@ export const updateAfter =
 
 export const entities =
 	(...query: [all: ComponentType[], some?: ComponentType[], none?: ComponentType[]]) =>
-	<T extends SystemType>(target: T, property: string): void => {
-		const queryFields = (target.queryFields = target.queryFields || {});
+	<T extends SystemType>(target: InstanceType<T>, property: string): void => {
+		const systemType = target.constructor as T;
+		const queryFields = (systemType.queryFields = systemType.queryFields || {});
 
 		queryFields[property] = query;
 	};

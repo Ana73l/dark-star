@@ -8,7 +8,7 @@ import { System, SystemGroup, SystemType } from '../system';
 import { Planner as IPlanner, $scheduler } from './__internals__';
 import { RootSystem } from './root-system';
 import { Query } from '../system-job-factory';
-import { ECSJobScheduler } from '../../threads/ecs-job-scheduler';
+import { JobScheduler } from '../../threads/job-scheduler';
 
 export class Planner implements IPlanner, Disposable {
 	private queries: Map<System, [ComponentQueryDescriptor[]]> = new Map();
@@ -85,10 +85,7 @@ export class Planner implements IPlanner, Disposable {
 
 		// add instances into group instances
 		for (const systemGroupType of systemsInGroup.keys()) {
-			assert(
-				systemInstances.has(systemGroupType),
-				`System group ${systemGroupType.name} not registered in world.`
-			);
+			assert(systemInstances.has(systemGroupType), `System group ${systemGroupType.name} not registered in world.`);
 
 			const systemGroup = systemInstances.get(systemGroupType) as SystemGroup;
 			const currentSystemsInGroup = systemsInGroup.get(systemGroupType)!;
@@ -101,8 +98,7 @@ export class Planner implements IPlanner, Disposable {
 			// sort systems in group
 			systemGroup.systems.sort(
 				(systemA, systemB) =>
-					calculateOrderByAttributes(systemA, systemB) ||
-					calculateOrderByComponentQueries(queries, systemA, systemB)
+					calculateOrderByAttributes(systemA, systemB) || calculateOrderByComponentQueries(queries, systemA, systemB)
 			);
 		}
 
@@ -113,7 +109,7 @@ export class Planner implements IPlanner, Disposable {
 		return systemRoot;
 	}
 
-	public addSchedulerToJobFactories(jobScheduler: ECSJobScheduler): void {
+	public addSchedulerToJobFactories(jobScheduler: JobScheduler): void {
 		const factories = this.lambdaFactories;
 
 		for (const factory of factories) {
@@ -175,15 +171,9 @@ export function calculateOrderByComponentQueries(
 						// if both systems write - they're equal, but still dependent
 						if (current.flag === ComponentAccessFlags.Read && other.flag === ComponentAccessFlags.Write) {
 							result += -1;
-						} else if (
-							current.flag === ComponentAccessFlags.Write &&
-							other.flag === ComponentAccessFlags.Read
-						) {
+						} else if (current.flag === ComponentAccessFlags.Write && other.flag === ComponentAccessFlags.Read) {
 							result += 1;
-						} else if (
-							current.flag === ComponentAccessFlags.Write &&
-							other.flag === ComponentAccessFlags.Write
-						) {
+						} else if (current.flag === ComponentAccessFlags.Write && other.flag === ComponentAccessFlags.Write) {
 							result += 1;
 						}
 					}

@@ -18,7 +18,7 @@ export type AttachComponentsCommand<T extends ComponentTypes> = {
 
 export type DetachComponentsCommand = {
 	entity: Entity;
-	componentTypes: ComponentType[];
+	componentTypes: ComponentTypes;
 };
 
 export type DestroyEntityCommand = Entity;
@@ -36,14 +36,14 @@ export class DeferredCommandsProcessor implements Disposable {
 		return this.disposed;
 	}
 
-	public create<T extends ComponentType[]>(
+	public create<T extends ComponentTypes>(
 		componentTypes?: T,
 		init?: (components: ComponentInstancesFromTypes<T>) => void | OptionalComponentPartialsFromTypes<T>
 	): void {
 		this.createEntityCommands.push({ componentTypes, init });
 	}
 
-	public attach<T extends ComponentType[]>(
+	public attach<T extends ComponentTypes>(
 		entity: Entity,
 		componentTypes?: T,
 		init?: (components: ComponentInstancesFromTypes<T>) => void | OptionalComponentPartialsFromTypes<T>
@@ -51,7 +51,7 @@ export class DeferredCommandsProcessor implements Disposable {
 		this.attachComponentsCommands.push({ entity, componentTypes, init });
 	}
 
-	public detach(entity: Entity, componentTypes: ComponentType[]): void {
+	public detach(entity: Entity, componentTypes: ComponentTypes): void {
 		this.detachComponentsCommands.push({ entity, componentTypes });
 	}
 

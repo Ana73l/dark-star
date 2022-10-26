@@ -1,6 +1,5 @@
 import { Entity } from '../entity';
 import { ComponentTypesQuery, ComponentInstancesFromQuery, ComponentTypes } from '../query';
-import { ECSEachJob } from '../system/ecs-jobs/ecs-each';
 
 export type EntityEachLambda<
 	T extends ComponentTypesQuery,

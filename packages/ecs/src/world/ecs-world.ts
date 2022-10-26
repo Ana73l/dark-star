@@ -4,14 +4,15 @@ import { WorkerPool } from '@dark-star/worker-pool';
 
 import { ComponentType } from '../component';
 import { Entity } from '../entity';
-import { ComponentInstancesFromTypes, OptionalComponentPartialsFromTypes } from '../query';
+import { ComponentInstancesFromTypes, ComponentTypes, OptionalComponentPartialsFromTypes } from '../query';
 import { DeferredCommandsProcessor } from '../storage/deferred-commands-processor';
 import { EntityStore } from '../storage/store';
 import { System, SystemType } from '../system';
 import { Planner } from '../system/planning/planner';
 import { $planner } from '../system/planning/__internals__';
 import { SystemProcessor } from '../system/systems-processor';
-import { ECSJobScheduler } from '../threads/ecs-job-scheduler';
+import { ECSTaskRunner } from '../threads/ecs-task-runner';
+import { JobScheduler } from '../threads/job-scheduler';
 import { createWorkerGlobalScope } from '../threads/worker-global-scope';
 
 import { World, WorldUpdateVersion } from './world';
@@ -30,7 +31,7 @@ export class ECSWorld implements World {
 	private store!: EntityStore;
 	private deferredCommands!: DeferredCommandsProcessor;
 	private injectablesContainer!: Container;
-	private jobScheduler?: ECSJobScheduler;
+	private jobScheduler?: JobScheduler;
 	private workerPool?: WorkerPool;
 	private systemProcessor!: SystemProcessor;
 	private disposed: boolean = false;
@@ -66,12 +67,15 @@ export class ECSWorld implements World {
 		}
 
 		// if threaded
-		if (threads > 0) {
+		if (threads > 1) {
 			world.workerPool = new WorkerPool({
 				threads,
 				workerScript: createWorkerGlobalScope(),
 			});
-			world.jobScheduler = new ECSJobScheduler(world.workerPool, world.deferredCommands);
+
+			const ecsTaskRunner = new ECSTaskRunner(world.workerPool);
+
+			world.jobScheduler = new JobScheduler(ecsTaskRunner);
 			planner.addSchedulerToJobFactories(world.jobScheduler);
 		}
 
@@ -94,11 +98,11 @@ export class ECSWorld implements World {
 		return this.disposed;
 	}
 
-	public spawn<T extends ComponentType[]>(): void;
-	public spawn<T extends ComponentType[]>(componentTypes: T): void;
-	public spawn<T extends ComponentType[]>(componentTypes: T, init?: OptionalComponentPartialsFromTypes<T>): void;
-	public spawn<T extends ComponentType[]>(componentTypes: T, init: (components: ComponentInstancesFromTypes<T>) => void): void;
-	public spawn<T extends ComponentType[]>(
+	public spawn<T extends ComponentTypes>(): void;
+	public spawn<T extends ComponentTypes>(componentTypes: T): void;
+	public spawn<T extends ComponentTypes>(componentTypes: T, init?: OptionalComponentPartialsFromTypes<T>): void;
+	public spawn<T extends ComponentTypes>(componentTypes: T, init: (components: ComponentInstancesFromTypes<T>) => void): void;
+	public spawn<T extends ComponentTypes>(
 		componentTypes?: T,
 		init?: (components: ComponentInstancesFromTypes<T>) => void | OptionalComponentPartialsFromTypes<T>
 	): void {
@@ -117,14 +121,14 @@ export class ECSWorld implements World {
 		return this.store.getComponent(entity, componentType);
 	}
 
-	public attach<T extends ComponentType[]>(entity: Entity, componentTypes: T): void;
-	public attach<T extends ComponentType[]>(entity: Entity, componentTypes: T, init?: OptionalComponentPartialsFromTypes<T>): void;
-	public attach<T extends ComponentType[]>(
+	public attach<T extends ComponentTypes>(entity: Entity, componentTypes: T): void;
+	public attach<T extends ComponentTypes>(entity: Entity, componentTypes: T, init?: OptionalComponentPartialsFromTypes<T>): void;
+	public attach<T extends ComponentTypes>(
 		entity: Entity,
 		componentTypes: T,
 		init: (components: ComponentInstancesFromTypes<T>) => void
 	): void;
-	public attach<T extends ComponentType[]>(
+	public attach<T extends ComponentTypes>(
 		entity: Entity,
 		componentTypes: T,
 		init?: (components: ComponentInstancesFromTypes<T>) => void | OptionalComponentPartialsFromTypes<T>
@@ -132,7 +136,7 @@ export class ECSWorld implements World {
 		this.deferredCommands.attach(entity, componentTypes, init);
 	}
 
-	public detach<T extends ComponentType[]>(entity: Entity, componentTypes: T): void {
+	public detach<T extends ComponentTypes>(entity: Entity, componentTypes: T): void {
 		this.deferredCommands.detach(entity, componentTypes);
 	}
 
@@ -149,16 +153,22 @@ export class ECSWorld implements World {
 
 		this.stepInProgress = true;
 
-		this.runPromise = new Promise<void>(async (resolve) => {
-			this.deferredCommands.process();
-			await this.systemProcessor.execute(this._version, deltaT);
+		// @babel SyntaxError: Cannot convert non-arrow function to a function expression.
+		const self = this;
+		const run = async function (resolve: (value: void | PromiseLike<void>) => void) {
+			self.store.currentWorldVersion = self._version;
+			self.deferredCommands.process();
+			await self.systemProcessor.execute(self._version, deltaT);
 
-			this._version++;
+			self._version++;
 
-			this.stepInProgress = false;
+			self.stepInProgress = false;
+
+			self.runPromise = undefined;
 
 			resolve();
-		});
+		};
+		this.runPromise = new Promise<void>(run);
 
 		return this.runPromise;
 	}

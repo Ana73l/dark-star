@@ -1,11 +1,11 @@
 // tslint:disable-next-line: variable-name
 export const shared_object_1 = `{
-    createSharedObjectArray(
+    createSharedObjectArray: (
         schemaType,
         buffer,
         { offset = 0, length = 1 } = {}
     ) => {
-        const schemaSize = schemaType[_internals_1.$size]!;
+        const schemaSize = schemaType[_internals_1.$size];
         if (!buffer) {
             buffer = new SharedArrayBuffer(schemaSize * length);
             offset = 0;
@@ -29,13 +29,13 @@ export const shared_object_1 = `{
             [_internals_1.$offset]: offset
         });
     },
-    createSharedObject(
-        schemaType: T,
-        buffer?: ArrayBuffer,
-        offset: number = 0
+    createSharedObject: (
+        schemaType,
+        buffer,
+        offset = 0
     ) => {
         if (!buffer) {
-            buffer = new SharedArrayBuffer(schemaType[_internals_1.$size]!);
+            buffer = new SharedArrayBuffer(schemaType[_internals_1.$size]);
             offset = 0;
         }
     

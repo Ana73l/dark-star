@@ -1,5 +1,4 @@
 import { useRef, useEffect } from 'react';
-import './App.css';
 
 import { bootstrap } from '../lib/bootstrap';
 

@@ -16,10 +16,6 @@ export interface WriteComponentAccess<T extends ComponentType = ComponentType> {
 	type: T;
 	flag: ComponentAccessFlags.Write;
 }
-export interface WriteComponentAccess<T extends ComponentType = ComponentType> {
-	type: T;
-	flag: ComponentAccessFlags.Write;
-}
 
 export type ComponentQueryDescriptor<T extends ComponentType = ComponentType> = ReadComponentAccess<T> | WriteComponentAccess<T>;
 
