@@ -4,7 +4,9 @@ import { Disposable, assert } from '@dark-star/core';
 
 import { WORKER_SCRIPT } from './worker-script';
 // @ts-ignore
-import * as currentPath from 'current-path';
+import * as currentPath from './current-path';
+import { normalizePath } from './normalize-path';
+
 /** Configuration object used to create a new WorkerPool */
 export type WorkerPoolConfig = {
 	/** Number of worker threads to be spawned by the pool */
@@ -129,9 +131,9 @@ export class WorkerPool implements Disposable {
 						type: 'application/javascript',
 					})
 			  );
-		throw currentPath.default;
+
 		for (let workerId = 0; workerId < threads; workerId++) {
-			this.spawnWorker(workerId, script);
+			this.spawnWorker(workerId);
 		}
 	}
 
@@ -261,8 +263,8 @@ export class WorkerPool implements Disposable {
 		return this.disposePromise;
 	}
 
-	private spawnWorker(workerId: number, url: string) {
-		const worker = new Worker(url);
+	private spawnWorker(workerId: number) {
+		const worker = new Worker(new URL('./worker.ts', normalizePath(currentPath.default)));
 
 		worker.addEventListener('message', (e: any) => {
 			this.handleWorkerResponse(e, workerId);
