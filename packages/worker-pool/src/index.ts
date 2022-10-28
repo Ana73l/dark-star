@@ -3,9 +3,6 @@ import Worker from 'web-worker';
 import { Disposable, assert } from '@dark-star/core';
 
 import { WORKER_SCRIPT } from './worker-script';
-// @ts-ignore
-import * as currentPath from './current-path';
-import { normalizePath } from './normalize-path';
 
 /** Configuration object used to create a new WorkerPool */
 export type WorkerPoolConfig = {
@@ -133,7 +130,7 @@ export class WorkerPool implements Disposable {
 			  );
 
 		for (let workerId = 0; workerId < threads; workerId++) {
-			this.spawnWorker(workerId);
+			this.spawnWorker(workerId, script);
 		}
 	}
 
@@ -263,8 +260,8 @@ export class WorkerPool implements Disposable {
 		return this.disposePromise;
 	}
 
-	private spawnWorker(workerId: number) {
-		const worker = new Worker('file:' + new URL('src/worker.ts', normalizePath(currentPath.default)));
+	private spawnWorker(workerId: number, workerScript: string) {
+		const worker = new Worker(workerScript);
 
 		worker.addEventListener('message', (e: any) => {
 			this.handleWorkerResponse(e, workerId);

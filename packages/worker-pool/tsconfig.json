@@ -1,6 +1,6 @@
 {
 	"extends": "../../tsconfig.base.json",
-	"include": ["src/**/*.ts", "src/**/*.cjs"],
+	"include": ["src/**/*.ts"],
 	"compilerOptions": {
 		"forceConsistentCasingInFileNames": true,
 		"strict": true,
