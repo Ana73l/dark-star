@@ -264,7 +264,7 @@ export class WorkerPool implements Disposable {
 	}
 
 	private spawnWorker(workerId: number) {
-		const worker = new Worker(new URL('./worker.ts', normalizePath(currentPath.default)));
+		const worker = new Worker('file:' + new URL('src/worker.ts', normalizePath(currentPath.default)));
 
 		worker.addEventListener('message', (e: any) => {
 			this.handleWorkerResponse(e, workerId);

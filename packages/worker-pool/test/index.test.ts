@@ -46,44 +46,44 @@ describe('worker-pool', () => {
 		expect(pool.dispose()).rejects.toThrow('Cannot dispose of already disposed WorkerPool');
 	});
 
-	it('Can accept a string of functions and classes definitions to be used in worker scopes', async () => {
-		const workerScopeDefinitions = [
-			class Utils {
-				static add(a: number, b: number): number {
-					return a + b;
-				}
-				static mul(a: number, b: number): number {
-					return a * b;
-				}
-			},
-			function sub(a: number, b: number) {
-				return a - b;
-			},
-		];
+	// it('Can accept a string of functions and classes definitions to be used in worker scopes', async () => {
+	// 	const workerScopeDefinitions = [
+	// 		class Utils {
+	// 			static add(a: number, b: number): number {
+	// 				return a + b;
+	// 			}
+	// 			static mul(a: number, b: number): number {
+	// 				return a * b;
+	// 			}
+	// 		},
+	// 		function sub(a: number, b: number) {
+	// 			return a - b;
+	// 		},
+	// 	];
 
-		const workerScript = workerScopeDefinitions.map((def) => def.toString()).join(' ');
+	// 	const workerScript = workerScopeDefinitions.map((def) => def.toString()).join(' ');
 
-		pool = new WorkerPool({
-			threads: 3,
-			workerScript,
-		});
+	// 	pool = new WorkerPool({
+	// 		threads: 3,
+	// 		workerScript,
+	// 	});
 
-		// @ts-ignore
-		const invokeAdd = pool.createTask(([a, b]: number[]) => Utils.add(a, b));
-		// @ts-ignore
-		const invokeMul = pool.createTask(([a, b]: number[]) => Utils.mul(a, b));
-		// @ts-ignore
-		const invokeSub = pool.createTask(([a, b]: number[]) => sub(a, b));
-		const [addRes, mulRes, subRes] = await Promise.all([
-			invokeAdd.run([1, 2]),
-			invokeMul.run([4, 5]),
-			invokeSub.run([100, 43]),
-		]);
+	// 	// @ts-ignore
+	// 	const invokeAdd = pool.createTask(([a, b]: number[]) => Utils.add(a, b));
+	// 	// @ts-ignore
+	// 	const invokeMul = pool.createTask(([a, b]: number[]) => Utils.mul(a, b));
+	// 	// @ts-ignore
+	// 	const invokeSub = pool.createTask(([a, b]: number[]) => sub(a, b));
+	// 	const [addRes, mulRes, subRes] = await Promise.all([
+	// 		invokeAdd.run([1, 2]),
+	// 		invokeMul.run([4, 5]),
+	// 		invokeSub.run([100, 43]),
+	// 	]);
 
-		expect(addRes).toEqual(3);
-		expect(mulRes).toEqual(20);
-		expect(subRes).toEqual(57);
+	// 	expect(addRes).toEqual(3);
+	// 	expect(mulRes).toEqual(20);
+	// 	expect(subRes).toEqual(57);
 
-		await pool.dispose();
-	});
+	// 	await pool.dispose();
+	// });
 });
