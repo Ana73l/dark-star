@@ -25,12 +25,12 @@ ${seedSerialization()}
 
 ${schemas
 	.map((schema) => {
-		const definition = schema[$definition]!;
+		const definition = schema[$definition];
 
 		return `
         ${schema.toString()}
 
-        ${Object.entries(definition).map(([fieldName, { type, args = [] }]) => {
+        ${Object.entries(definition || []).map(([fieldName, { type, args = [] }]) => {
 			if (type === PrimitiveTypes.Schema) {
 				return `fieldDecorators[${type}](schemas[${args[0] - 1}])(${schema.name}.prototype, "${fieldName}")`;
 			} else {
