@@ -7,7 +7,7 @@ import { Movement } from '../components/movement.data';
 @injectable()
 export class PrepareMovementSystem extends System {
 	@entities([Velocity, Movement])
-	private entities!: Query<[typeof Velocity, typeof Movement]>;
+	public entities!: Query<[typeof Velocity, typeof Movement]>;
 
 	public override async update() {
 		this.entities

@@ -9,7 +9,7 @@ import { Player } from '../../tags/player';
 @injectable()
 export class PlayerInputSystem extends System {
 	@entities([Player, Movement])
-	private entities!: Query<[typeof Player, typeof Movement]>;
+	public entities!: Query<[typeof Player, typeof Movement]>;
 
 	constructor(private keyboard: Keyboard) {
 		super();

@@ -1,6 +1,7 @@
-import { ComponentType } from '../component';
-import { ComponentTypesQuery } from '../query';
-import { SystemType, SystemGroup } from './system';
+import { TransformCallback } from 'stream';
+import { ComponentTypes } from '../query';
+import { SystemType, SystemGroup, System } from './system';
+import { Query } from './system-job-factory';
 
 export const group =
 	(grp: SystemType<SystemGroup>) =>
@@ -26,8 +27,12 @@ export const updateAfter =
 		return target;
 	};
 
+export type EntitiesDecorator<T extends any> = <K extends string, V extends System & Record<K, T>>(target: V, property: K) => void;
+
 export const entities =
-	(...query: [all: ComponentType[], some?: ComponentType[], none?: ComponentType[]]) =>
+	<TAll extends ComponentTypes, TSome extends ComponentTypes = [], TNone extends ComponentTypes = []>(
+		...query: [all: TAll, some?: TSome, none?: TNone]
+	): EntitiesDecorator<Query<TAll, TSome, TNone>> =>
 	<T extends SystemType>(target: InstanceType<T>, property: string): void => {
 		const systemType = target.constructor as T;
 		const queryFields = (systemType.queryFields = systemType.queryFields || {});

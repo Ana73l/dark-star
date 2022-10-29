@@ -9,7 +9,7 @@ import { PrepareMovementSystem } from './prepare-movement.system';
 @updateBefore(PrepareMovementSystem)
 export class ClearVelocitySytem extends System {
 	@entities([Velocity])
-	private entities!: Query<[typeof Velocity]>;
+	public entities!: Query<[typeof Velocity]>;
 
 	public override async update() {
 		await this.entities
