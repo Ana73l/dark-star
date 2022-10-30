@@ -55,7 +55,7 @@ export const bootstrap = async (canvas: HTMLCanvasElement) => {
 		.loadAssets();
 
 	const world = await new WorldBuilder()
-		.useThreads(1)
+		.useThreads(2)
 		.registerSingleton(CanvasRenderingContext2D, canvas.getContext('2d'))
 		.registerSingleton(Keyboard, createKeyboard().attach(window as any))
 		.registerSingleton(AssetStore, assetStore)

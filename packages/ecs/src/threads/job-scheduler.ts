@@ -4,7 +4,7 @@ import { ComponentTypeId } from '../component';
 import { ComponentAccessFlags, ComponentQueryDescriptor } from '../query';
 import { ECSTaskRunner } from './ecs-task-runner';
 
-import { $dependencies, JobId, JobHandle } from './jobs/job';
+import { $dependencies, JobId, JobHandle, $readers, $writers } from './jobs/job';
 
 export class JobScheduler implements Disposable {
 	private readers: Map<ComponentTypeId, Set<JobId>> = new Map();
@@ -24,7 +24,52 @@ export class JobScheduler implements Disposable {
 		deps?: JobHandle[]
 	): JobHandle {
 		const id = this.uid()!;
-		const dependencies = this.getDependenciesAndRegisterJob(id, accessDescriptors, deps);
+		const writers = this.lastWriter;
+		const readers = this.readers;
+		const dependencies: Set<JobId> = deps && deps.length > 0 ? new Set(deps.map((handle) => handle.id)) : new Set();
+		const jobReaders: ComponentTypeId[] = [];
+		const jobWriters: ComponentTypeId[] = [];
+
+		const descriptorsCount = accessDescriptors.length;
+		let descriptorIndex;
+
+		for (descriptorIndex = 0; descriptorIndex < descriptorsCount; descriptorIndex++) {
+			const descriptor = accessDescriptors[descriptorIndex];
+			const componentType = descriptor.type;
+			const componentTypeId = componentType[$id]!;
+			const flag = descriptor.flag;
+
+			// flag access is Read
+			if (flag === ComponentAccessFlags.Read) {
+				// set dependencies to last prior writer
+				if (writers.has(componentTypeId)) {
+					const lastWriter = writers.get(componentTypeId)!;
+					dependencies.add(lastWriter);
+				}
+				// register to job readers
+				jobReaders.push(componentTypeId);
+			}
+			// flag access is Write
+			else {
+				// add prior readers to dependencies
+				if (readers.has(componentTypeId)) {
+					const componentReaders = readers.get(componentTypeId)!;
+
+					for (const readerId of componentReaders) {
+						if (!dependencies.has(readerId)) {
+							dependencies.add(readerId);
+						}
+					}
+				}
+				// add last writer to dependencies
+				if (writers.has(componentTypeId)) {
+					dependencies.add(writers.get(componentTypeId)!);
+				}
+				// register to job writers
+				jobWriters.push(componentTypeId);
+			}
+		}
+
 		const self = this;
 
 		let isComplete = false;
@@ -59,6 +104,9 @@ export class JobScheduler implements Disposable {
 
 				return promise;
 			},
+			[$dependencies]: dependencies,
+			[$readers]: jobReaders,
+			[$writers]: jobWriters,
 		};
 	}
 
@@ -125,75 +173,6 @@ export class JobScheduler implements Disposable {
 		return dependencies;
 	}
 
-	public getDependenciesAndRegisterJob(id: JobId, accessDescriptors: ComponentQueryDescriptor[], initial?: JobHandle[]): Set<JobId> {
-		const writers = this.lastWriter;
-		const readers = this.readers;
-		const jobToDependees = this.jobToDependees;
-
-		const dependencies: Set<JobId> = initial && initial.length > 0 ? new Set(initial.map((handle) => handle.id)) : new Set();
-
-		const descriptorsCount = accessDescriptors.length;
-		let descriptorIndex;
-
-		for (descriptorIndex = 0; descriptorIndex < descriptorsCount; descriptorIndex++) {
-			const descriptor = accessDescriptors[descriptorIndex];
-			const componentType = descriptor.type;
-			const componentTypeId = componentType[$id]!;
-			const flag = descriptor.flag;
-
-			// flag access is Read
-			if (flag === ComponentAccessFlags.Read) {
-				// set dependencies to last prior writer
-				if (writers.has(componentTypeId)) {
-					const lastWriter = writers.get(componentTypeId)!;
-					dependencies.add(lastWriter);
-
-					// current job to last writer dependees
-					if (jobToDependees.has(lastWriter)) {
-						jobToDependees.get(lastWriter)!.add(id);
-					} else {
-						jobToDependees.set(lastWriter, new Set([id]));
-					}
-				}
-
-				// register in readers
-				if (readers.has(componentTypeId)) {
-					readers.get(componentTypeId)!.add(id);
-				} else {
-					readers.set(componentTypeId, new Set([id]));
-				}
-			}
-			// flag access is Write
-			else {
-				// add prior readers to dependencies
-				if (readers.has(componentTypeId)) {
-					const componentReaders = readers.get(componentTypeId)!;
-
-					for (const readerId of componentReaders) {
-						if (!dependencies.has(readerId)) {
-							dependencies.add(readerId);
-						}
-
-						if (jobToDependees.has(readerId)) {
-							jobToDependees.get(readerId)!.add(id);
-						} else {
-							jobToDependees.set(readerId, new Set([id]));
-						}
-					}
-				}
-				// add last writer to dependencies
-				if (writers.has(componentTypeId)) {
-					dependencies.add(writers.get(componentTypeId)!);
-				}
-
-				// register as last writer
-				writers.set(componentTypeId, id);
-			}
-		}
-
-		return dependencies;
-	}
-
 	public dispose(): void {
 		this.disposed = true;
 
@@ -206,6 +185,7 @@ export class JobScheduler implements Disposable {
 	private markAsComplete(id: JobId): void {
 		const jobToDependees = this.jobToDependees;
 		const jobHandles = this.jobHandles;
+		const handle = this.jobHandles.get(id);
 
 		// remove from dependees
 		if (jobToDependees.has(id)) {
@@ -230,6 +210,25 @@ export class JobScheduler implements Disposable {
 			}
 
 			jobToDependees.delete(id);
+		}
+
+		// remove from readers and last writers
+		const readers = handle?.[$readers];
+		const writers = handle?.[$writers];
+
+		if (readers) {
+			for (const reader of readers) {
+				this.readers.get(reader)?.delete(id);
+			}
+		}
+		if (writers) {
+			for (const writer of writers) {
+				const lastHandleWriting = this.lastWriter.get(writer);
+
+				if (lastHandleWriting === id) {
+					this.lastWriter.delete(writer);
+				}
+			}
 		}
 
 		// unregister job
