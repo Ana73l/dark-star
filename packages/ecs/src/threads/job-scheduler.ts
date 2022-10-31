@@ -185,6 +185,8 @@ export class JobScheduler implements Disposable {
 	private markAsComplete(id: JobId): void {
 		const jobToDependees = this.jobToDependees;
 		const jobHandles = this.jobHandles;
+		const readers = this.readers;
+		const lastWriters = this.lastWriter;
 		const handle = this.jobHandles.get(id);
 
 		// remove from dependees
@@ -213,20 +215,20 @@ export class JobScheduler implements Disposable {
 		}
 
 		// remove from readers and last writers
-		const readers = handle?.[$readers];
-		const writers = handle?.[$writers];
+		const handleReaders = handle?.[$readers];
+		const handleWriters = handle?.[$writers];
 
-		if (readers) {
-			for (const reader of readers) {
-				this.readers.get(reader)?.delete(id);
+		if (handleReaders) {
+			for (const reader of handleReaders) {
+				readers.get(reader)?.delete(id);
 			}
 		}
-		if (writers) {
-			for (const writer of writers) {
-				const lastHandleWriting = this.lastWriter.get(writer);
+		if (handleWriters) {
+			for (const writer of handleWriters) {
+				const lastHandleWriting = lastWriters.get(writer);
 
 				if (lastHandleWriting === id) {
-					this.lastWriter.delete(writer);
+					lastWriters.delete(writer);
 				}
 			}
 		}
