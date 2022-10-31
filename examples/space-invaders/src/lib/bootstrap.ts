@@ -1,5 +1,5 @@
 import { WorldBuilder } from '@dark-star/ecs';
-import { coresCount } from '@dark-star/worker-pool';
+import { CORES_COUNT } from '@dark-star/worker-pool';
 
 import { createKeyboard, Keyboard } from './input/providers/keyboard';
 

@@ -1,9 +1,9 @@
-import { coresCount } from '../src/index';
+import { CORES_COUNT } from '../src/index';
 
 describe('constants', () => {
-	describe('coresCount', () => {
+	describe('CORES_COUNT', () => {
 		it('Is a number value', () => {
-			expect(coresCount).not.toBeNaN();
+			expect(CORES_COUNT).not.toBeNaN();
 		});
 	});
 });

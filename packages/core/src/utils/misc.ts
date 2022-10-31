@@ -5,6 +5,12 @@
 export const UINT32_MAX = 4294967295;
 
 /**
+ * @constant
+ * Indicates whether current environment is node
+ */
+export const IS_NODE: boolean = typeof process === 'object';
+
+/**
  * Creates an unique integer id generator.
  *
  * @param {number} [start=1] - Initial value
@@ -46,5 +52,42 @@ export const createUIDGenerator = (start: number = 1) => {
 export function assert(expression: boolean, message: string = ''): asserts expression {
 	if (!expression) {
 		throw new Error(message);
+	}
+}
+
+/**
+ * Gets the file name and path of the current executing script (node and browser)
+ *
+ * @example
+ * ```ts
+ * console.log(getCurrentScript()); // e.g. 'main.js'
+ * ```
+ */
+export const getCurrentScript = IS_NODE ? getCurrentScriptNode : getCurrentScriptBrowser;
+
+function getCurrentScriptNode(): string {
+	return __filename;
+}
+
+function getCurrentScriptBrowser(): string {
+	var error = new Error(),
+		source,
+		lastStackFrameRegex = new RegExp(/.+\/(.*?):\d+(:\d+)*$/),
+		currentStackFrameRegex = new RegExp(/getScriptName \(.+\/(.*):\d+:\d+\)/);
+
+	// @ts-ignore
+	if ((source = lastStackFrameRegex.exec(error.stack.trim())) && source[1] != '') {
+		return source[1];
+	}
+	// @ts-ignore
+	else if ((source = currentStackFrameRegex.exec(error.stack.trim()))) {
+		return source[1];
+	}
+	// @ts-ignore
+	else if (error.fileName != undefined) {
+		// @ts-ignore
+		return error.fileName;
+	} else {
+		return '';
 	}
 }

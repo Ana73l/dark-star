@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import Worker from 'web-worker';
-import { Disposable, assert } from '@dark-star/core';
+import { Disposable, assert, IS_NODE } from '@dark-star/core';
 
 import { WORKER_SCRIPT } from './worker-script';
 
@@ -70,17 +69,9 @@ type WorkerTaskResponse = {
 
 /**
  * @constant
- * Indicates whether current environment is node
- */
-// @ts-ignore
-export const isNode: boolean = typeof process === 'object';
-
-/**
- * @constant
  * Number of CPU cores
  */
-// @ts-ignore
-export const coresCount: number = isNode ? require('os').cpus().length : navigator.hardwareConcurrency;
+export const CORES_COUNT: number = IS_NODE ? require('os').cpus().length : navigator.hardwareConcurrency;
 
 /**
  * A worker pool used to create task, schedulable on multiple threads
@@ -104,7 +95,7 @@ export class WorkerPool implements Disposable {
 	 * @example
 	 * ```ts
 	 * // without worker global scope
-	 * const pool = new WorkerPool({ threads: coresCount - 1 });
+	 * const pool = new WorkerPool({ threads: CORES_COUNT - 1 });
 	 *
 	 * // with worker global scope
 	 * const worker = `
@@ -112,13 +103,13 @@ export class WorkerPool implements Disposable {
 	 * const mul = (a, b) => a * b;
 	 * `;
 	 *
-	 * const pool = new WorkerPool({ threads: coresCount - 1, workerScript: worker });
+	 * const pool = new WorkerPool({ threads: CORES_COUNT - 1, workerScript: worker });
 	 * ```
 	 */
 	constructor({ threads, workerScript = '' }: WorkerPoolConfig) {
 		assert(threads > 0, `Cannot construct ${this.constructor.name}: number of workers cannot be less than one (passed ${threads})`);
 
-		const script = isNode
+		const script = IS_NODE
 			? `data:text/javascript,${workerScript} ${WORKER_SCRIPT}`
 					.replace(/\s{2,}/g, '')
 					.split('\n')
@@ -222,7 +213,7 @@ export class WorkerPool implements Disposable {
 	 * ```
 	 */
 	public async dispose(): Promise<void> {
-		assert(!this._isDisposed, 'Cannot dispose of already disposed WorkerPool');
+		assert(!this._isDisposed, 'Cannot dispose of an already disposed WorkerPool');
 
 		if (this.disposePromise) {
 			return this.disposePromise;

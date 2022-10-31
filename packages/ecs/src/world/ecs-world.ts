@@ -54,7 +54,6 @@ export class ECSWorld implements World {
 		const planner = new Planner(world.store, systemInstances);
 
 		for (const system of systemInstances) {
-			// @ts-ignore
 			system[$planner] = planner;
 
 			// add queries marked by decorator to instance
@@ -70,7 +69,8 @@ export class ECSWorld implements World {
 		if (threads > 1) {
 			world.workerPool = new WorkerPool({
 				threads,
-				workerScript: createWorkerGlobalScope(),
+				workerScript: `import('@dark-star/core');
+				${createWorkerGlobalScope()}`,
 			});
 
 			const ecsTaskRunner = new ECSTaskRunner(world.workerPool);
