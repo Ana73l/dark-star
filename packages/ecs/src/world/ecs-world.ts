@@ -69,8 +69,7 @@ export class ECSWorld implements World {
 		if (threads > 1) {
 			world.workerPool = new WorkerPool({
 				threads,
-				workerScript: `import('@dark-star/core');
-				${createWorkerGlobalScope()}`,
+				workerScript: createWorkerGlobalScope(),
 			});
 
 			const ecsTaskRunner = new ECSTaskRunner(world.workerPool);

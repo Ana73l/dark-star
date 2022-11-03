@@ -25,6 +25,7 @@ export abstract class ECSQueryJob<
 		access: T,
 		protected lambda: (...args: any[]) => any,
 		protected worldVersion: WorldUpdateVersion,
+		protected params?: any[],
 		protected scheduler?: JobScheduler,
 		protected withChanges: boolean = false
 	) {

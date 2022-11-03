@@ -109,7 +109,7 @@ export class ECSEachJob<
 					componentsProxy[inLayoutIndex] = componentsArrayProxy[inLayoutIndex][entityIndex];
 				}
 
-				lambda.call(null, componentsProxy);
+				lambda.call(null, componentsProxy, this.params);
 			}
 		});
 	}

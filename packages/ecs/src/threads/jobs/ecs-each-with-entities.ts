@@ -118,7 +118,8 @@ export class ECSEachWithEntitiesJob<
 				for (inLayoutIndex = 0; inLayoutIndex < accessorsCount; inLayoutIndex++) {
 					componentsProxy[inLayoutIndex + 1] = componentsArrayProxy[inLayoutIndex][entityIndex];
 				}
-				lambda.call(null, componentsProxy);
+
+				lambda.call(null, componentsProxy, this.params);
 			}
 		});
 	}
