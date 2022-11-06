@@ -1,7 +1,8 @@
 import { PrimitiveTypes } from '@dark-star/core';
 
 export const core_1 = `
-const PrimitiveTypes = ((PrimitiveTypes) => {
+let PrimitiveTypes;
+((PrimitiveTypes) => {
 ${Object.entries(PrimitiveTypes)
 	.map(([name, value]) =>
 		typeof name === 'string' && typeof value === 'number'
@@ -12,8 +13,8 @@ ${Object.entries(PrimitiveTypes)
 	)
 	.filter((e) => e !== '').join(`
     `)}
-})({});
-const core_1 = {
+})(PrimitiveTypes = {});
+const _dark_star_core__WEBPACK_IMPORTED_MODULE_16__ = {
     $id: Symbol('dark_star_schema_id'),
     $size: Symbol('dark_star_schema_size'),
     $definition: Symbol('dark_star_schema_definition'),
@@ -24,16 +25,22 @@ const core_1 = {
     
     PrimitiveTypes: PrimitiveTypes,
     assignViewToInstance: (instance, view, offset = 0) => {
-        instance[$view] = view;
-        instance[$offset] = offset;
-        const schemaFields = Object.entries(instance.constructor[$definition]);
-        for (const [name] of schemaFields) {
-            instance[name] = instance[$values][name];
+        instance[_dark_star_core__WEBPACK_IMPORTED_MODULE_16__.$view] = view;
+        instance[_dark_star_core__WEBPACK_IMPORTED_MODULE_16__.$offset] = offset;
+        const schemaFields = Object.entries(instance.constructor[_dark_star_core__WEBPACK_IMPORTED_MODULE_16__.$definition]);
+
+        if(instance[_dark_star_core__WEBPACK_IMPORTED_MODULE_16__.$values]) {
+            for (const [name] of schemaFields) {
+                if(instance[_dark_star_core__WEBPACK_IMPORTED_MODULE_16__.$values[name]]) {
+                    instance[name] = instance[_dark_star_core__WEBPACK_IMPORTED_MODULE_16__.$values][name];
+                }
+            }
         }
+        
         return instance;
     },
     registerSchema: (schemaCtor) => {
-        schemaCtor[$id] = schemas.push(schemaCtor);
+        schemaCtor[_dark_star_core__WEBPACK_IMPORTED_MODULE_16__.$id] = _dark_star_core__WEBPACK_IMPORTED_MODULE_4__.schemas.push(schemaCtor);
 
         return schemaCtor;
     }

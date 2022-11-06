@@ -5,7 +5,7 @@ export const shared_object_1 = `{
         buffer,
         { offset = 0, length = 1 } = {}
     ) => {
-        const schemaSize = schemaType[_internals_1.$size];
+        const schemaSize = schemaType[_dark_star_core__WEBPACK_IMPORTED_MODULE_16__.$size];
         if (!buffer) {
             buffer = new SharedArrayBuffer(schemaSize * length);
             offset = 0;
@@ -17,17 +17,24 @@ export const shared_object_1 = `{
         let i;
     
         for (i = 0; i < length; i++) {
-            const schemaInstance = _internals_1.assignViewToInstance(new schemaType(), view, stride);
+            const schemaInstance = new schemaType();
+            schemaInstance[_dark_star_core__WEBPACK_IMPORTED_MODULE_16__.$view] = view;
+            schemaInstance[_dark_star_core__WEBPACK_IMPORTED_MODULE_16__.$offset] = stride;
     
             array[i] = schemaInstance;
-    
+
+            if(schemaType.name === 'Movement') {
+                throw JSON.stringify(schemaInstance);
+            }
             stride += schemaSize;
         }
     
-        return Object.assign(Object.freeze(array), {
-            [_internals_1.$view]: view,
-            [_internals_1.$offset]: offset
-        });
+        return Object.freeze(
+            Object.assign(array, {
+                [_dark_star_core__WEBPACK_IMPORTED_MODULE_16__.$view]: view,
+                [_dark_star_core__WEBPACK_IMPORTED_MODULE_16__.$offset]: offset
+            })
+        );
     },
     createSharedObject: (
         schemaType,
@@ -35,10 +42,14 @@ export const shared_object_1 = `{
         offset = 0
     ) => {
         if (!buffer) {
-            buffer = new SharedArrayBuffer(schemaType[_internals_1.$size]);
+            buffer = new SharedArrayBuffer(schemaType[_dark_star_core__WEBPACK_IMPORTED_MODULE_16__.$size]);
             offset = 0;
         }
     
-        return _internals_1.assignViewToInstance(new schemaType(), new DataView(buffer, offset), offset);
+        const schemaInstance = new schemaType();
+        schemaInstance[_dark_star_core__WEBPACK_IMPORTED_MODULE_16__.$view] = new DataView(buffer, offset);
+        schemaInstance[_dark_star_core__WEBPACK_IMPORTED_MODULE_16__.$offset] = offset;
+
+        return schemaInstance;
     }
 }`;

@@ -8,11 +8,13 @@ import { shared_object_1 } from './shared_object_1';
 const seedSerialization = (): string => `
 ${core_1};
 
-const schemas = [];
+const _dark_star_core__WEBPACK_IMPORTED_MODULE_4__ = {
+	schemas: []
+};
 
 const serializable = ${serializable.toString()};
 
-const shared_object_1 = ${shared_object_1};
+const _dark_star_shared_object__WEBPACK_IMPORTED_MODULE_5__ = ${shared_object_1};
 
 const fieldDecorators = {
     ${Object.entries(fieldDecorators).map(([primitiveType, decorator]) => `${Number(primitiveType)}: ${decorator.toString()}`).join(`,
@@ -28,7 +30,7 @@ ${schemas
 		const definition = schema[$definition];
 
 		return `
-        ${schema.toString()}
+        class ${schema.name} {}
 
         ${Object.entries(definition || []).map(([fieldName, { type, args = [] }]) => {
 			if (type === PrimitiveTypes.Schema) {

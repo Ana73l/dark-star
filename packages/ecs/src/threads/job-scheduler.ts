@@ -46,6 +46,12 @@ export class JobScheduler implements Disposable {
 					const lastWriter = writers.get(componentTypeId)!;
 					dependencies.add(lastWriter);
 				}
+				// register to readers
+				if(readers.has(componentTypeId)) {
+					readers.get(componentTypeId)!.add(id)
+				} else {
+					readers.set(componentTypeId, new Set([id]));
+				}
 				// register to job readers
 				jobReaders.push(componentTypeId);
 			}
@@ -65,6 +71,8 @@ export class JobScheduler implements Disposable {
 				if (writers.has(componentTypeId)) {
 					dependencies.add(writers.get(componentTypeId)!);
 				}
+				// register as last writer
+				writers.set(componentTypeId, id);
 				// register to job writers
 				jobWriters.push(componentTypeId);
 			}
@@ -75,7 +83,7 @@ export class JobScheduler implements Disposable {
 		let isComplete = false;
 		let promise: Promise<void>;
 
-		return {
+		const jobHandle = {
 			get id() {
 				return id;
 			},
@@ -108,6 +116,10 @@ export class JobScheduler implements Disposable {
 			[$readers]: jobReaders,
 			[$writers]: jobWriters,
 		};
+
+		this.jobHandles.set(id, jobHandle);
+
+		return jobHandle;
 	}
 
 	public get isDisposed(): boolean {
@@ -117,11 +129,11 @@ export class JobScheduler implements Disposable {
 	public async completeJobs(jobIds: Set<JobId>): Promise<void> {
 		if (jobIds.size > 0) {
 			const jobHandles = this.jobHandles;
-			const jobs: (() => Promise<void>)[] = [];
+			const jobs = [];
 
 			for (const jobId of jobIds) {
 				if (jobHandles.has(jobId)) {
-					jobs.push(jobHandles.get(jobId)!.complete);
+					jobs.push(jobHandles.get(jobId)!.complete());
 				}
 			}
 

@@ -1,4 +1,4 @@
-import { $id, $view } from '@dark-star/core';
+import { $id, $view, schemas } from '@dark-star/core';
 import { ComponentTypesQuery, ComponentTypes, convertDescriptorsToQuery } from '../../query';
 import { JobHandle } from '..';
 import { createNullHandle } from './job';
@@ -29,6 +29,12 @@ export class ECSEachJob<
 							componentArrayBuffers.push(
 								chunk.getComponentArray(componentType)?.[$view].buffer as SharedArrayBuffer | undefined
 							);
+							if(componentType === 2) {
+								const b = chunk.getComponentArray(componentType)![$view].buffer!;
+				console.log(chunk.getComponentArray(componentType)![0].constructor.name)
+				console.log(chunk.getComponentArray(componentType)![0]);
+								console.log(new Uint8Array(b));
+							}
 						}
 
 						buffers.push([chunk.size, componentArrayBuffers]);
