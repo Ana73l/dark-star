@@ -29,10 +29,10 @@ export class ECSEachJob<
 							componentArrayBuffers.push(
 								chunk.getComponentArray(componentType)?.[$view].buffer as SharedArrayBuffer | undefined
 							);
-							if(componentType === 2) {
+							if (componentType === 2) {
 								const b = chunk.getComponentArray(componentType)![$view].buffer!;
-				console.log(chunk.getComponentArray(componentType)![0].constructor.name)
-				console.log(chunk.getComponentArray(componentType)![0]);
+								console.log(chunk.getComponentArray(componentType)![0].constructor.name);
+								console.log(chunk.getComponentArray(componentType)![0]);
 								console.log(new Uint8Array(b));
 							}
 						}

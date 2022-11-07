@@ -19,79 +19,71 @@ export type TypedFieldDecorator<T extends any> = <K extends string, V extends Sc
 
 export type TypedFieldDecoratorFactory<T extends any> = (...args: any[]) => TypedFieldDecorator<T>;
 
-export const int8 =
-	(): TypedFieldDecorator<number> =>
-	(target, property): void => {
-		const ctor = target.constructor;
-		const fields = (ctor[$definition] = ctor[$definition] || {});
+export const int8 = (): TypedFieldDecorator<number> => (target, property) => {
+	const ctor = target.constructor;
+	const fields = (ctor[$definition] = ctor[$definition] || {});
 
-		fields[property] = {
-			type: PrimitiveTypes.Int8,
-		};
-
-		const offset = ctor[$size] || 0;
-
-		Object.defineProperty(target, property, {
-			enumerable: true,
-			get() {
-				return this[$view]
-					? this[$view].getInt8(this[$offset] + offset)
-					: (this[$values] && this[$values][property]) || 0;
-			},
-			set(value: number) {
-				if (this[$view]) {
-					this[$view].setInt8(this[$offset] + offset, value);
-				}
-
-				if (this[$values]) {
-					this[$values][property] = value;
-				} else {
-					this[$values] = { [property]: value };
-				}
-			},
-		});
-
-		ctor[$size] = Int8Array.BYTES_PER_ELEMENT + offset;
+	fields[property] = {
+		type: PrimitiveTypes.Int8,
 	};
 
-export const uint8 =
-	(): TypedFieldDecorator<number> =>
-	(target, property): void => {
-		const ctor = target.constructor;
-		const fields = (ctor[$definition] = ctor[$definition] || {});
+	const offset = ctor[$size] || 0;
 
-		fields[property] = {
-			type: PrimitiveTypes.Uint8,
-		};
+	Object.defineProperty(target, property, {
+		enumerable: true,
+		get() {
+			return this[$view] ? this[$view].getInt8(this[$offset] + offset) : (this[$values] && this[$values][property]) || 0;
+		},
+		set(value: number) {
+			if (this[$view]) {
+				this[$view].setInt8(this[$offset] + offset, value);
+			}
 
-		const offset = ctor[$size] || 0;
+			if (this[$values]) {
+				this[$values][property] = value;
+			} else {
+				this[$values] = { [property]: value };
+			}
+		},
+	});
 
-		Object.defineProperty(target, property, {
-			enumerable: true,
-			get() {
-				return this[$view]
-					? this[$view].getUint8(this[$offset] + offset)
-					: (this[$values] && this[$values][property]) || 0;
-			},
-			set(value: number) {
-				if (this[$view]) {
-					this[$view].setInt8(this[$offset] + offset, value);
-				}
+	ctor[$size] = Int8Array.BYTES_PER_ELEMENT + offset;
+};
 
-				if (this[$values]) {
-					this[$values][property] = value;
-				} else {
-					this[$values] = { [property]: value };
-				}
-			},
-		});
+export const uint8 = (): TypedFieldDecorator<number> => (target, property) => {
+	const ctor = target.constructor;
+	const fields = (ctor[$definition] = ctor[$definition] || {});
 
-		ctor[$size] = Uint8Array.BYTES_PER_ELEMENT + offset;
+	fields[property] = {
+		type: PrimitiveTypes.Uint8,
 	};
+
+	const offset = ctor[$size] || 0;
+
+	Object.defineProperty(target, property, {
+		enumerable: true,
+		get() {
+			return this[$view] ? this[$view].getUint8(this[$offset] + offset) : (this[$values] && this[$values][property]) || 0;
+		},
+		set(value: number) {
+			if (this[$view]) {
+				this[$view].setInt8(this[$offset] + offset, value);
+			}
+
+			if (this[$values]) {
+				this[$values][property] = value;
+			} else {
+				this[$values] = { [property]: value };
+			}
+		},
+	});
+
+	ctor[$size] = Uint8Array.BYTES_PER_ELEMENT + offset;
+};
 
 export const int16 =
 	(littleEndian: boolean = true): TypedFieldDecorator<number> =>
-	(target, property): void => {
+	(target, property) => {
 		const ctor = target.constructor;
 		const fields = (ctor[$definition] = ctor[$definition] || {});
 
@@ -127,7 +119,7 @@ export const int16 =
 
 export const uint16 =
 	(littleEndian: boolean = true): TypedFieldDecorator<number> =>
-	(target, property): void => {
+	(target, property) => {
 		const ctor = target.constructor;
 		const fields = (ctor[$definition] = ctor[$definition] || {});
 
@@ -163,7 +155,7 @@ export const uint16 =
 
 export const int32 =
 	(littleEndian: boolean = true): TypedFieldDecorator<number> =>
-	(target, property): void => {
+	(target, property) => {
 		const ctor = target.constructor;
 		const fields = (ctor[$definition] = ctor[$definition] || {});
 
@@ -199,7 +191,7 @@ export const int32 =
 
 export const uint32 =
 	(littleEndian: boolean = true): TypedFieldDecorator<number> =>
-	(target, property): void => {
+	(target, property) => {
 		const ctor = target.constructor;
 		const fields = (ctor[$definition] = ctor[$definition] || {});
 
@@ -235,7 +227,7 @@ export const uint32 =
 
 export const float32 =
 	(littleEndian: boolean = true): TypedFieldDecorator<number> =>
-	(target, property): void => {
+	(target, property) => {
 		const ctor = target.constructor;
 		const fields = (ctor[$definition] = ctor[$definition] || {});
 
@@ -271,7 +263,7 @@ export const float32 =
 
 export const float64 =
 	(littleEndian: boolean = true): TypedFieldDecorator<number> =>
-	(target, property): void => {
+	(target, property) => {
 		const ctor = target.constructor;
 		const fields = (ctor[$definition] = ctor[$definition] || {});
 
@@ -307,7 +299,7 @@ export const float64 =
 
 export const bigInt64 =
 	(littleEndian: boolean = true): TypedFieldDecorator<number> =>
-	(target, property): void => {
+	(target, property) => {
 		const ctor = target.constructor;
 		const fields = (ctor[$definition] = ctor[$definition] || {});
 
@@ -343,7 +335,7 @@ export const bigInt64 =
 
 export const bigUint64 =
 	(littleEndian: boolean = true): TypedFieldDecorator<number> =>
-	(target, property): void => {
+	(target, property) => {
 		const ctor = target.constructor;
 		const fields = (ctor[$definition] = ctor[$definition] || {});
 
@@ -390,9 +382,7 @@ export const bool = (): TypedFieldDecorator<boolean> => (target, property) => {
 	Object.defineProperty(target, property, {
 		enumerable: true,
 		get() {
-			return this[$view]
-				? !!this[$view].getUint8(this[$offset] + offset)
-				: (this[$values] && this[$values][property]) || false;
+			return this[$view] ? !!this[$view].getUint8(this[$offset] + offset) : (this[$values] && this[$values][property]) || false;
 		},
 		set(value: boolean) {
 			if (this[$view]) {
@@ -410,141 +400,134 @@ export const bool = (): TypedFieldDecorator<boolean> => (target, property) => {
 	ctor[$size] = Uint8Array.BYTES_PER_ELEMENT + offset;
 };
 
-export const string8 =
-	(): TypedFieldDecorator<string> =>
-	(target, property): void => {
-		const ctor = target.constructor;
-		const fields = (ctor[$definition] = ctor[$definition] || {});
+export const string8 = (): TypedFieldDecorator<string> => (target, property) => {
+	const ctor = target.constructor;
+	const fields = (ctor[$definition] = ctor[$definition] || {});
 
-		fields[property] = {
-			type: PrimitiveTypes.String8,
-		};
-
-		const offset = ctor[$size] || 0;
-
-		Object.defineProperty(target, property, {
-			enumerable: true,
-			get() {
-				if (this[$view]) {
-					let value = '';
-					let stride = this[$offset] + offset;
-					const size = (this[$values][property] || '').length;
-					let i;
-
-					for (i = 0; i < size; i++) {
-						const charCode = this[$view].getUint8(stride);
-						if (charCode === 0) {
-							break;
-						}
-
-						value += String.fromCharCode(charCode);
-						stride++;
-					}
-
-					return value;
-				} else {
-					return (this[$values] && this[$values][property]) || '';
-				}
-			},
-			set(value: string) {
-				if (value === undefined || value === null) {
-					return;
-				}
-
-				if (this[$view]) {
-					let stride = this[$offset] + offset;
-					const size = value.length;
-					let i;
-
-					for (i = 0; i < size; i++) {
-						this[$view].setUint8(stride, value[i].charCodeAt(0));
-						stride++;
-					}
-				}
-
-				if (this[$values]) {
-					this[$values][property] = value;
-				} else {
-					this[$values] = { [property]: value };
-				}
-			},
-		});
-
-		ctor[$size] = Uint8Array.BYTES_PER_ELEMENT + offset;
+	fields[property] = {
+		type: PrimitiveTypes.String8,
 	};
 
-export const string16 =
-	(): TypedFieldDecorator<string> =>
-	(target, property): void => {
-		const ctor = target.constructor;
-		const fields = (ctor[$definition] = ctor[$definition] || {});
+	const offset = ctor[$size] || 0;
 
-		fields[property] = {
-			type: PrimitiveTypes.String16,
-		};
+	Object.defineProperty(target, property, {
+		enumerable: true,
+		get() {
+			if (this[$view]) {
+				let value = '';
+				let stride = this[$offset] + offset;
+				const size = (this[$values][property] || '').length;
+				let i;
 
-		const offset = ctor[$size] || 0;
-		const byteLength = 2;
-
-		Object.defineProperty(target, property, {
-			enumerable: true,
-			get() {
-				if (this[$view]) {
-					let value = '';
-					let stride = this[$offset] + offset;
-					const size = (this[$values][property] || '').length;
-					let i;
-
-					for (i = 0; i < size; i++) {
-						const charCode = this[$view].getUint16(stride);
-						if (charCode === 0) {
-							break;
-						}
-
-						value += String.fromCharCode(charCode);
-						stride += byteLength;
+				for (i = 0; i < size; i++) {
+					const charCode = this[$view].getUint8(stride);
+					if (charCode === 0) {
+						break;
 					}
 
-					return value;
-				} else {
-					return (this[$values] && this[$values][property]) || '';
-				}
-			},
-			set(value: string) {
-				if (value === undefined || value === null) {
-					return;
+					value += String.fromCharCode(charCode);
+					stride++;
 				}
 
-				if (this[$view]) {
-					let stride = this[$offset] + offset;
-					const size = value.length;
-					let i;
+				return value;
+			} else {
+				return (this[$values] && this[$values][property]) || '';
+			}
+		},
+		set(value: string) {
+			if (value === undefined || value === null) {
+				return;
+			}
 
-					for (i = 0; i < size; i++) {
-						this[$view].setUint16(stride, value[i].charCodeAt(0));
-						stride += byteLength;
-					}
+			if (this[$view]) {
+				let stride = this[$offset] + offset;
+				const size = value.length;
+				let i;
+
+				for (i = 0; i < size; i++) {
+					this[$view].setUint8(stride, value[i].charCodeAt(0));
+					stride++;
 				}
+			}
 
-				if (this[$values]) {
-					this[$values][property] = value;
-				} else {
-					this[$values] = { [property]: value };
-				}
-			},
-		});
+			if (this[$values]) {
+				this[$values][property] = value;
+			} else {
+				this[$values] = { [property]: value };
+			}
+		},
+	});
 
-		ctor[$size] = Uint16Array.BYTES_PER_ELEMENT + offset;
+	ctor[$size] = Uint8Array.BYTES_PER_ELEMENT + offset;
+};
+
+export const string16 = (): TypedFieldDecorator<string> => (target, property) => {
+	const ctor = target.constructor;
+	const fields = (ctor[$definition] = ctor[$definition] || {});
+
+	fields[property] = {
+		type: PrimitiveTypes.String16,
 	};
+
+	const offset = ctor[$size] || 0;
+	const byteLength = 2;
+
+	Object.defineProperty(target, property, {
+		enumerable: true,
+		get() {
+			if (this[$view]) {
+				let value = '';
+				let stride = this[$offset] + offset;
+				const size = (this[$values][property] || '').length;
+				let i;
+
+				for (i = 0; i < size; i++) {
+					const charCode = this[$view].getUint16(stride);
+					if (charCode === 0) {
+						break;
+					}
+
+					value += String.fromCharCode(charCode);
+					stride += byteLength;
+				}
+
+				return value;
+			} else {
+				return (this[$values] && this[$values][property]) || '';
+			}
+		},
+		set(value: string) {
+			if (value === undefined || value === null) {
+				return;
+			}
+
+			if (this[$view]) {
+				let stride = this[$offset] + offset;
+				const size = value.length;
+				let i;
+
+				for (i = 0; i < size; i++) {
+					this[$view].setUint16(stride, value[i].charCodeAt(0));
+					stride += byteLength;
+				}
+			}
+
+			if (this[$values]) {
+				this[$values][property] = value;
+			} else {
+				this[$values] = { [property]: value };
+			}
+		},
+	});
+
+	ctor[$size] = Uint16Array.BYTES_PER_ELEMENT + offset;
+};
 
 export const schema =
 	<T extends Schema & (new () => any)>(
 		schemaType: T
-	): (<K extends string, V extends Schema & Record<K, InstanceType<T>>>(
-		target: SchemaInstance<V>,
-		property: K
-	) => void) =>
-	(target, property): void => {
+	): (<K extends string, V extends Schema & Record<K, InstanceType<T>>>(target: SchemaInstance<V>, property: K) => void) =>
+	(target, property) => {
 		const ctor = target.constructor as Schema;
 		const fields = (ctor[$definition] = ctor[$definition] || {});
 

@@ -93,10 +93,10 @@ export class WorkerWorld implements Pick<World, 'spawn' | 'attach' | 'detach' | 
 
 			let bufferIndexInLayout = 0;
 
-			// build component arrays for chunk 	 		
+			// build component arrays for chunk
 			for (const buffer of buffers) {
 				const componentType = schemas[layout[bufferIndexInLayout] - 1];
-
+				console.log(componentType, buffer);
 				componentArrays.push(buffer ? createSharedObjectArray(componentType, buffer, { length: size }) : []);
 
 				bufferIndexInLayout++;
