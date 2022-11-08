@@ -19,6 +19,11 @@ export type TypedFieldDecorator<T extends any> = <K extends string, V extends Sc
 
 export type TypedFieldDecoratorFactory<T extends any> = (...args: any[]) => TypedFieldDecorator<T>;
 
+/**
+ * Marks a field in a serializable class as int8
+ *
+ * @returns {void}
+ */
 export const int8 = (): TypedFieldDecorator<number> => (target, property) => {
 	const ctor = target.constructor;
 	const fields = (ctor[$definition] = ctor[$definition] || {});
@@ -50,6 +55,11 @@ export const int8 = (): TypedFieldDecorator<number> => (target, property) => {
 	ctor[$size] = Int8Array.BYTES_PER_ELEMENT + offset;
 };
 
+/**
+ * Marks a field in a serializable class as uint8
+ *
+ * @returns {void}
+ */
 export const uint8 = (): TypedFieldDecorator<number> => (target, property) => {
 	const ctor = target.constructor;
 	const fields = (ctor[$definition] = ctor[$definition] || {});
@@ -81,6 +91,12 @@ export const uint8 = (): TypedFieldDecorator<number> => (target, property) => {
 	ctor[$size] = Uint8Array.BYTES_PER_ELEMENT + offset;
 };
 
+/**
+ * Marks a field in a serializable class as int16
+ *
+ * @param {boolean} [littleEndian=true] - endianness. See {@link https://en.wikipedia.org/wiki/Endianness}
+ * @returns {void}
+ */
 export const int16 =
 	(littleEndian: boolean = true): TypedFieldDecorator<number> =>
 	(target, property) => {
@@ -117,6 +133,12 @@ export const int16 =
 		ctor[$size] = Int16Array.BYTES_PER_ELEMENT + offset;
 	};
 
+/**
+ * Marks a field in a serializable class as uint16
+ *
+ * @param {boolean} [littleEndian=true] - endianness. See {@link https://en.wikipedia.org/wiki/Endianness}
+ * @returns {void}
+ */
 export const uint16 =
 	(littleEndian: boolean = true): TypedFieldDecorator<number> =>
 	(target, property) => {
@@ -153,6 +175,12 @@ export const uint16 =
 		ctor[$size] = Uint16Array.BYTES_PER_ELEMENT + offset;
 	};
 
+/**
+ * Marks a field in a serializable class as int32
+ *
+ * @param {boolean} [littleEndian=true] - endianness. See {@link https://en.wikipedia.org/wiki/Endianness}
+ * @returns {void}
+ */
 export const int32 =
 	(littleEndian: boolean = true): TypedFieldDecorator<number> =>
 	(target, property) => {
@@ -189,6 +217,12 @@ export const int32 =
 		ctor[$size] = Int32Array.BYTES_PER_ELEMENT + offset;
 	};
 
+/**
+ * Marks a field in a serializable class as uint32
+ *
+ * @param {boolean} [littleEndian=true] - endianness. See {@link https://en.wikipedia.org/wiki/Endianness}
+ * @returns {void}
+ */
 export const uint32 =
 	(littleEndian: boolean = true): TypedFieldDecorator<number> =>
 	(target, property) => {
@@ -225,6 +259,12 @@ export const uint32 =
 		ctor[$size] = Uint32Array.BYTES_PER_ELEMENT + offset;
 	};
 
+/**
+ * Marks a field in a serializable class as float32
+ *
+ * @param {boolean} [littleEndian=true] - endianness. See {@link https://en.wikipedia.org/wiki/Endianness}
+ * @returns {void}
+ */
 export const float32 =
 	(littleEndian: boolean = true): TypedFieldDecorator<number> =>
 	(target, property) => {
@@ -261,6 +301,12 @@ export const float32 =
 		ctor[$size] = Float32Array.BYTES_PER_ELEMENT + offset;
 	};
 
+/**
+ * Marks a field in a serializable class as float64
+ *
+ * @param {boolean} [littleEndian=true] - endianness. See {@link https://en.wikipedia.org/wiki/Endianness}
+ * @returns {void}
+ */
 export const float64 =
 	(littleEndian: boolean = true): TypedFieldDecorator<number> =>
 	(target, property) => {
@@ -297,6 +343,12 @@ export const float64 =
 		ctor[$size] = Float64Array.BYTES_PER_ELEMENT + offset;
 	};
 
+/**
+ * Marks a field in a serializable class as bigInt64
+ *
+ * @param {boolean} [littleEndian=true] - endianness. See {@link https://en.wikipedia.org/wiki/Endianness}
+ * @returns {void}
+ */
 export const bigInt64 =
 	(littleEndian: boolean = true): TypedFieldDecorator<number> =>
 	(target, property) => {
@@ -333,6 +385,12 @@ export const bigInt64 =
 		ctor[$size] = BigInt64Array.BYTES_PER_ELEMENT + offset;
 	};
 
+/**
+ * Marks a field in a serializable class as bigUint64
+ *
+ * @param {boolean} [littleEndian=true] - endianness. See {@link https://en.wikipedia.org/wiki/Endianness}
+ * @returns {void}
+ */
 export const bigUint64 =
 	(littleEndian: boolean = true): TypedFieldDecorator<number> =>
 	(target, property) => {
@@ -369,6 +427,11 @@ export const bigUint64 =
 		ctor[$size] = BigUint64Array.BYTES_PER_ELEMENT + offset;
 	};
 
+/**
+ * Marks a field in a serializable class as boolean
+ *
+ * @returns {void}
+ */
 export const bool = (): TypedFieldDecorator<boolean> => (target, property) => {
 	const ctor = target.constructor;
 	const fields = (ctor[$definition] = ctor[$definition] || {});
@@ -400,6 +463,11 @@ export const bool = (): TypedFieldDecorator<boolean> => (target, property) => {
 	ctor[$size] = Uint8Array.BYTES_PER_ELEMENT + offset;
 };
 
+/**
+ * Marks a field in a serializable class as string8
+ *
+ * @returns {void}
+ */
 export const string8 = (): TypedFieldDecorator<string> => (target, property) => {
 	const ctor = target.constructor;
 	const fields = (ctor[$definition] = ctor[$definition] || {});
@@ -461,6 +529,11 @@ export const string8 = (): TypedFieldDecorator<string> => (target, property) => 
 	ctor[$size] = Uint8Array.BYTES_PER_ELEMENT + offset;
 };
 
+/**
+ * Marks a field in a serializable class as string16
+ *
+ * @returns {void}
+ */
 export const string16 = (): TypedFieldDecorator<string> => (target, property) => {
 	const ctor = target.constructor;
 	const fields = (ctor[$definition] = ctor[$definition] || {});
@@ -523,6 +596,12 @@ export const string16 = (): TypedFieldDecorator<string> => (target, property) =>
 	ctor[$size] = Uint16Array.BYTES_PER_ELEMENT + offset;
 };
 
+/**
+ * Marks a field in a serializable class as a serializable object
+ *
+ * @param {T} schemaType - constructor of another serializable object (class decorated with {@link serializable})
+ * @returns {void}
+ */
 export const schema =
 	<T extends Schema & (new () => any)>(
 		schemaType: T
@@ -567,6 +646,9 @@ export const schema =
 		ctor[$size] = offset + schemaType[$size]!;
 	};
 
+/**
+ * Marks a class as serializable object
+ */
 export const serializable: () => <T extends Schema & (new () => any)>(target: T) => T = () => (target) => {
 	registerSchema(target);
 
