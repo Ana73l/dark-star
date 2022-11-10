@@ -17,9 +17,11 @@ export class ApplyMovementSystem extends System {
 
 	public override async update(): Promise<void> {
 		this.entities
-			.each([write(Position), read(Velocity)], ([position, velocity]) => {
+			.eachWithEntities([write(Position), read(Velocity)], (entity, [position, velocity]) => {
 				position.x += velocity.x;
 				position.y += velocity.y;
+
+				console.log(entity, position.x, position.y);
 			})
 			.schedule();
 	}

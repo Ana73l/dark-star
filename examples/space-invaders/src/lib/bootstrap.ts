@@ -20,6 +20,7 @@ import { PlayerInputSystem } from './input/systems/player-input.system';
 import { ClearContextSystem } from './rendering/systems/clear-context.system';
 import { RenderSpritesSystem } from './rendering/systems/render-sprites.system';
 import { Sprite } from './rendering/components/sprite.data';
+import { createSharedObject } from '@dark-star/shared-object';
 
 export const bootstrap = async (canvas: HTMLCanvasElement) => {
 	const assetStore = await createAssetLoader()
@@ -72,6 +73,16 @@ export const bootstrap = async (canvas: HTMLCanvasElement) => {
 		.build();
 
 	let prevTime = 0.0;
+
+	const buffer = new SharedArrayBuffer(100);
+
+	const m = createSharedObject(Movement, buffer);
+	m.up = true;
+	m.speed = 13;
+	console.log(m);
+	console.log(new Int8Array(buffer));
+	console.log('speed', new DataView(buffer).getFloat64(4, true));
+	console.log('up', new DataView(buffer).getUint8(0));
 
 	world.spawn([Position, Sprite, Movement, Velocity, Player], ([position, sprite, movement]) => {
 		position.x = 100;

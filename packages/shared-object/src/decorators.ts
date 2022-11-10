@@ -53,6 +53,8 @@ export const int8 = (): TypedFieldDecorator<number> => (target, property) => {
 	});
 
 	ctor[$size] = Int8Array.BYTES_PER_ELEMENT + offset;
+
+	return {};
 };
 
 /**
@@ -89,6 +91,8 @@ export const uint8 = (): TypedFieldDecorator<number> => (target, property) => {
 	});
 
 	ctor[$size] = Uint8Array.BYTES_PER_ELEMENT + offset;
+
+	return {};
 };
 
 /**
@@ -131,6 +135,8 @@ export const int16 =
 		});
 
 		ctor[$size] = Int16Array.BYTES_PER_ELEMENT + offset;
+
+		return {};
 	};
 
 /**
@@ -173,6 +179,8 @@ export const uint16 =
 		});
 
 		ctor[$size] = Uint16Array.BYTES_PER_ELEMENT + offset;
+
+		return {};
 	};
 
 /**
@@ -215,6 +223,8 @@ export const int32 =
 		});
 
 		ctor[$size] = Int32Array.BYTES_PER_ELEMENT + offset;
+
+		return {};
 	};
 
 /**
@@ -257,6 +267,8 @@ export const uint32 =
 		});
 
 		ctor[$size] = Uint32Array.BYTES_PER_ELEMENT + offset;
+
+		return {};
 	};
 
 /**
@@ -299,6 +311,8 @@ export const float32 =
 		});
 
 		ctor[$size] = Float32Array.BYTES_PER_ELEMENT + offset;
+
+		return {};
 	};
 
 /**
@@ -341,6 +355,8 @@ export const float64 =
 		});
 
 		ctor[$size] = Float64Array.BYTES_PER_ELEMENT + offset;
+
+		return {};
 	};
 
 /**
@@ -383,6 +399,8 @@ export const bigInt64 =
 		});
 
 		ctor[$size] = BigInt64Array.BYTES_PER_ELEMENT + offset;
+
+		return {};
 	};
 
 /**
@@ -425,6 +443,8 @@ export const bigUint64 =
 		});
 
 		ctor[$size] = BigUint64Array.BYTES_PER_ELEMENT + offset;
+
+		return {};
 	};
 
 /**
@@ -461,6 +481,8 @@ export const bool = (): TypedFieldDecorator<boolean> => (target, property) => {
 	});
 
 	ctor[$size] = Uint8Array.BYTES_PER_ELEMENT + offset;
+
+	return {};
 };
 
 /**
@@ -527,6 +549,8 @@ export const string8 = (): TypedFieldDecorator<string> => (target, property) => 
 	});
 
 	ctor[$size] = Uint8Array.BYTES_PER_ELEMENT + offset;
+
+	return {};
 };
 
 /**
@@ -594,6 +618,8 @@ export const string16 = (): TypedFieldDecorator<string> => (target, property) =>
 	});
 
 	ctor[$size] = Uint16Array.BYTES_PER_ELEMENT + offset;
+
+	return {};
 };
 
 /**
@@ -644,6 +670,8 @@ export const schema =
 		});
 
 		ctor[$size] = offset + schemaType[$size]!;
+
+		return {};
 	};
 
 /**

@@ -28,7 +28,7 @@ export class RenderSpritesSystem extends System {
 		await this.entities
 			.each([read(Sprite), read(Position)], ([sprite, position]) => {
 				const image = assetStore.getSprite(sprite.image);
-// console.log(position)
+				// console.log(position)
 				context.drawImage(image, 0, 0, image.width, image.height, position.x, position.y, sprite.width, sprite.height);
 			})
 			.run();

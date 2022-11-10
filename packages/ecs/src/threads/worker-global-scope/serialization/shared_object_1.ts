@@ -23,10 +23,6 @@ export const shared_object_1 = `{
     
             array[i] = schemaInstance;
 
-            if(schemaType.name === 'Movement') {
-                console.log(new Uint8Array(buffer));
-                throw JSON.stringify(schemaInstance);
-            }
             stride += schemaSize;
         }
     
