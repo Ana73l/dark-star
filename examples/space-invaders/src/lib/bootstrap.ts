@@ -1,5 +1,4 @@
 import { WorldBuilder } from '@dark-star/ecs';
-import { CORES_COUNT } from '@dark-star/worker-pool';
 
 import { createKeyboard, Keyboard } from './input/providers/keyboard';
 
@@ -55,8 +54,9 @@ export const bootstrap = async (canvas: HTMLCanvasElement) => {
 		.addSound('laser1', 'assets/sounds/sfx_laser1.ogg')
 		.loadAssets();
 
+	// order of adding systems does not matter as long as they have their @updateBefore @updateAfter @group tags set
 	const world = await new WorldBuilder()
-		.useThreads(1)
+		.useThreads(2)
 		.registerSingleton(CanvasRenderingContext2D, canvas.getContext('2d'))
 		.registerSingleton(Keyboard, createKeyboard().attach(window as any))
 		.registerSingleton(AssetStore, assetStore)
@@ -64,7 +64,6 @@ export const bootstrap = async (canvas: HTMLCanvasElement) => {
 		.registerSystem(ClearVelocitySytem)
 		.registerSystem(ClearContextSystem)
 		.registerSystem(RenderSpritesSystem)
-		// order of adding systems does not matter as long as they have their @updateBefore @updateAfter @group tags set
 		.registerSystem(ApplyMovementSystem)
 		.registerSystem(PrepareMovementSystem)
 		.registerSystem(DeathSystem)
@@ -104,11 +103,13 @@ export const bootstrap = async (canvas: HTMLCanvasElement) => {
 		requestAnimationFrame(loop);
 	};
 
-	requestAnimationFrame((time) => {
-		prevTime = time;
+	world.step(1);
 
-		requestAnimationFrame(loop);
-	});
+	// requestAnimationFrame((time) => {
+	// 	prevTime = time;
+
+	// 	requestAnimationFrame(loop);
+	// });
 
 	return world;
 };

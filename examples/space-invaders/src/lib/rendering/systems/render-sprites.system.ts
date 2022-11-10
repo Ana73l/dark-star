@@ -2,11 +2,11 @@ import { System, group, Query, read, updateAfter, entities } from '@dark-star/ec
 import { injectable } from '@dark-star/di';
 
 import { Position } from '../../movement/components/position.data';
-import { ClearContextSystem } from './clear-context.system';
 import { Sprite } from '../components/sprite.data';
 import { AssetStore } from '../../asset-store';
 
 import { RenderGroupSystem } from './render-group.system';
+import { ClearContextSystem } from './clear-context.system';
 
 @injectable()
 @group(RenderGroupSystem)

@@ -29,7 +29,7 @@ export class JobScheduler implements Disposable {
 		const dependencies: Set<JobId> = deps && deps.length > 0 ? new Set(deps.map((handle) => handle.id)) : new Set();
 		const jobReaders: ComponentTypeId[] = [];
 		const jobWriters: ComponentTypeId[] = [];
-
+		console.log('schedule', id, accessDescriptors);
 		const descriptorsCount = accessDescriptors.length;
 		let descriptorIndex;
 
@@ -47,8 +47,8 @@ export class JobScheduler implements Disposable {
 					dependencies.add(lastWriter);
 				}
 				// register to readers
-				if(readers.has(componentTypeId)) {
-					readers.get(componentTypeId)!.add(id)
+				if (readers.has(componentTypeId)) {
+					readers.get(componentTypeId)!.add(id);
 				} else {
 					readers.set(componentTypeId, new Set([id]));
 				}
@@ -104,9 +104,11 @@ export class JobScheduler implements Disposable {
 
 					await complete(self.taskRunner);
 
-					self.markAsComplete(id);
-
 					isComplete = true;
+
+					self.markAsComplete(id);
+					console.log('complete', id);
+
 					resolve();
 				});
 
@@ -133,7 +135,11 @@ export class JobScheduler implements Disposable {
 
 			for (const jobId of jobIds) {
 				if (jobHandles.has(jobId)) {
-					jobs.push(jobHandles.get(jobId)!.complete());
+					const handle = jobHandles.get(jobId)!;
+
+					if (!handle.isComplete) {
+						jobs.push(jobHandles.get(jobId)!.complete());
+					}
 				}
 			}
 
@@ -199,53 +205,55 @@ export class JobScheduler implements Disposable {
 		const jobHandles = this.jobHandles;
 		const readers = this.readers;
 		const lastWriters = this.lastWriter;
-		const handle = this.jobHandles.get(id);
+		const handle = jobHandles.get(id);
+		console.log('markAsComplete', id, handle);
+		if (handle) {
+			// remove from dependees
+			if (jobToDependees.has(id)) {
+				const dependees = jobToDependees.get(id)!;
 
-		// remove from dependees
-		if (jobToDependees.has(id)) {
-			const dependees = jobToDependees.get(id)!;
+				for (const dependee of dependees) {
+					if (jobHandles.has(dependee)) {
+						const dependeeHandle = jobHandles.get(dependee)!;
+						const handleDependencies = dependeeHandle[$dependencies];
 
-			for (const dependee of dependees) {
-				if (jobHandles.has(dependee)) {
-					const dependeeHandle = jobHandles.get(dependee)!;
-					const handleDependencies = dependeeHandle[$dependencies];
+						if (handleDependencies) {
+							handleDependencies.delete(id);
 
-					if (handleDependencies) {
-						handleDependencies.delete(id);
-
-						if (handleDependencies.size > 0) {
-							continue;
+							if (handleDependencies.size > 0) {
+								continue;
+							}
 						}
+
+						// if 0 dependencies left for dependee - ready to run
+						dependeeHandle.complete();
 					}
+				}
 
-					// if 0 dependencies left for dependee - ready to run
-					dependeeHandle.complete();
+				jobToDependees.delete(id);
+			}
+
+			// remove from readers and last writers
+			const handleReaders = handle?.[$readers];
+			const handleWriters = handle?.[$writers];
+
+			if (handleReaders) {
+				for (const reader of handleReaders) {
+					readers.get(reader)?.delete(id);
+				}
+			}
+			if (handleWriters) {
+				for (const writer of handleWriters) {
+					const lastHandleWriting = lastWriters.get(writer);
+
+					if (lastHandleWriting === id) {
+						lastWriters.delete(writer);
+					}
 				}
 			}
 
-			jobToDependees.delete(id);
+			// unregister job
+			jobHandles.delete(id);
 		}
-
-		// remove from readers and last writers
-		const handleReaders = handle?.[$readers];
-		const handleWriters = handle?.[$writers];
-
-		if (handleReaders) {
-			for (const reader of handleReaders) {
-				readers.get(reader)?.delete(id);
-			}
-		}
-		if (handleWriters) {
-			for (const writer of handleWriters) {
-				const lastHandleWriting = lastWriters.get(writer);
-
-				if (lastHandleWriting === id) {
-					lastWriters.delete(writer);
-				}
-			}
-		}
-
-		// unregister job
-		jobHandles.delete(id);
 	}
 }
