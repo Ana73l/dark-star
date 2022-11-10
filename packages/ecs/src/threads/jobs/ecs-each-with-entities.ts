@@ -114,12 +114,11 @@ export class ECSEachWithEntitiesJob<
 			}
 
 			for (entityIndex = 0; entityIndex < chunkSize; entityIndex++) {
-				componentsProxy[0] = entities[entityIndex];
 				for (inLayoutIndex = 0; inLayoutIndex < accessorsCount; inLayoutIndex++) {
-					componentsProxy[inLayoutIndex + 1] = componentsArrayProxy[inLayoutIndex][entityIndex];
+					componentsProxy[inLayoutIndex] = componentsArrayProxy[inLayoutIndex][entityIndex];
 				}
 
-				lambda.call(null, componentsProxy, this.params);
+				lambda.call(null, entities[entityIndex], componentsProxy, this.params);
 			}
 		});
 	}
