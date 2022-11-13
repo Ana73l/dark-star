@@ -21,7 +21,7 @@ export class SystemProcessor implements Disposable {
 
 	public dispose(): void {}
 
-	public async execute(currentWorldVersion: WorldUpdateVersion, deltaT?: number): Promise<void> {
+	public async execute(currentWorldVersion: WorldUpdateVersion): Promise<void> {
 		const systems = this.flattenedSystems;
 		const systemsCount = this.flattenedSystems.length;
 		let systemIndex;

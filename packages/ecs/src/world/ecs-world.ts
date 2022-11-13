@@ -143,7 +143,7 @@ export class ECSWorld implements World {
 		this.deferredCommands.destroy(entity);
 	}
 
-	public async step(deltaT?: number): Promise<void> {
+	public async step(): Promise<void> {
 		assert(!this.isDisposed, 'Cannot schedule a step in a disposed world.');
 
 		if (this.runPromise) {
@@ -157,7 +157,7 @@ export class ECSWorld implements World {
 		const run = async function (resolve: (value: void | PromiseLike<void>) => void) {
 			self.store.currentWorldVersion = self._version;
 			self.deferredCommands.process();
-			await self.systemProcessor.execute(self._version, deltaT);
+			await self.systemProcessor.execute(self._version);
 
 			self._version++;
 

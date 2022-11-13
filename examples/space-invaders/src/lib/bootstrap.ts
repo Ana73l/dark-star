@@ -1,4 +1,5 @@
 import { WorldBuilder } from '@dark-star/ecs';
+import { createSharedObject } from '@dark-star/shared-object';
 
 import { createKeyboard, Keyboard } from './input/providers/keyboard';
 
@@ -19,7 +20,8 @@ import { PlayerInputSystem } from './input/systems/player-input.system';
 import { ClearContextSystem } from './rendering/systems/clear-context.system';
 import { RenderSpritesSystem } from './rendering/systems/render-sprites.system';
 import { Sprite } from './rendering/components/sprite.data';
-import { createSharedObject } from '@dark-star/shared-object';
+import { DeltaTime } from './delta-time';
+
 
 export const bootstrap = async (canvas: HTMLCanvasElement) => {
 	const assetStore = await createAssetLoader()
@@ -54,12 +56,15 @@ export const bootstrap = async (canvas: HTMLCanvasElement) => {
 		.addSound('laser1', 'assets/sounds/sfx_laser1.ogg')
 		.loadAssets();
 
+	// intialize shared object singleton
+	const deltaT = createSharedObject(DeltaTime);
 	// order of adding systems does not matter as long as they have their @updateBefore @updateAfter @group tags set
 	const world = await new WorldBuilder()
 		.useThreads(2)
 		.registerSingleton(CanvasRenderingContext2D, canvas.getContext('2d'))
 		.registerSingleton(Keyboard, createKeyboard().attach(window as any))
 		.registerSingleton(AssetStore, assetStore)
+		.registerSingleton(DeltaTime, deltaT)
 		.registerSystem(PlayerInputSystem)
 		.registerSystem(ClearVelocitySytem)
 		.registerSystem(ClearContextSystem)
@@ -70,18 +75,6 @@ export const bootstrap = async (canvas: HTMLCanvasElement) => {
 		.registerSystem(RenderGroupSystem)
 		.registerSystem(RenderRectanglesSystem)
 		.build();
-
-	let prevTime = 0.0;
-
-	const buffer = new SharedArrayBuffer(100);
-
-	const m = createSharedObject(Movement, buffer);
-	m.up = true;
-	m.speed = 13;
-	console.log(m);
-	console.log(new Int8Array(buffer));
-	console.log('speed', new DataView(buffer).getFloat64(4, true));
-	console.log('up', new DataView(buffer).getUint8(0));
 
 	world.spawn([Position, Sprite, Movement, Velocity, Player], ([position, sprite, movement]) => {
 		position.x = 100;
@@ -94,16 +87,22 @@ export const bootstrap = async (canvas: HTMLCanvasElement) => {
 		movement.speed = 10;
 	});
 
-	const loop = async (time: number) => {
-		const deltaT = time - prevTime;
-		prevTime = time;
+	let prevTime = 0.0;
 
-		await world.step(deltaT);
+	const loop = async (time: number) => {
+		const dt = time - prevTime;
+		deltaT.value = dt;
+		prevTime = time;
+		
+		await world.step();
 
 		requestAnimationFrame(loop);
 	};
 
-	world.step(1);
+	for(let i = 0; i < 500; i++) {
+		console.log(`step ${i + 1}`)
+		await world.step();
+	}
 
 	// requestAnimationFrame((time) => {
 	// 	prevTime = time;

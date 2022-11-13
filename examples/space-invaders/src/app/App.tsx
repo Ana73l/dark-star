@@ -6,6 +6,10 @@ const App = () => {
 	const canvas = useRef<HTMLCanvasElement>(null);
 
 	useEffect(() => {
+		if(!canvas.current) {
+			return;
+		}
+
 		const resize = () => {
 			if (!canvas.current) {
 				return;
@@ -18,13 +22,13 @@ const App = () => {
 		resize();
 
 		(async () => {
-			await bootstrap(canvas.current as HTMLCanvasElement);
+			await bootstrap(canvas.current!);
 		})();
 
 		window.addEventListener('resize', resize);
 
 		return () => window.removeEventListener('resize', resize);
-	}, [canvas]);
+	}, []);
 
 	return <canvas ref={canvas} style={{ imageRendering: 'pixelated' }} />;
 };

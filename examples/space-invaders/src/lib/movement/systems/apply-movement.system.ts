@@ -18,7 +18,7 @@ export class ApplyMovementSystem extends System {
 				position.x += velocity.x;
 				position.y += velocity.y;
 
-				// console.log(entity, position.x, position.y);
+				console.log(entity, position.x, position.y);
 			})
 			.schedule();
 	}

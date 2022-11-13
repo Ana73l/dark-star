@@ -36,7 +36,7 @@ export abstract class World implements Disposable {
 
 	abstract destroy(entity: Entity): void;
 
-	abstract step(deltaT?: number): Promise<void>;
+	abstract step(): Promise<void>;
 
 	abstract dispose(): Promise<void>;
 }
