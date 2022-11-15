@@ -491,7 +491,7 @@ export const bool = (): TypedFieldDecorator<boolean> => (target, property) => {
  * @returns {void}
  */
 export const string8 =
-	(length: number): TypedFieldDecorator<string> =>
+	(maxLength: number): TypedFieldDecorator<string> =>
 	(target, property) => {
 		const ctor = target.constructor;
 		const fields = (ctor[$definition] = ctor[$definition] || {});
@@ -510,7 +510,7 @@ export const string8 =
 					let stride = this[$offset] + offset;
 					let i;
 
-					for (i = 0; i < length; i++) {
+					for (i = 0; i < maxLength; i++) {
 						const charCode = this[$view].getUint8(stride);
 						if (charCode === 0) {
 							break;
@@ -560,7 +560,7 @@ export const string8 =
  * @returns {void}
  */
 export const string16 =
-	(length: number): TypedFieldDecorator<string> =>
+	(maxLength: number): TypedFieldDecorator<string> =>
 	(target, property) => {
 		const ctor = target.constructor;
 		const fields = (ctor[$definition] = ctor[$definition] || {});
@@ -580,7 +580,7 @@ export const string16 =
 					let stride = this[$offset] + offset;
 					let i;
 
-					for (i = 0; i < length; i++) {
+					for (i = 0; i < maxLength; i++) {
 						const charCode = this[$view].getUint16(stride);
 						if (charCode === 0) {
 							break;
