@@ -498,6 +498,7 @@ export const string8 =
 
 		fields[property] = {
 			type: PrimitiveTypes.String8,
+			args: [maxLength]
 		};
 
 		const offset = ctor[$size] || 0;
@@ -549,7 +550,7 @@ export const string8 =
 			},
 		});
 
-		ctor[$size] = Uint8Array.BYTES_PER_ELEMENT * length + offset;
+		ctor[$size] = Uint8Array.BYTES_PER_ELEMENT * maxLength + offset;
 
 		return {};
 	};
@@ -567,6 +568,7 @@ export const string16 =
 
 		fields[property] = {
 			type: PrimitiveTypes.String16,
+			args: [maxLength]
 		};
 
 		const offset = ctor[$size] || 0;
@@ -619,7 +621,7 @@ export const string16 =
 			},
 		});
 
-		ctor[$size] = Uint16Array.BYTES_PER_ELEMENT * length + offset;
+		ctor[$size] = Uint16Array.BYTES_PER_ELEMENT * maxLength + offset;
 
 		return {};
 	};
