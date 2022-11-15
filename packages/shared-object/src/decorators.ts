@@ -465,7 +465,7 @@ export const bool = (): TypedFieldDecorator<boolean> => (target, property) => {
 	Object.defineProperty(target, property, {
 		enumerable: true,
 		get() {
-			return this[$view] ? !!this[$view].getUint8(this[$offset] + offset) : (this[$values] && this[$values][property]) || false;
+			return this[$view] ? !!this[$view].getUint8(this[$offset] + offset) : this[$values]?.[property] || false;
 		},
 		set(value: boolean) {
 			if (this[$view]) {
@@ -506,7 +506,7 @@ export const string8 = (): TypedFieldDecorator<string> => (target, property) => 
 			if (this[$view]) {
 				let value = '';
 				let stride = this[$offset] + offset;
-				const size = (this[$values][property] || '').length;
+				const size = (this[$values]?.[property] || '').length;
 				let i;
 
 				for (i = 0; i < size; i++) {
@@ -521,7 +521,7 @@ export const string8 = (): TypedFieldDecorator<string> => (target, property) => 
 
 				return value;
 			} else {
-				return (this[$values] && this[$values][property]) || '';
+				return this[$values]?.[property] || '';
 			}
 		},
 		set(value: string) {
@@ -575,7 +575,7 @@ export const string16 = (): TypedFieldDecorator<string> => (target, property) =>
 			if (this[$view]) {
 				let value = '';
 				let stride = this[$offset] + offset;
-				const size = (this[$values][property] || '').length;
+				const size = (this[$values]?.[property] || '').length;
 				let i;
 
 				for (i = 0; i < size; i++) {
@@ -590,7 +590,7 @@ export const string16 = (): TypedFieldDecorator<string> => (target, property) =>
 
 				return value;
 			} else {
-				return (this[$values] && this[$values][property]) || '';
+				return this[$values]?.[property] || '';
 			}
 		},
 		set(value: string) {

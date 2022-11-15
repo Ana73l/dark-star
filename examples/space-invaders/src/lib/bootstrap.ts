@@ -1,5 +1,5 @@
 import { WorldBuilder } from '@dark-star/ecs';
-import { createSharedObject } from '@dark-star/shared-object';
+import { createSharedObject, createSharedObjectArray } from '@dark-star/shared-object';
 
 import { createKeyboard, Keyboard } from './input/providers/keyboard';
 
@@ -21,7 +21,6 @@ import { ClearContextSystem } from './rendering/systems/clear-context.system';
 import { RenderSpritesSystem } from './rendering/systems/render-sprites.system';
 import { Sprite } from './rendering/components/sprite.data';
 import { DeltaTime } from './delta-time';
-
 
 export const bootstrap = async (canvas: HTMLCanvasElement) => {
 	const assetStore = await createAssetLoader()
@@ -76,16 +75,41 @@ export const bootstrap = async (canvas: HTMLCanvasElement) => {
 		.registerSystem(RenderRectanglesSystem)
 		.build();
 
-	world.spawn([Position, Sprite, Movement, Velocity, Player], ([position, sprite, movement]) => {
-		position.x = 100;
-		position.y = 500;
+	const buff = new SharedArrayBuffer(3000);
+	const arr = createSharedObjectArray(Sprite, buff);
+	arr[0].image = 'playerShip1';
+	arr[0].height = 10;
+	arr[0].width = 5;
+	arr[1].image = 'meteor1';
+	arr[1].height = 15;
+	arr[1].width = 23;
+	arr[2].height = 1333;
+	console.log(0, arr[0]);
+	console.log(1, arr[1]);
+	console.log(2, arr[2]);
+	console.log(10, arr[10]);
 
-		sprite.image = 'playerShip1';
-		sprite.width = 70;
-		sprite.height = 50;
+	// world.spawn([Position, Sprite, Movement, Velocity, Player], ([position, sprite, movement]) => {
+	// 	position.x = 100;
+	// 	position.y = 500;
 
-		movement.speed = 10;
-	});
+	// 	sprite.image = 'enemyBlack1';
+	// 	sprite.width = 70;
+	// 	sprite.height = 50;
+
+	// 	movement.speed = 10;
+	// });
+
+	// world.spawn([Position, Sprite, Movement, Velocity, Player], ([position, sprite, movement]) => {
+	// 	position.x = 100;
+	// 	position.y = 300;
+
+	// 	sprite.image = 'playerShip1';
+	// 	sprite.width = 70;
+	// 	sprite.height = 50;
+
+	// 	movement.speed = 10;
+	// });
 
 	let prevTime = 0.0;
 
@@ -93,16 +117,16 @@ export const bootstrap = async (canvas: HTMLCanvasElement) => {
 		const dt = time - prevTime;
 		deltaT.value = dt;
 		prevTime = time;
-		
+
 		await world.step();
 
 		requestAnimationFrame(loop);
 	};
 
-	for(let i = 0; i < 500; i++) {
-		console.log(`step ${i + 1}`)
-		await world.step();
-	}
+	// for(let i = 0; i < 500; i++) {
+	// 	console.log(`step ${i + 1}`)
+	// 	await world.step();
+	// }
 
 	// requestAnimationFrame((time) => {
 	// 	prevTime = time;
