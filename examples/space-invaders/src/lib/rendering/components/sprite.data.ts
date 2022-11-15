@@ -9,6 +9,6 @@ export class Sprite {
 	@float64()
 	height: number = 0;
 
-	@string16()
+	@string16(30)
 	image!: string;
 }

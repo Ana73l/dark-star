@@ -490,137 +490,139 @@ export const bool = (): TypedFieldDecorator<boolean> => (target, property) => {
  *
  * @returns {void}
  */
-export const string8 = (): TypedFieldDecorator<string> => (target, property) => {
-	const ctor = target.constructor;
-	const fields = (ctor[$definition] = ctor[$definition] || {});
+export const string8 =
+	(length: number): TypedFieldDecorator<string> =>
+	(target, property) => {
+		const ctor = target.constructor;
+		const fields = (ctor[$definition] = ctor[$definition] || {});
 
-	fields[property] = {
-		type: PrimitiveTypes.String8,
-	};
+		fields[property] = {
+			type: PrimitiveTypes.String8,
+		};
 
-	const offset = ctor[$size] || 0;
+		const offset = ctor[$size] || 0;
 
-	Object.defineProperty(target, property, {
-		enumerable: true,
-		get() {
-			if (this[$view]) {
-				let value = '';
-				let stride = this[$offset] + offset;
-				const size = (this[$values]?.[property] || '').length;
-				let i;
+		Object.defineProperty(target, property, {
+			enumerable: true,
+			get() {
+				if (this[$view]) {
+					let value = '';
+					let stride = this[$offset] + offset;
+					let i;
 
-				for (i = 0; i < size; i++) {
-					const charCode = this[$view].getUint8(stride);
-					if (charCode === 0) {
-						break;
+					for (i = 0; i < length; i++) {
+						const charCode = this[$view].getUint8(stride);
+						if (charCode === 0) {
+							break;
+						}
+
+						value += String.fromCharCode(charCode);
+						stride++;
 					}
 
-					value += String.fromCharCode(charCode);
-					stride++;
+					return value;
+				} else {
+					return this[$values]?.[property] || '';
+				}
+			},
+			set(value: string) {
+				if (value === undefined || value === null) {
+					return;
 				}
 
-				return value;
-			} else {
-				return this[$values]?.[property] || '';
-			}
-		},
-		set(value: string) {
-			if (value === undefined || value === null) {
-				return;
-			}
+				if (this[$view]) {
+					let stride = this[$offset] + offset;
+					const size = value.length;
+					let i;
 
-			if (this[$view]) {
-				let stride = this[$offset] + offset;
-				const size = value.length;
-				let i;
-
-				for (i = 0; i < size; i++) {
-					this[$view].setUint8(stride, value[i].charCodeAt(0));
-					stride++;
+					for (i = 0; i < size; i++) {
+						this[$view].setUint8(stride, value[i].charCodeAt(0));
+						stride++;
+					}
 				}
-			}
 
-			if (this[$values]) {
-				this[$values][property] = value;
-			} else {
-				this[$values] = { [property]: value };
-			}
-		},
-	});
+				if (this[$values]) {
+					this[$values][property] = value;
+				} else {
+					this[$values] = { [property]: value };
+				}
+			},
+		});
 
-	ctor[$size] = Uint8Array.BYTES_PER_ELEMENT + offset;
+		ctor[$size] = Uint8Array.BYTES_PER_ELEMENT * length + offset;
 
-	return {};
-};
+		return {};
+	};
 
 /**
  * Marks a field in a serializable class as string16
  *
  * @returns {void}
  */
-export const string16 = (): TypedFieldDecorator<string> => (target, property) => {
-	const ctor = target.constructor;
-	const fields = (ctor[$definition] = ctor[$definition] || {});
+export const string16 =
+	(length: number): TypedFieldDecorator<string> =>
+	(target, property) => {
+		const ctor = target.constructor;
+		const fields = (ctor[$definition] = ctor[$definition] || {});
 
-	fields[property] = {
-		type: PrimitiveTypes.String16,
-	};
+		fields[property] = {
+			type: PrimitiveTypes.String16,
+		};
 
-	const offset = ctor[$size] || 0;
-	const byteLength = 2;
+		const offset = ctor[$size] || 0;
+		const byteLength = 2;
 
-	Object.defineProperty(target, property, {
-		enumerable: true,
-		get() {
-			if (this[$view]) {
-				let value = '';
-				let stride = this[$offset] + offset;
-				const size = (this[$values]?.[property] || '').length;
-				let i;
+		Object.defineProperty(target, property, {
+			enumerable: true,
+			get() {
+				if (this[$view]) {
+					let value = '';
+					let stride = this[$offset] + offset;
+					let i;
 
-				for (i = 0; i < size; i++) {
-					const charCode = this[$view].getUint16(stride);
-					if (charCode === 0) {
-						break;
+					for (i = 0; i < length; i++) {
+						const charCode = this[$view].getUint16(stride);
+						if (charCode === 0) {
+							break;
+						}
+
+						value += String.fromCharCode(charCode);
+						stride += byteLength;
 					}
 
-					value += String.fromCharCode(charCode);
-					stride += byteLength;
+					return value;
+				} else {
+					return this[$values]?.[property] || '';
+				}
+			},
+			set(value: string) {
+				if (value === undefined || value === null) {
+					return;
 				}
 
-				return value;
-			} else {
-				return this[$values]?.[property] || '';
-			}
-		},
-		set(value: string) {
-			if (value === undefined || value === null) {
-				return;
-			}
+				if (this[$view]) {
+					let stride = this[$offset] + offset;
+					const size = value.length;
+					let i;
 
-			if (this[$view]) {
-				let stride = this[$offset] + offset;
-				const size = value.length;
-				let i;
-
-				for (i = 0; i < size; i++) {
-					this[$view].setUint16(stride, value[i].charCodeAt(0));
-					stride += byteLength;
+					for (i = 0; i < size; i++) {
+						this[$view].setUint16(stride, value[i].charCodeAt(0));
+						stride += byteLength;
+					}
 				}
-			}
 
-			if (this[$values]) {
-				this[$values][property] = value;
-			} else {
-				this[$values] = { [property]: value };
-			}
-		},
-	});
+				if (this[$values]) {
+					this[$values][property] = value;
+				} else {
+					this[$values] = { [property]: value };
+				}
+			},
+		});
 
-	ctor[$size] = Uint16Array.BYTES_PER_ELEMENT + offset;
+		ctor[$size] = Uint16Array.BYTES_PER_ELEMENT * length + offset;
 
-	return {};
-};
+		return {};
+	};
 
 /**
  * Marks a field in a serializable class as a serializable object

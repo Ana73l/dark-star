@@ -3,6 +3,6 @@ import { string16 } from '@dark-star/shared-object';
 
 @component()
 export class Background {
-	@string16()
+	@string16(20)
 	image!: string;
 }
