@@ -22,6 +22,8 @@ export class ApplyMovementSystem extends System {
 			.eachWithEntities([write(Position), read(Velocity)], [this.deltaT.value], (entity, [position, velocity], [deltaT]) => {
 				position.x += velocity.x * deltaT;
 				position.y += velocity.y * deltaT;
+
+				console.log(entity, position);
 			})
 			.schedule();
 	}

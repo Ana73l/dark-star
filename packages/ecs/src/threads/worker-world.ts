@@ -30,7 +30,7 @@ export type EntityEachParallelLambdaWorkerParams = [
 
 export type EntityEachWithEntitiesLambdaWorkerParams = [
 	layout: Int32Array,
-	chunks: [size: number, entities: Int32Array, buffers: (SharedArrayBuffer | undefined)[]][],
+	chunks: [size: number, entities: SharedArrayBuffer, buffers: (SharedArrayBuffer | undefined)[]][],
 	lambda: string,
 	params?: any[]
 ];
@@ -38,7 +38,7 @@ export type EntityEachWithEntitiesLambdaWorkerParams = [
 export type EntityEachWithEntitiesParallelLambdaWorkerParams = [
 	layout: Int32Array,
 	size: number,
-	entities: Int32Array,
+	entities: SharedArrayBuffer,
 	buffers: (SharedArrayBuffer | undefined)[],
 	lambda: string,
 	params?: any[]
@@ -155,8 +155,9 @@ export class WorkerWorld implements Pick<World, 'spawn' | 'attach' | 'detach' | 
 		const parsedLambda = eval('(' + lambda + ')');
 
 		// iterate chunks
-		for (const [size, entities, buffers] of chunks) {
+		for (const [size, entitiesBuffer, buffers] of chunks) {
 			const componentArrays = [];
+			const entities = new Int32Array(entitiesBuffer);
 
 			let bufferIndexInLayout = 0;
 
@@ -194,7 +195,7 @@ export class WorkerWorld implements Pick<World, 'spawn' | 'attach' | 'detach' | 
 	public handleEntityEachWithEntitiesParallelLambda([
 		layout,
 		size,
-		entities,
+		entitiesBuffer,
 		buffers,
 		lambda,
 		params,
@@ -202,6 +203,7 @@ export class WorkerWorld implements Pick<World, 'spawn' | 'attach' | 'detach' | 
 		const parsedLambda = eval('(' + lambda + ')');
 		const layoutSize = layout.length;
 		const componentArrays = this.buildComponentArrays(layout, buffers, size);
+		const entities = new Int32Array(entitiesBuffer);
 		// proxy for components
 		const components = new Array(layoutSize);
 

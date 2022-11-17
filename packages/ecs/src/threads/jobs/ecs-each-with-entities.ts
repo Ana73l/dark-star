@@ -20,7 +20,7 @@ export class ECSEachWithEntitiesJob<
 					const layout = new Int32Array(convertDescriptorsToQuery(self.accessDescriptors).map((type) => type[$id]!));
 					const lambdaString = self.lambda.toString();
 
-					const buffers: [size: number, entities: Int32Array, buffers: (SharedArrayBuffer | undefined)[]][] = [];
+					const buffers: [size: number, entities: SharedArrayBuffer, buffers: (SharedArrayBuffer | undefined)[]][] = [];
 
 					self.iterateChunks((chunk) => {
 						const componentArrayBuffers: (SharedArrayBuffer | undefined)[] = [];
@@ -31,7 +31,7 @@ export class ECSEachWithEntitiesJob<
 							);
 						}
 
-						buffers.push([chunk.size, chunk.getEntitiesArray(), componentArrayBuffers]);
+						buffers.push([chunk.size, chunk.getEntitiesArray().buffer as SharedArrayBuffer, componentArrayBuffers]);
 					});
 
 					const commands = await taskRunner.eachWithEntities([layout, buffers, lambdaString, self.params]);
@@ -70,7 +70,7 @@ export class ECSEachWithEntitiesJob<
 							taskRunner.eachWithEntitiesParallel([
 								layout,
 								chunk.size,
-								chunk.getEntitiesArray(),
+								chunk.getEntitiesArray().buffer as SharedArrayBuffer,
 								componentArrayBuffers,
 								lambdaString,
 								self.params,

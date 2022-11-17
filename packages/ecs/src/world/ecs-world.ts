@@ -67,7 +67,7 @@ export class ECSWorld implements World {
 
 		// if threaded
 		if (threads > 1) {
-			world.workerPool = new WorkerPool({
+			world.workerPool = WorkerPool.create({
 				threads,
 				workerScript: createWorkerGlobalScope(),
 			});

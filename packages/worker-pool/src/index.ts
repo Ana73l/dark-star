@@ -1,7 +1,9 @@
 import Worker from 'web-worker';
 import { Disposable, assert, IS_NODE } from '@dark-star/core';
 
-import { WORKER_SCRIPT } from './worker-script';
+import { WORKER_SCRIPT, main as workerMainFunction } from './worker-script';
+
+export const main = workerMainFunction;
 
 /** Configuration object used to create a new WorkerPool */
 export type WorkerPoolConfig = {
@@ -27,6 +29,21 @@ export type WorkerPoolConfig = {
 	 * ```
 	 */
 	workerScript?: string;
+	/**
+	 * Optional worker file.
+	 *
+	 * Use this property instead of workerScript when defining your worker code in a separate file rather than as a string.
+	 * If this property is set workerScript is ignored.
+	 *
+	 * @example
+	 * ```ts
+	 * const config: WorkerPoolConfig = {
+	 * 	threads: 4,
+	 * 	workerFile: new URL('./worker.js', import.meta.url)
+	 * }
+	 * ```
+	 */
+	workerFile?: URL | string;
 };
 
 /**
@@ -104,12 +121,17 @@ export class WorkerPool implements Disposable {
 	 * `;
 	 *
 	 * const pool = new WorkerPool({ threads: CORES_COUNT - 1, workerScript: worker });
+	 *
+	 * // with worker file
+	 * const pool = new WorkerPool({ threads: CORES_COUNT - 1, workerFile: new URL('./worker.js', import.meta.url)});
 	 * ```
 	 */
-	constructor({ threads, workerScript = '' }: WorkerPoolConfig) {
+	constructor({ threads, workerScript = '', workerFile }: WorkerPoolConfig) {
 		assert(threads > 0, `Cannot construct ${this.constructor.name}: number of workers cannot be less than one (passed ${threads})`);
 
-		const script = IS_NODE
+		const script: string | URL = workerFile
+			? workerFile
+			: IS_NODE
 			? `data:text/javascript,${workerScript} ${WORKER_SCRIPT}`
 					.replace(/\s{2,}/g, '')
 					.split('\n')
@@ -251,7 +273,7 @@ export class WorkerPool implements Disposable {
 		return this.disposePromise;
 	}
 
-	private spawnWorker(workerId: number, workerScript: string) {
+	private spawnWorker(workerId: number, workerScript: string | URL) {
 		const worker = new Worker(workerScript);
 
 		worker.addEventListener('message', (e: any) => {

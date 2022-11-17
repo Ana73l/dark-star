@@ -1,8 +1,9 @@
 /**
- * @hidden
- * Worker base allowing handling of tasks
+ * Worker base allowing handling of tasks.
+ * Call this in your worker script if using worker file.
+ * If worker is passed as string this will automatically be appended to the worker script.
  */
-function main() {
+export function main() {
 	addEventListener('message', (event: any) => {
 		const response: { id?: number; result?: any; error?: any } = {
 			id: undefined,
