@@ -9,7 +9,7 @@ import { DeferredCommandsProcessor } from '../storage/deferred-commands-processo
 import { EntityStore } from '../storage/store';
 import { System, SystemType } from '../system';
 import { Planner } from '../system/planning/planner';
-import { $planner } from '../system/planning/__internals__';
+import { $planner, $scheduler } from '../system/planning/__internals__';
 import { SystemProcessor } from '../system/systems-processor';
 import { ECSTaskRunner } from '../threads/ecs-task-runner';
 import { JobScheduler } from '../threads/job-scheduler';
@@ -76,6 +76,11 @@ export class ECSWorld implements World {
 
 			world.jobScheduler = new JobScheduler(ecsTaskRunner);
 			planner.addSchedulerToJobFactories(world.jobScheduler);
+
+			// add scheduler to systems
+			for (const system of systemInstances) {
+				system[$scheduler] = world.jobScheduler;
+			}
 		}
 
 		world.systemProcessor = new SystemProcessor(planner.createSystemRoot());

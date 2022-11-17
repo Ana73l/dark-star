@@ -1,10 +1,11 @@
 import { assert } from '@dark-star/core';
 
-import { ComponentTypes } from '../query';
+import { ComponentQueryDescriptor, ComponentTypes } from '../query';
 import { JobHandle } from '../threads';
+import { JobScheduler } from '../threads/job-scheduler';
 import { WorldUpdateVersion } from '../world';
 
-import { $planner, $queries, Planner, System as ISystem } from './planning/__internals__';
+import { $planner, $queries, $scheduler, Planner, System as ISystem } from './planning/__internals__';
 import { Query } from './system-job-factory';
 
 export type SystemType<T extends System = System> = (new (...args: any[]) => T) & {
@@ -51,6 +52,12 @@ export abstract class System implements ISystem {
 
 	public abstract update(): Promise<void>;
 
+	public async completeJobs(componentQueryDescriptors: ComponentQueryDescriptor[]): Promise<void> {
+		if (this[$scheduler]) {
+			await this[$scheduler].completeJobs(this[$scheduler].getDependencies(componentQueryDescriptors));
+		}
+	}
+
 	protected query<TAll extends ComponentTypes, TSome extends ComponentTypes = [], TNone extends ComponentTypes = []>(
 		all: TAll,
 		some?: TSome,
@@ -68,7 +75,8 @@ export abstract class System implements ISystem {
 		return factory;
 	}
 
-	[$planner]: Planner | undefined;
+	[$scheduler]?: JobScheduler;
+	[$planner]?: Planner;
 	[$queries]: Query<ComponentTypes, ComponentTypes, ComponentTypes>[] = [];
 }
 

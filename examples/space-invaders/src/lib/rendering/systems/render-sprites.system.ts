@@ -22,6 +22,7 @@ export class RenderSpritesSystem extends System {
 	public override async update(): Promise<void> {
 		const context = this.context;
 		const assetStore = this.assetStore;
+
 		/**
 		 * Run this action on the main thread since we are accessing main thread APIs
 		 */

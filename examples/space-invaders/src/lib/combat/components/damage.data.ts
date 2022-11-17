@@ -1,8 +1,8 @@
 import { component } from '@dark-star/ecs';
-import { int32 } from '@dark-star/shared-object';
+import { int16 } from '@dark-star/shared-object';
 
 @component()
 export class Damage {
-	@int32()
-	value!: number;
+	@int16()
+	value: number = 0;
 }
