@@ -57,6 +57,7 @@ export const bootstrap = async (canvas: HTMLCanvasElement) => {
 
 	// intialize shared object singleton
 	const deltaT = createSharedObject(DeltaTime);
+
 	// order of adding systems does not matter as long as they have their @updateBefore @updateAfter @group tags set
 	const world = await new WorldBuilder()
 		.useThreads(2)
@@ -83,7 +84,7 @@ export const bootstrap = async (canvas: HTMLCanvasElement) => {
 		sprite.width = 70;
 		sprite.height = 50;
 
-		movement.speed = 10;
+		movement.speed = 2;
 	});
 
 	world.spawn([Position, Sprite, Movement, Velocity, Player], ([position, sprite, movement]) => {
@@ -94,7 +95,7 @@ export const bootstrap = async (canvas: HTMLCanvasElement) => {
 		sprite.width = 70;
 		sprite.height = 50;
 
-		movement.speed = 10;
+		movement.speed = 2;
 	});
 
 	let prevTime = 0.0;

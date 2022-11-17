@@ -34,7 +34,7 @@ export class ECSEachJob<
 						buffers.push([chunk.size, componentArrayBuffers]);
 					});
 
-					const commands = await taskRunner.each([layout, buffers, lambdaString]);
+					const commands = await taskRunner.each([layout, buffers, lambdaString, self.params]);
 				},
 				dependencies
 			);
@@ -66,7 +66,7 @@ export class ECSEachJob<
 							);
 						}
 
-						tasks.push(taskRunner.eachParallel([layout, chunk.size, componentArrayBuffers, lambdaString]));
+						tasks.push(taskRunner.eachParallel([layout, chunk.size, componentArrayBuffers, lambdaString, self.params]));
 					});
 
 					const responses = await Promise.all(tasks);

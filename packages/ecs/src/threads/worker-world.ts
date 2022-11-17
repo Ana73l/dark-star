@@ -16,20 +16,23 @@ import { Entity } from '../entity';
 export type EntityEachLambdaWorkerParams = [
 	layout: Int32Array,
 	chunks: [size: number, buffers: (SharedArrayBuffer | undefined)[]][],
-	lambda: string
+	lambda: string,
+	params?: any[]
 ];
 
 export type EntityEachParallelLambdaWorkerParams = [
 	layout: Int32Array,
 	size: number,
 	buffers: (SharedArrayBuffer | undefined)[],
-	lambda: string
+	lambda: string,
+	params?: any[]
 ];
 
 export type EntityEachWithEntitiesLambdaWorkerParams = [
 	layout: Int32Array,
 	chunks: [size: number, entities: Int32Array, buffers: (SharedArrayBuffer | undefined)[]][],
-	lambda: string
+	lambda: string,
+	params?: any[]
 ];
 
 export type EntityEachWithEntitiesParallelLambdaWorkerParams = [
@@ -37,7 +40,8 @@ export type EntityEachWithEntitiesParallelLambdaWorkerParams = [
 	size: number,
 	entities: Int32Array,
 	buffers: (SharedArrayBuffer | undefined)[],
-	lambda: string
+	lambda: string,
+	params?: any[]
 ];
 
 export type EnqueuedWorkerWorldCommands = [
@@ -79,7 +83,7 @@ export class WorkerWorld implements Pick<World, 'spawn' | 'attach' | 'detach' | 
 		this.destroyEntityCommands.push(entity);
 	}
 
-	public handleEntityEachLambda([layout, chunks, lambda]: EntityEachLambdaWorkerParams): EnqueuedWorkerWorldCommands {
+	public handleEntityEachLambda([layout, chunks, lambda, params]: EntityEachLambdaWorkerParams): EnqueuedWorkerWorldCommands {
 		const parsedLambda = eval('(' + lambda + ')');
 
 		const layoutSize = layout.length;
@@ -112,7 +116,7 @@ export class WorkerWorld implements Pick<World, 'spawn' | 'attach' | 'detach' | 
 					components[componentArrayIndex] = componentArrays[componentArrayIndex][indexInChunk];
 				}
 
-				parsedLambda(components);
+				parsedLambda(components, params);
 			}
 		}
 
@@ -124,6 +128,7 @@ export class WorkerWorld implements Pick<World, 'spawn' | 'attach' | 'detach' | 
 		size,
 		buffers,
 		lambda,
+		params,
 	]: EntityEachParallelLambdaWorkerParams): EnqueuedWorkerWorldCommands {
 		const parsedLambda = eval('(' + lambda + ')');
 		const layoutSize = layout.length;
@@ -140,13 +145,13 @@ export class WorkerWorld implements Pick<World, 'spawn' | 'attach' | 'detach' | 
 				components[componentArrayIndex] = componentArrays[componentArrayIndex][entityIndex];
 			}
 
-			parsedLambda(components);
+			parsedLambda(components, params);
 		}
 
 		return this.flush();
 	}
 
-	public handleEntityEachWithEntitiesLambda([layout, chunks, lambda]: EntityEachWithEntitiesLambdaWorkerParams) {
+	public handleEntityEachWithEntitiesLambda([layout, chunks, lambda, params]: EntityEachWithEntitiesLambdaWorkerParams) {
 		const parsedLambda = eval('(' + lambda + ')');
 
 		// iterate chunks
@@ -179,7 +184,7 @@ export class WorkerWorld implements Pick<World, 'spawn' | 'attach' | 'detach' | 
 					components[componentArrayIndex] = componentArrays[componentArrayIndex][indexInChunk];
 				}
 
-				parsedLambda(entities[indexInChunk], components);
+				parsedLambda(entities[indexInChunk], components, params);
 			}
 		}
 
@@ -192,6 +197,7 @@ export class WorkerWorld implements Pick<World, 'spawn' | 'attach' | 'detach' | 
 		entities,
 		buffers,
 		lambda,
+		params,
 	]: EntityEachWithEntitiesParallelLambdaWorkerParams) {
 		const parsedLambda = eval('(' + lambda + ')');
 		const layoutSize = layout.length;
@@ -208,7 +214,7 @@ export class WorkerWorld implements Pick<World, 'spawn' | 'attach' | 'detach' | 
 				components[componentArrayIndex] = componentArrays[componentArrayIndex][entityIndex];
 			}
 
-			parsedLambda(entities[entityIndex], components);
+			parsedLambda(entities[entityIndex], components, params);
 		}
 
 		return this.flush();

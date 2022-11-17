@@ -1,5 +1,6 @@
 import { injectable } from '@dark-star/di';
 import { System, Query, write, read, updateAfter, entities } from '@dark-star/ecs';
+import { DeltaTime } from '../../delta-time';
 
 import { Position } from '../components/position.data';
 import { Velocity } from '../components/velocity.data';
@@ -12,13 +13,15 @@ export class ApplyMovementSystem extends System {
 	@entities([Position, Velocity])
 	public entities!: Query<[typeof Position, typeof Velocity]>;
 
+	constructor(private deltaT: DeltaTime) {
+		super();
+	}
+
 	public override async update(): Promise<void> {
 		this.entities
-			.eachWithEntities([write(Position), read(Velocity)], (entity, [position, velocity]) => {
-				position.x += velocity.x;
-				position.y += velocity.y;
-
-				// console.log(entity, position.x, position.y);
+			.eachWithEntities([write(Position), read(Velocity)], [this.deltaT.value], (entity, [position, velocity], [deltaT]) => {
+				position.x += velocity.x * deltaT;
+				position.y += velocity.y * deltaT;
 			})
 			.schedule();
 	}

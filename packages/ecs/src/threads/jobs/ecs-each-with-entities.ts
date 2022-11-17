@@ -34,7 +34,7 @@ export class ECSEachWithEntitiesJob<
 						buffers.push([chunk.size, chunk.getEntitiesArray(), componentArrayBuffers]);
 					});
 
-					const commands = await taskRunner.eachWithEntities([layout, buffers, lambdaString]);
+					const commands = await taskRunner.eachWithEntities([layout, buffers, lambdaString, self.params]);
 				},
 				dependencies
 			);
@@ -73,6 +73,7 @@ export class ECSEachWithEntitiesJob<
 								chunk.getEntitiesArray(),
 								componentArrayBuffers,
 								lambdaString,
+								self.params,
 							])
 						);
 					});
