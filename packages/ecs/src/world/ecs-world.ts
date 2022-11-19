@@ -15,7 +15,6 @@ import { ECSTaskRunner } from '../threads/ecs-task-runner';
 import { JobScheduler } from '../threads/job-scheduler';
 // @ts-ignore
 import ECSWorker from 'worker-loader?inline=no-fallback!../threads/worker-global-scope/worker.ts';
-import { createWorkerGlobalScope } from '../threads/worker-global-scope';
 
 import { World, WorldUpdateVersion } from './world';
 
@@ -71,8 +70,7 @@ export class ECSWorld implements World {
 		if (threads > 1) {
 			world.workerPool = WorkerPool.create({
 				threads,
-				workerFactory: () => new ECSWorker(),
-				workerScript: createWorkerGlobalScope(),
+				workerFactory: () => new ECSWorker()
 			});
 
 			const ecsTaskRunner = new ECSTaskRunner(world.workerPool);

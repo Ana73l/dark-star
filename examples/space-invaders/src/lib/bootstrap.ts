@@ -101,8 +101,7 @@ export const bootstrap = async (canvas: HTMLCanvasElement) => {
 	let prevTime = 0.0;
 
 	const loop = async (time: number) => {
-		const dt = time - prevTime;
-		deltaT.value = dt;
+		deltaT.value = time - prevTime;
 
 		await world.step();
 

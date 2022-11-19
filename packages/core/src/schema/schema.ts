@@ -77,13 +77,13 @@ export function registerSchema<T extends Schema & (new () => any)>(schemaCtor: T
  * @param {number} [offset=0] - Starting offset in the DataView for the instance
  * @returns {SchemaInstance}
  * */
-export function assignViewToInstance(instance: SchemaInstance<any>, view: DataView, offset: number = 0): SchemaInstance<any> {
+export function assignViewToInstance(instance: SchemaInstance<any>, view: DataView, offset: number = 0, applyValuesToView: boolean = true): SchemaInstance<any> {
 	instance[$view] = view;
 	instance[$offset] = offset;
 
 	const schemaFields = Object.entries(instance.constructor[$definition]);
 
-	if (instance[$values]) {
+	if (applyValuesToView && instance[$values]) {
 		for (const [name] of schemaFields) {
 			if (instance[$values][name]) {
 				instance[name] = instance[$values][name];
