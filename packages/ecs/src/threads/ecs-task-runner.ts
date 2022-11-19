@@ -7,7 +7,7 @@ import {
 	EntityEachWithEntitiesLambdaWorkerParams,
 	EntityEachWithEntitiesParallelLambdaWorkerParams,
 	WorkerWorld,
-} from './worker-world';
+} from './worker-global-scope/worker-world';
 
 type EntityEachRunner = TaskRunner<EntityEachLambdaWorkerParams, EnqueuedWorkerWorldCommands>;
 type EntityEachWithEntitiesRunner = TaskRunner<EntityEachWithEntitiesLambdaWorkerParams, EnqueuedWorkerWorldCommands>;

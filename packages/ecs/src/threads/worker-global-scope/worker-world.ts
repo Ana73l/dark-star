@@ -1,17 +1,18 @@
-import { $id, schemas } from '@dark-star/core';
-import { createSharedObjectArray } from '@dark-star/shared-object';
+import { $id, Definition, PrimitiveTypes, schemas } from '@dark-star/core';
+import { createSharedObjectArray, serializable } from '@dark-star/shared-object';
 
-import { ComponentType, ComponentTypeId } from '../component';
-import { World } from '../world/world';
-import { ComponentInstancesFromTypes, OptionalComponentPartialsFromTypes } from '../query';
-
+import { ComponentType, ComponentTypeId } from '../../component';
+import { World } from '../../world/world';
+import { ComponentInstancesFromTypes, OptionalComponentPartialsFromTypes } from '../../query';
 import {
 	CreateEntityCommand,
 	AttachComponentsCommand,
 	DetachComponentsCommand,
 	DestroyEntityCommand,
-} from '../storage/deferred-commands-processor';
-import { Entity } from '../entity';
+} from '../../storage/deferred-commands-processor';
+import { Entity } from '../../entity';
+
+import { fieldDecorators } from './field-decorators';
 
 export type EntityEachLambdaWorkerParams = [
 	layout: Int32Array,
@@ -56,6 +57,27 @@ export class WorkerWorld implements Pick<World, 'spawn' | 'attach' | 'detach' | 
 	private attachComponentsCommands: AttachComponentsCommand<any>[] = [];
 	private detachComponentsCommands: DetachComponentsCommand[] = [];
 	private destroyEntityCommands: DestroyEntityCommand[] = [];
+
+	public registerSchemas(schemaTypes: [string, Definition][]): void {
+		for (const [schemaName, definition] of schemaTypes) {
+			const schemaClass = class {};
+
+			Object.entries(definition || []).forEach(([fieldName, { type, args = [] }]) => {
+				const decorator = fieldDecorators[type];
+
+				if (type === PrimitiveTypes.Schema) {
+					decorator(schemas[args[0] - 1])(schemaClass.prototype, fieldName);
+				} else {
+					decorator(...args)(schemaClass.prototype, fieldName);
+				}
+			});
+
+			serializable()(schemaClass);
+
+			// @ts-ignore
+			self[schemaName] = schemaClass;
+		}
+	}
 
 	public spawn(): void;
 	public spawn<T extends ComponentType<any>[]>(componentTypes?: T): void;

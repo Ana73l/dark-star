@@ -45,3 +45,54 @@ const _dark_star_core__WEBPACK_IMPORTED_MODULE_16__ = {
         return schemaCtor;
     }
 }`;
+
+export const CORE = `
+var $id = Symbol();
+var $size = Symbol();
+var $definition = Symbol();
+var $offset = Symbol();
+var $view = Symbol();
+var $values = Symbol();
+
+var PrimitiveTypes = {
+    Int8: 0,
+	Uint8: 1,
+	Int16: 2,
+	Uint16: 3,
+	Int32: 4,
+	Uint32: 5,
+	Float32: 6,
+	Float64: 7,
+	BigInt64: 8,
+	BigUint64: 9,
+	Boolean: 10,
+	String8: 11,
+	String16: 12,
+	Schema: 13
+};
+
+var schemas = [];
+
+function registerSchema(ctor) {
+    schemas.push(ctor);
+
+    return ctor;
+}
+
+function assignViewToInstance(instance, view, offset = 0, assignValues = false) {
+    instance[$view] = view;
+    instance[$offset] = offset;
+
+    var schemaFields = Object.entries(instance.constructor[$definition]);
+
+    if(assignValues && instance[$values]) {
+        for(const [name] of schemaFields) {
+            if(instance[$values][name]) {
+                instance[name] = instance[$values][name];
+            }
+        }
+    }
+
+    return instance;
+}
+`;

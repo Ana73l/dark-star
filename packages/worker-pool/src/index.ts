@@ -39,11 +39,15 @@ export type WorkerPoolConfig = {
 	 * ```ts
 	 * const config: WorkerPoolConfig = {
 	 * 	threads: 4,
-	 * 	workerFile: new URL('./worker.js', import.meta.url)
+	 * 	workerFilePath: new URL('./worker.js', import.meta.url)
 	 * }
 	 * ```
 	 */
-	workerFile?: URL | string;
+	workerFilePath?: string;
+	/**
+	 * Should import.meta.url be used when creating a worker from a file. This property only has effect when workerFilePath is used.
+	 */
+	useImportMetaUrl?: boolean;
 };
 
 /**
@@ -126,11 +130,11 @@ export class WorkerPool implements Disposable {
 	 * const pool = new WorkerPool({ threads: CORES_COUNT - 1, workerFile: new URL('./worker.js', import.meta.url)});
 	 * ```
 	 */
-	constructor({ threads, workerScript = '', workerFile }: WorkerPoolConfig) {
+	constructor({ threads, workerScript = '', workerFilePath, useImportMetaUrl }: WorkerPoolConfig) {
 		assert(threads > 0, `Cannot construct ${this.constructor.name}: number of workers cannot be less than one (passed ${threads})`);
 
-		const script: string | URL = workerFile
-			? workerFile
+		const script: string = workerFilePath
+			? workerFilePath
 			: IS_NODE
 			? `data:text/javascript,${workerScript} ${WORKER_SCRIPT}`
 					.replace(/\s{2,}/g, '')
@@ -143,7 +147,7 @@ export class WorkerPool implements Disposable {
 			  );
 
 		for (let workerId = 0; workerId < threads; workerId++) {
-			this.spawnWorker(workerId, script);
+			this.spawnWorker(workerId, script, useImportMetaUrl);
 		}
 	}
 
@@ -273,8 +277,9 @@ export class WorkerPool implements Disposable {
 		return this.disposePromise;
 	}
 
-	private spawnWorker(workerId: number, workerScript: string | URL) {
-		const worker = new Worker(workerScript);
+	private spawnWorker(workerId: number, workerScript: string, useMeta?: boolean) {
+		// @ts-ignore
+		const worker = useMeta ? new Worker(new URL(workerScript, import.meta.url)) : new Worker(workerScript);
 
 		worker.addEventListener('message', (e: any) => {
 			this.handleWorkerResponse(e, workerId);

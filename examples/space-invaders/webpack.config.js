@@ -3,7 +3,7 @@ const { merge } = require('webpack-merge');
 module.exports = (config, context) =>
 	merge(config, {
 		output: {
-			iife: false
+			iife: false,
 		},
 		resolve: {
 			fallback: {

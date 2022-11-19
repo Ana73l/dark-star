@@ -69,6 +69,8 @@ export class ECSWorld implements World {
 		if (threads > 1) {
 			world.workerPool = WorkerPool.create({
 				threads,
+				workerFilePath: '../threads/worker-global-scope/worker.ts',
+				useImportMetaUrl: true,
 				workerScript: createWorkerGlobalScope(),
 			});
 

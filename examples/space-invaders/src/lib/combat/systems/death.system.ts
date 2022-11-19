@@ -1,6 +1,5 @@
 import { injectable } from '@dark-star/di';
-import { System, Query, read } from '@dark-star/ecs';
-import { WorkerWorld } from 'packages/ecs/src/threads/worker-world';
+import { System, Query, read, World } from '@dark-star/ecs';
 
 import { Health } from '../components/health.data';
 
@@ -17,7 +16,7 @@ export class DeathSystem extends System {
 			.eachWithEntities([read(Health)], (entity, [health]) => {
 				if (health.currentHealth <= 0) {
 					// @ts-ignore
-					(world as WorkerWorld).destroy(entity);
+					(world as World).destroy(entity);
 				}
 			})
 			.schedule();
