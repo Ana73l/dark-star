@@ -110,24 +110,7 @@ export const bootstrap = async (canvas: HTMLCanvasElement) => {
 		requestAnimationFrame(loop);
 	};
 
-	const raf = () => new Promise<number>((r) => requestAnimationFrame(r));
-
-	async function gLoop() {
-		while (true) {
-			const time = await raf();
-			deltaT.value = time - prevTime;
-
-			world.step();
-
-			prevTime = time;
-		}
-	}
-
-	// for(let i = 0; i < 500; i++) {
-	// 	console.log(`step ${i + 1}`)
-	// 	await world.step();
-	// }
-
 	requestAnimationFrame(loop);
+
 	return world;
 };
