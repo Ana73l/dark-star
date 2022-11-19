@@ -1,3 +1,4 @@
+import { Definition } from '@dark-star/core';
 import { TaskRunner, WorkerPool } from '@dark-star/worker-pool';
 
 import {
@@ -13,12 +14,14 @@ type EntityEachRunner = TaskRunner<EntityEachLambdaWorkerParams, EnqueuedWorkerW
 type EntityEachWithEntitiesRunner = TaskRunner<EntityEachWithEntitiesLambdaWorkerParams, EnqueuedWorkerWorldCommands>;
 type EntityEachParallelRunner = TaskRunner<EntityEachParallelLambdaWorkerParams, EnqueuedWorkerWorldCommands>;
 type EntityEachWithEntitiesParallelRunner = TaskRunner<EntityEachWithEntitiesParallelLambdaWorkerParams, EnqueuedWorkerWorldCommands>;
+type RegisterSchemasRunner = TaskRunner<[string, Definition | undefined][], void>;
 
 export class ECSTaskRunner {
 	private eachRunner: EntityEachRunner;
 	private eachParallelRunner: EntityEachParallelRunner;
 	private eachWithEntitiesRunner: EntityEachWithEntitiesRunner;
 	private eachWithEntitiesParallelRunner: EntityEachWithEntitiesParallelRunner;
+	private registerSchemasRunner: RegisterSchemasRunner;
 
 	constructor(pool: WorkerPool) {
 		this.eachRunner = pool.createTask((data: EntityEachLambdaWorkerParams) => {
@@ -40,6 +43,11 @@ export class ECSTaskRunner {
 			// @ts-ignore
 			return (world as WorkerWorld).handleEntityEachWithEntitiesParallelLambda(data);
 		});
+
+		this.registerSchemasRunner = pool.createTask((data: [string, Definition | undefined][]) => {
+			// @ts-ignore
+			(world as WorkerWorld).registerSchemas(data);
+		})
 	}
 
 	public each(data: EntityEachLambdaWorkerParams): Promise<EnqueuedWorkerWorldCommands> {
@@ -56,5 +64,9 @@ export class ECSTaskRunner {
 
 	public eachWithEntitiesParallel(data: EntityEachWithEntitiesParallelLambdaWorkerParams): Promise<EnqueuedWorkerWorldCommands> {
 		return this.eachWithEntitiesParallelRunner.run(data);
+	}
+
+	public registerSchemas(data: [string, Definition | undefined][]): Promise<void> {
+		return this.registerSchemasRunner.run(data);
 	}
 }

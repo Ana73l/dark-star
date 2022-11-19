@@ -58,10 +58,10 @@ export class WorkerWorld implements Pick<World, 'spawn' | 'attach' | 'detach' | 
 	private detachComponentsCommands: DetachComponentsCommand[] = [];
 	private destroyEntityCommands: DestroyEntityCommand[] = [];
 
-	public registerSchemas(schemaTypes: [string, Definition][]): void {
+	public registerSchemas(schemaTypes: [string, Definition | undefined][]): void {
 		for (const [schemaName, definition] of schemaTypes) {
 			const schemaClass = class {};
-
+			
 			Object.entries(definition || []).forEach(([fieldName, { type, args = [] }]) => {
 				const decorator = fieldDecorators[type];
 

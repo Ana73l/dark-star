@@ -1,4 +1,3 @@
-import { TransformCallback } from 'stream';
 import { ComponentTypes } from '../query';
 import { SystemType, SystemGroup, System } from './system';
 import { Query } from './system-job-factory';

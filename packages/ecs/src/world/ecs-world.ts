@@ -1,4 +1,4 @@
-import { assert } from '@dark-star/core';
+import { $definition, assert, Definition, schemas } from '@dark-star/core';
 import { Container, ContainerBuilder } from '@dark-star/di';
 import { WorkerPool } from '@dark-star/worker-pool';
 
@@ -13,6 +13,8 @@ import { $planner, $scheduler } from '../system/planning/__internals__';
 import { SystemProcessor } from '../system/systems-processor';
 import { ECSTaskRunner } from '../threads/ecs-task-runner';
 import { JobScheduler } from '../threads/job-scheduler';
+// @ts-ignore
+import ECSWorker from 'worker-loader?inline=no-fallback!../threads/worker-global-scope/worker.ts';
 import { createWorkerGlobalScope } from '../threads/worker-global-scope';
 
 import { World, WorldUpdateVersion } from './world';
@@ -69,12 +71,21 @@ export class ECSWorld implements World {
 		if (threads > 1) {
 			world.workerPool = WorkerPool.create({
 				threads,
-				workerFilePath: '../threads/worker-global-scope/worker.ts',
-				useImportMetaUrl: true,
+				workerFactory: () => new ECSWorker(),
 				workerScript: createWorkerGlobalScope(),
 			});
 
 			const ecsTaskRunner = new ECSTaskRunner(world.workerPool);
+
+			// register schemas in workers
+			const schemasData: [string, Definition | undefined][] = schemas.map((schemaDef) => [schemaDef.name, schemaDef[$definition]]);
+			const registerSchemasTasks = [];
+
+			for(let i = 0; i < threads; i++) {
+				registerSchemasTasks.push(ecsTaskRunner.registerSchemas(schemasData))
+			}
+
+			await Promise.all(registerSchemasTasks);
 
 			world.jobScheduler = new JobScheduler(ecsTaskRunner);
 			planner.addSchedulerToJobFactories(world.jobScheduler);

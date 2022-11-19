@@ -30,24 +30,21 @@ export type WorkerPoolConfig = {
 	 */
 	workerScript?: string;
 	/**
-	 * Optional worker file.
+	 * Optional worker factory.
 	 *
-	 * Use this property instead of workerScript when defining your worker code in a separate file rather than as a string.
+	 * Use this property instead of workerScript when custom worker needs to be initialized (from a file etc.)
+	 * Worker 'message' event listener will be overriden by the worker pool in order to handle worker responses.
 	 * If this property is set workerScript is ignored.
 	 *
 	 * @example
 	 * ```ts
 	 * const config: WorkerPoolConfig = {
 	 * 	threads: 4,
-	 * 	workerFilePath: new URL('./worker.js', import.meta.url)
+	 * 	workerFactory: () => new Worker(new URL('./worker.js', import.meta.url))
 	 * }
 	 * ```
 	 */
-	workerFilePath?: string;
-	/**
-	 * Should import.meta.url be used when creating a worker from a file. This property only has effect when workerFilePath is used.
-	 */
-	useImportMetaUrl?: boolean;
+	workerFactory?: () => Worker;
 };
 
 /**
@@ -119,22 +116,25 @@ export class WorkerPool implements Disposable {
 	 * const pool = new WorkerPool({ threads: CORES_COUNT - 1 });
 	 *
 	 * // with worker global scope
-	 * const worker = `
+	 * const workerScript = `
 	 * const add = (a, b) => a + b;
 	 * const mul = (a, b) => a * b;
 	 * `;
 	 *
-	 * const pool = new WorkerPool({ threads: CORES_COUNT - 1, workerScript: worker });
+	 * const pool = new WorkerPool({ threads: CORES_COUNT - 1, workerScript });
 	 *
-	 * // with worker file
-	 * const pool = new WorkerPool({ threads: CORES_COUNT - 1, workerFile: new URL('./worker.js', import.meta.url)});
+	 * // with worker factory
+	 * const pool = new WorkerPool({ 
+	 * 	threads: CORES_COUNT - 1, 
+	 * 	workerFactory: () => new Worker(new URL('./worker.js', import.meta.url))
+	 * });
 	 * ```
 	 */
-	constructor({ threads, workerScript = '', workerFilePath, useImportMetaUrl }: WorkerPoolConfig) {
+	constructor({ threads, workerScript = '', workerFactory }: WorkerPoolConfig) {
 		assert(threads > 0, `Cannot construct ${this.constructor.name}: number of workers cannot be less than one (passed ${threads})`);
 
-		const script: string = workerFilePath
-			? workerFilePath
+		const workerDef: string | Function = typeof workerFactory === 'function'
+			? workerFactory
 			: IS_NODE
 			? `data:text/javascript,${workerScript} ${WORKER_SCRIPT}`
 					.replace(/\s{2,}/g, '')
@@ -147,7 +147,7 @@ export class WorkerPool implements Disposable {
 			  );
 
 		for (let workerId = 0; workerId < threads; workerId++) {
-			this.spawnWorker(workerId, script, useImportMetaUrl);
+			this.spawnWorker(workerId, workerDef);
 		}
 	}
 
@@ -277,9 +277,8 @@ export class WorkerPool implements Disposable {
 		return this.disposePromise;
 	}
 
-	private spawnWorker(workerId: number, workerScript: string, useMeta?: boolean) {
-		// @ts-ignore
-		const worker = useMeta ? new Worker(new URL(workerScript, import.meta.url)) : new Worker(workerScript);
+	private spawnWorker(workerId: number, workerDef: string | Function) {
+		const worker = typeof workerDef === 'function' ? workerDef() : new Worker(workerDef);
 
 		worker.addEventListener('message', (e: any) => {
 			this.handleWorkerResponse(e, workerId);
