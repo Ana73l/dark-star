@@ -179,7 +179,7 @@ export class WorkerWorld implements Pick<World, 'spawn' | 'attach' | 'detach' | 
 		// iterate chunks
 		for (const [size, entitiesBuffer, buffers] of chunks) {
 			const componentArrays = [];
-			const entities = new Int32Array(entitiesBuffer);
+			const entities = new Uint32Array(entitiesBuffer);
 
 			let bufferIndexInLayout = 0;
 
@@ -225,7 +225,7 @@ export class WorkerWorld implements Pick<World, 'spawn' | 'attach' | 'detach' | 
 		const parsedLambda = eval('(' + lambda + ')');
 		const layoutSize = layout.length;
 		const componentArrays = this.buildComponentArrays(layout, buffers, size);
-		const entities = new Int32Array(entitiesBuffer);
+		const entities = new Uint32Array(entitiesBuffer);
 		// proxy for components
 		const components = new Array(layoutSize);
 

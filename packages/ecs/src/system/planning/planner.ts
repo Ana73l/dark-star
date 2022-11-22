@@ -7,13 +7,13 @@ import { EntityStore } from '../../storage/store';
 import { System, SystemGroup, SystemType } from '../system';
 import { Planner as IPlanner, $scheduler } from './__internals__';
 import { RootSystem } from './root-system';
-import { Query } from '../system-job-factory';
+import { SystemQuery } from '../system-query';
 import { JobScheduler } from '../../threads/job-scheduler';
 
 export class Planner implements IPlanner, Disposable {
 	private queries: Map<System, [ComponentQueryDescriptor[]]> = new Map();
 	private disposed: boolean = false;
-	private lambdaFactories: Query<any, any, any>[] = [];
+	private lambdaFactories: SystemQuery<any, any, any>[] = [];
 
 	constructor(private store: EntityStore, private systems: System[]) {}
 
@@ -26,7 +26,7 @@ export class Planner implements IPlanner, Disposable {
 			all: TAll,
 			some?: TSome,
 			none?: TNone
-		): Query<TAll, TSome, TNone> => {
+		): SystemQuery<TAll, TSome, TNone> => {
 			const components = convertQueryToDescriptors(all).concat(convertQueryToDescriptors(some || []));
 
 			if (this.queries.has(system)) {
@@ -37,7 +37,7 @@ export class Planner implements IPlanner, Disposable {
 
 			const record = this.store.registerQuery(all, some, none);
 
-			const factory = new Query(record);
+			const factory = new SystemQuery(system, record);
 
 			this.lambdaFactories.push(factory);
 

@@ -1,4 +1,4 @@
-import { System, group, Query, read, updateAfter, entities } from '@dark-star/ecs';
+import { System, group, SystemQuery, read, updateAfter, entities } from '@dark-star/ecs';
 import { injectable } from '@dark-star/di';
 import { RenderGroupSystem } from './render-group.system';
 import { Rectangle } from '../components/rectangle.data';
@@ -10,7 +10,7 @@ import { ClearContextSystem } from './clear-context.system';
 @updateAfter(ClearContextSystem)
 export class RenderRectanglesSystem extends System {
 	@entities([Position, Rectangle])
-	public entities!: Query<[typeof Position, typeof Rectangle]>;
+	public entities!: SystemQuery<[typeof Position, typeof Rectangle]>;
 
 	constructor(private context: CanvasRenderingContext2D) {
 		super();

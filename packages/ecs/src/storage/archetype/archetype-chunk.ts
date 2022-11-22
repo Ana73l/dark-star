@@ -5,7 +5,7 @@ import { ComponentType, ComponentTypeId } from '../../component';
 import { WorldUpdateVersion } from '../../world';
 import { $entitiesArray, $componentsTable } from './__internals__';
 
-export type EntitiesArray = Int32Array & { size: number };
+export type EntitiesArray = Uint32Array & { size: number };
 export type ComponentsArray<T extends ComponentType> = SharedObjectArray<T>;
 export type ComponentArrays<T extends ComponentType[]> = {
 	[P in keyof T]: T[P] extends ComponentType ? ComponentsArray<T[P]> : never;
@@ -31,7 +31,7 @@ export class ArchetypeChunk<T extends ComponentType[] = ComponentType[]> {
 		}
 
 		const entitiesBuffer = new SharedArrayBuffer(capacity * Int32Array.BYTES_PER_ELEMENT);
-		const entitiesArray = new Int32Array(entitiesBuffer, 0, capacity).fill(0);
+		const entitiesArray = new Uint32Array(entitiesBuffer, 0, capacity).fill(0);
 
 		Object.defineProperty(entitiesArray, 'size', {
 			enumerable: true,

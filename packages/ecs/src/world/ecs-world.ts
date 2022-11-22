@@ -170,7 +170,7 @@ export class ECSWorld implements World {
 
 		// @babel SyntaxError: Cannot convert non-arrow function to a function expression.
 		const self = this;
-		const run = async function (resolve: (value: void | PromiseLike<void>) => void) {
+		this.runPromise = new Promise<void>(async function (resolve) {
 			self.store.currentWorldVersion = self._version;
 			self.deferredCommands.process();
 			await self.systemProcessor.execute(self._version);
@@ -182,8 +182,7 @@ export class ECSWorld implements World {
 			self.runPromise = undefined;
 
 			resolve();
-		};
-		this.runPromise = new Promise<void>(run);
+		});
 
 		return this.runPromise;
 	}

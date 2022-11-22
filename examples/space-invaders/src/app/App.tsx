@@ -30,7 +30,7 @@ const App = () => {
 		return () => window.removeEventListener('resize', resize);
 	}, []);
 
-	return <canvas ref={canvas} style={{ imageRendering: 'pixelated' }} />;
+	return <canvas ref={canvas} />;
 };
 
 export default App;

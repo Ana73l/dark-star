@@ -9,11 +9,11 @@ import {
 	EntityEachLambdaWithParams,
 } from '../threads/entity-lambda';
 
-import { $scheduler } from './planning/__internals__';
+import { $scheduler, System } from './planning/__internals__';
 import { ECSEachJob } from '../threads/jobs/ecs-each';
 import { ECSEachWithEntitiesJob } from '../threads/jobs/ecs-each-with-entities';
 
-export class Query<TAll extends ComponentTypes, TSome extends ComponentTypes = [], TNone extends ComponentTypes = []> {
+export class SystemQuery<TAll extends ComponentTypes, TSome extends ComponentTypes = [], TNone extends ComponentTypes = []> {
 	public lastWorldVersion: WorldUpdateVersion = -1;
 	public currentJobHandle?: JobHandle;
 
@@ -21,9 +21,9 @@ export class Query<TAll extends ComponentTypes, TSome extends ComponentTypes = [
 
 	[$scheduler]?: JobScheduler;
 
-	constructor(private query: QueryRecord<TAll, TSome, TNone>) {}
+	constructor(private system: System, private query: QueryRecord<TAll, TSome, TNone>) {}
 
-	public withChangedFilter(): Query<TAll, TSome, TNone> {
+	public withChangedFilter(): SystemQuery<TAll, TSome, TNone> {
 		this.withChanges = true;
 
 		return this;
@@ -42,20 +42,20 @@ export class Query<TAll extends ComponentTypes, TSome extends ComponentTypes = [
 	): Job {
 		if (typeof params === 'function') {
 			return new ECSEachJob<T, TAll, TSome, TNone>(
+				this.system,
 				this.query,
 				convertQueryToDescriptors(componentAccessDescriptors) as any,
 				params,
-				this.lastWorldVersion,
 				undefined,
 				this[$scheduler],
 				this.withChanges
 			);
 		} else {
 			return new ECSEachJob<T, TAll, TSome, TNone>(
+				this.system,
 				this.query,
 				convertQueryToDescriptors(componentAccessDescriptors) as any,
 				lambda!,
-				this.lastWorldVersion,
 				params,
 				this[$scheduler],
 				this.withChanges
@@ -79,20 +79,20 @@ export class Query<TAll extends ComponentTypes, TSome extends ComponentTypes = [
 	): Job {
 		if (typeof params === 'function') {
 			return new ECSEachWithEntitiesJob<T, TAll, TSome, TNone>(
+				this.system,
 				this.query,
 				convertQueryToDescriptors(componentAccessDescriptors) as any,
 				params,
-				this.lastWorldVersion,
 				undefined,
 				this[$scheduler],
 				this.withChanges
 			);
 		} else {
 			return new ECSEachWithEntitiesJob<T, TAll, TSome, TNone>(
+				this.system,
 				this.query,
 				convertQueryToDescriptors(componentAccessDescriptors) as any,
 				lambda!,
-				this.lastWorldVersion,
 				params,
 				this[$scheduler],
 				this.withChanges

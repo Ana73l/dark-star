@@ -1,5 +1,5 @@
 import { WorldBuilder } from '@dark-star/ecs';
-import { createSharedObject, createSharedObjectArray } from '@dark-star/shared-object';
+import { createSharedObject } from '@dark-star/shared-object';
 
 import { createKeyboard, Keyboard } from './input/providers/keyboard';
 
@@ -12,7 +12,6 @@ import { AssetStore } from './asset-store';
 import { RenderGroupSystem } from './rendering/systems/render-group.system';
 import { RenderRectanglesSystem } from './rendering/systems/render-rectangles.system';
 import { Position } from './movement/components/position.data';
-import { Rectangle } from './rendering/components/rectangle.data';
 import { Velocity } from './movement/components/velocity.data';
 import { Movement } from './movement/components/movement.data';
 import { Player } from './tags/player';
@@ -21,6 +20,7 @@ import { ClearContextSystem } from './rendering/systems/clear-context.system';
 import { RenderSpritesSystem } from './rendering/systems/render-sprites.system';
 import { Sprite } from './rendering/components/sprite.data';
 import { DeltaTime } from './delta-time';
+import { CORES_COUNT } from '@dark-star/worker-pool';
 
 export const bootstrap = async (canvas: HTMLCanvasElement) => {
 	const assetStore = await createAssetLoader()
@@ -60,7 +60,7 @@ export const bootstrap = async (canvas: HTMLCanvasElement) => {
 
 	// order of adding systems does not matter as long as they have their @updateBefore @updateAfter @group tags set
 	const world = await new WorldBuilder()
-		.useThreads(2)
+		.useThreads(CORES_COUNT - 1)
 		.registerSingleton(CanvasRenderingContext2D, canvas.getContext('2d'))
 		.registerSingleton(Keyboard, createKeyboard().attach(window as any))
 		.registerSingleton(AssetStore, assetStore)

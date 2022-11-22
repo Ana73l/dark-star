@@ -1,4 +1,4 @@
-import { System, Query, write, entities } from '@dark-star/ecs';
+import { System, SystemQuery, write, entities } from '@dark-star/ecs';
 import { injectable } from '@dark-star/di';
 
 import { Keyboard, Keys } from '../providers/keyboard';
@@ -9,7 +9,7 @@ import { Player } from '../../tags/player';
 @injectable()
 export class PlayerInputSystem extends System {
 	@entities([Player, Movement])
-	public entities!: Query<[typeof Player, typeof Movement]>;
+	public entities!: SystemQuery<[typeof Player, typeof Movement]>;
 
 	constructor(private keyboard: Keyboard) {
 		super();

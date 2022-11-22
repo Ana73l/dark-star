@@ -7,9 +7,48 @@ import {
 	queryHasWriter,
 } from '../../query';
 import { ArchetypeChunk } from '../../storage/archetype/archetype-chunk';
-import { ParallelJob, JobHandle } from './job';
+import { ParallelJob, JobHandle, $dependencies, JobId } from './job';
 import { JobScheduler } from '../job-scheduler';
-import { WorldUpdateVersion } from '../../world';
+import { $scheduler, System } from '../../system/planning/__internals__';
+
+export const addHandleToSystemDependency = (system: System, handleId: JobId): void => {
+	const scheduler = system[$scheduler];
+	// only combine dependencies in a threaded environment
+	if(scheduler) {
+		if(system.dependency) {
+			system.dependency[$dependencies]!.add(handleId);
+		} else {
+			let isComplete = false;
+			let promise: Promise<void>;
+
+			system.dependency = {
+				id: 0,
+				get isComplete() {
+					return isComplete;
+				},
+				complete: async function() {
+					if(isComplete) {
+						return;
+					}
+
+					if(promise) {
+						return promise;
+					}
+
+					promise = new Promise(async function(resolve) {
+						await scheduler.completeJobs(system.dependency![$dependencies]!);
+
+						isComplete = true;
+						resolve();							
+					});
+
+					return promise;
+				},
+				[$dependencies]: new Set([handleId])
+			}
+		}
+	}
+}
 
 export abstract class ECSQueryJob<
 	T extends ComponentTypesQuery,
@@ -21,10 +60,10 @@ export abstract class ECSQueryJob<
 	protected accessDescriptors: ComponentQueryDescriptor[];
 
 	constructor(
+		protected system: System,
 		protected query: QueryRecord<TAll, TSome, TNone>,
 		access: T,
 		protected lambda: (...args: any[]) => any,
-		protected worldVersion: WorldUpdateVersion,
 		protected params?: any[],
 		protected scheduler?: JobScheduler,
 		protected withChanges: boolean = false
@@ -43,7 +82,7 @@ export abstract class ECSQueryJob<
 	public abstract run(): Promise<void>;
 
 	protected iterateChunks(iteratee: (chunk: ArchetypeChunk) => void): void {
-		const worldVersion = this.worldVersion;
+		const worldVersion = this.system.lastWorldVersion;
 		const archetypes = this.query[1];
 		const archetypesCount = archetypes.length;
 		const hasWriter = queryHasWriter(this.accessDescriptors);

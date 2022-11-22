@@ -1,5 +1,5 @@
 import { injectable } from '@dark-star/di';
-import { System, Query, write, read, updateAfter, entities } from '@dark-star/ecs';
+import { System, SystemQuery, write, read, updateAfter, entities } from '@dark-star/ecs';
 import { DeltaTime } from '../../delta-time';
 
 import { Position } from '../components/position.data';
@@ -11,7 +11,7 @@ import { PrepareMovementSystem } from './prepare-movement.system';
 @updateAfter(PrepareMovementSystem)
 export class ApplyMovementSystem extends System {
 	@entities([Position, Velocity])
-	public entities!: Query<[typeof Position, typeof Velocity]>;
+	public entities!: SystemQuery<[typeof Position, typeof Velocity]>;
 
 	constructor(private deltaT: DeltaTime) {
 		super();

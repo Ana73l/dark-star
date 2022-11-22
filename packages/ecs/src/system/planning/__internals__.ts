@@ -1,10 +1,9 @@
 import { ComponentType } from '../../component';
-import { ComponentTypesQuery } from '../../query';
 import { JobHandle } from '../../threads';
-import { Query } from '../system-job-factory';
+import { JobScheduler } from '../../threads/job-scheduler';
+import { SystemQuery } from '../system-query';
 
 export const $planner = Symbol('dark_star_ecs_planner');
-export const $queries = Symbol('dark_star_ecs_system_queries');
 export const $scheduler = Symbol('dark_star_ecs_job_scheduler');
 
 export interface Planner {
@@ -14,7 +13,7 @@ export interface Planner {
 		all: TAll,
 		some?: TSome,
 		none?: TNone
-	) => Query<TAll, TSome, TNone>;
+	) => SystemQuery<TAll, TSome, TNone>;
 }
 
 export interface System {
@@ -29,4 +28,5 @@ export interface System {
 	update(): Promise<void>;
 
 	[$planner]?: Planner;
+	[$scheduler]?: JobScheduler;
 }

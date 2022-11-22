@@ -1,4 +1,4 @@
-import { System, group, Query, read, updateAfter, entities } from '@dark-star/ecs';
+import { System, group, SystemQuery, read, updateAfter, entities } from '@dark-star/ecs';
 import { injectable } from '@dark-star/di';
 
 import { Position } from '../../movement/components/position.data';
@@ -13,7 +13,7 @@ import { ClearContextSystem } from './clear-context.system';
 @updateAfter(ClearContextSystem)
 export class RenderSpritesSystem extends System {
 	@entities([Sprite, Position])
-	public entities!: Query<[typeof Sprite, typeof Position]>;
+	public entities!: SystemQuery<[typeof Sprite, typeof Position]>;
 
 	constructor(private context: CanvasRenderingContext2D, private assetStore: AssetStore) {
 		super();

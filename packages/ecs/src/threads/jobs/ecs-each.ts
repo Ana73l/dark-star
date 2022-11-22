@@ -1,8 +1,8 @@
-import { $id, $view, schemas } from '@dark-star/core';
+import { $id, $view } from '@dark-star/core';
 import { ComponentTypesQuery, ComponentTypes, convertDescriptorsToQuery } from '../../query';
 import { JobHandle } from '..';
 import { createNullHandle } from './job';
-import { ECSQueryJob } from './ecs-query-job';
+import { addHandleToSystemDependency, ECSQueryJob } from './ecs-query-job';
 
 export class ECSEachJob<
 	T extends ComponentTypesQuery,
@@ -14,7 +14,7 @@ export class ECSEachJob<
 		if (this.scheduler) {
 			const self = this;
 
-			return this.scheduler.scheduleJob(
+			const jobHandle = this.scheduler.scheduleJob(
 				this.accessDescriptors,
 				async function (taskRunner) {
 					const layout = new Int32Array(convertDescriptorsToQuery(self.accessDescriptors).map((type) => type[$id]!));
@@ -38,6 +38,10 @@ export class ECSEachJob<
 				},
 				dependencies
 			);
+
+			addHandleToSystemDependency(this.system, jobHandle.id);
+
+			return jobHandle;
 		} else {
 			this.execute();
 
@@ -49,7 +53,7 @@ export class ECSEachJob<
 		if (this.scheduler) {
 			const self = this;
 
-			return this.scheduler.scheduleJob(
+			const jobHandle = this.scheduler.scheduleJob(
 				this.accessDescriptors,
 				async function (taskRunner) {
 					const layout = new Int32Array(convertDescriptorsToQuery(self.accessDescriptors).map((type) => type[$id]!));
@@ -73,6 +77,10 @@ export class ECSEachJob<
 				},
 				dependencies
 			);
+
+			addHandleToSystemDependency(this.system, jobHandle.id);
+
+			return jobHandle;
 		} else {
 			this.execute();
 

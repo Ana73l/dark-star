@@ -1,4 +1,4 @@
-import { System, Query, entities, write, read } from '@dark-star/ecs';
+import { System, SystemQuery, entities, write, read } from '@dark-star/ecs';
 import { injectable } from '@dark-star/di';
 
 import { Velocity } from '../components/velocity.data';
@@ -7,7 +7,7 @@ import { Movement } from '../components/movement.data';
 @injectable()
 export class PrepareMovementSystem extends System {
 	@entities([Velocity, Movement])
-	public entities!: Query<[typeof Velocity, typeof Movement]>;
+	public entities!: SystemQuery<[typeof Velocity, typeof Movement]>;
 
 	public override async update() {
 		this.entities

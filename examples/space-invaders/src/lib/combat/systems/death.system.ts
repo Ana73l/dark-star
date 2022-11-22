@@ -1,11 +1,11 @@
 import { injectable } from '@dark-star/di';
-import { System, Query, read, World } from '@dark-star/ecs';
+import { System, SystemQuery, read, World } from '@dark-star/ecs';
 
 import { Health } from '../components/health.data';
 
 @injectable()
 export class DeathSystem extends System {
-	private entities!: Query<[typeof Health]>;
+	private entities!: SystemQuery<[typeof Health]>;
 
 	public override init(): void {
 		this.entities = this.query([Health]);

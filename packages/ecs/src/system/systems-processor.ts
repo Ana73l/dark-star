@@ -1,9 +1,6 @@
 import { Disposable } from '@dark-star/core';
 
-import { JobId } from '../threads';
-import { $dependencies } from '../threads/jobs/job';
 import { WorldUpdateVersion } from '../world';
-import { $queries, $scheduler } from './planning/__internals__';
 
 import { System, SystemGroup } from './system';
 
@@ -19,7 +16,15 @@ export class SystemProcessor implements Disposable {
 		return this.disposed;
 	}
 
-	public dispose(): void {}
+	public dispose(): void {
+		const systems = this.flattenedSystems;
+
+		while(systems.length > 0) {
+			systems.pop();
+		}
+		
+		this.disposed = true;
+	}
 
 	public async execute(currentWorldVersion: WorldUpdateVersion): Promise<void> {
 		const systems = this.flattenedSystems;
@@ -33,61 +38,15 @@ export class SystemProcessor implements Disposable {
 				if (system.ticksSinceLastExecution === system.tickRate) {
 					system.lastWorldVersion = currentWorldVersion;
 
-					// if there is a dependency and it's not complete from previous frame - complete it before update
+					// if there is a dependency and it's not complete from previous tick - complete it before update
 					if (system.dependency && !system.dependency.isComplete) {
 						await system.dependency.complete();
 					}
 
+					// remove dependency from last tick after completion
+					system.dependency = undefined;
+
 					await system.update();
-
-					if (system[$queries].length) {
-						const scheduler = system[$queries][0][$scheduler];
-
-						if (scheduler) {
-							// merge all jobs scheduled this frame by system into dependencies  for next frame
-							const dependencies = new Set<JobId>();
-
-							for (const factory of system[$queries]) {
-								if (factory.currentJobHandle) {
-									const handle = factory.currentJobHandle;
-									const handleDependencies = handle[$dependencies];
-
-									if (!handle.isComplete && handleDependencies && handleDependencies.size > 0) {
-										for (const jobId of handleDependencies) {
-											dependencies.add(jobId);
-										}
-									}
-								}
-							}
-
-							let isComplete = false;
-							let promise: Promise<void>;
-
-							system.dependency = {
-								id: 0,
-								get isComplete() {
-									return isComplete;
-								},
-								complete: async function () {
-									if (isComplete) {
-										return;
-									}
-
-									if (promise) {
-										return promise;
-									}
-
-									const complete = async function (resolve: (value: void | PromiseLike<void>) => void) {
-										await scheduler.completeJobs(dependencies);
-
-										isComplete = true;
-										resolve();
-									};
-									promise = new Promise<void>(complete);
-								},
-							};
-						}
-					}
 
 					system.ticksSinceLastExecution = 1;
 				} else {
