@@ -136,7 +136,7 @@ export class JobScheduler implements Disposable {
 					const handle = jobHandles.get(jobId)!;
 
 					if (!handle.isComplete) {
-						jobs.push(jobHandles.get(jobId)!.complete());
+						jobs.push(handle.complete());
 					}
 				}
 			}

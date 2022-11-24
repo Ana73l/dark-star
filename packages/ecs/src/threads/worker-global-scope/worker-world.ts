@@ -45,6 +45,11 @@ export type EntityEachWithEntitiesParallelLambdaWorkerParams = [
 	params?: any[]
 ];
 
+export type JobWithCodeLambdaWorkerParams = [
+	lambda: string,
+	params?: any[]
+]
+
 export type EnqueuedWorkerWorldCommands = [
 	create: [componentTypeIds?: ComponentTypeId[], componentInstances?: any[]][],
 	attach: [entity: Entity, componentTypeIds: ComponentTypeId[], componentInstances?: any[]][],
@@ -106,7 +111,7 @@ export class WorkerWorld implements Pick<World, 'spawn' | 'attach' | 'detach' | 
 	}
 
 	public handleEntityEachLambda([layout, chunks, lambda, params]: EntityEachLambdaWorkerParams): EnqueuedWorkerWorldCommands {
-		const parsedLambda = eval('(' + lambda + ')');
+		const parsedLambda = eval(`(${lambda})`);
 
 		const layoutSize = layout.length;
 
@@ -152,7 +157,7 @@ export class WorkerWorld implements Pick<World, 'spawn' | 'attach' | 'detach' | 
 		lambda,
 		params,
 	]: EntityEachParallelLambdaWorkerParams): EnqueuedWorkerWorldCommands {
-		const parsedLambda = eval('(' + lambda + ')');
+		const parsedLambda = eval(`(${lambda})`);
 		const layoutSize = layout.length;
 		const componentArrays = this.buildComponentArrays(layout, buffers, size);
 		// proxy for components
@@ -174,7 +179,7 @@ export class WorkerWorld implements Pick<World, 'spawn' | 'attach' | 'detach' | 
 	}
 
 	public handleEntityEachWithEntitiesLambda([layout, chunks, lambda, params]: EntityEachWithEntitiesLambdaWorkerParams) {
-		const parsedLambda = eval('(' + lambda + ')');
+		const parsedLambda = eval(`(${lambda})`);
 
 		// iterate chunks
 		for (const [size, entitiesBuffer, buffers] of chunks) {
@@ -222,7 +227,7 @@ export class WorkerWorld implements Pick<World, 'spawn' | 'attach' | 'detach' | 
 		lambda,
 		params,
 	]: EntityEachWithEntitiesParallelLambdaWorkerParams) {
-		const parsedLambda = eval('(' + lambda + ')');
+		const parsedLambda = eval(`(${lambda})`);
 		const layoutSize = layout.length;
 		const componentArrays = this.buildComponentArrays(layout, buffers, size);
 		const entities = new Uint32Array(entitiesBuffer);
@@ -242,6 +247,15 @@ export class WorkerWorld implements Pick<World, 'spawn' | 'attach' | 'detach' | 
 		}
 
 		return this.flush();
+	}
+
+	public handleJobWithCode([
+		lambda,
+		params
+	]: JobWithCodeLambdaWorkerParams): any {
+		const parsedCallback = eval(`(${lambda})`);
+
+		return parsedCallback(params);
 	}
 
 	private buildComponentArrays(layout: Int32Array, buffers: (SharedArrayBuffer | undefined)[], length: number): any[] {
@@ -344,13 +358,3 @@ export class WorkerWorld implements Pick<World, 'spawn' | 'attach' | 'detach' | 
 		return [spawn, attach, detach, destroy];
 	}
 }
-
-export class WorkerArchetypeChunk {}
-
-export const workerWorldScript: string = `
-    ${WorkerArchetypeChunk.toString()}
-
-    ${WorkerWorld.toString()}
-
-    const world = new WorkerWorld(true);
-`;

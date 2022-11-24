@@ -7,6 +7,7 @@ import {
 	EntityEachParallelLambdaWorkerParams,
 	EntityEachWithEntitiesLambdaWorkerParams,
 	EntityEachWithEntitiesParallelLambdaWorkerParams,
+	JobWithCodeLambdaWorkerParams,
 	WorkerWorld,
 } from './worker-global-scope/worker-world';
 
@@ -15,12 +16,14 @@ type EntityEachWithEntitiesRunner = TaskRunner<EntityEachWithEntitiesLambdaWorke
 type EntityEachParallelRunner = TaskRunner<EntityEachParallelLambdaWorkerParams, EnqueuedWorkerWorldCommands>;
 type EntityEachWithEntitiesParallelRunner = TaskRunner<EntityEachWithEntitiesParallelLambdaWorkerParams, EnqueuedWorkerWorldCommands>;
 type RegisterSchemasRunner = TaskRunner<[string, Definition | undefined][], void>;
+type JobWithCodeRunner = TaskRunner<JobWithCodeLambdaWorkerParams, any>;
 
 export class ECSTaskRunner {
 	private eachRunner: EntityEachRunner;
 	private eachParallelRunner: EntityEachParallelRunner;
 	private eachWithEntitiesRunner: EntityEachWithEntitiesRunner;
 	private eachWithEntitiesParallelRunner: EntityEachWithEntitiesParallelRunner;
+	private jobWithCodeRunner: JobWithCodeRunner;
 	private registerSchemasRunner: RegisterSchemasRunner;
 
 	constructor(pool: WorkerPool) {
@@ -44,6 +47,11 @@ export class ECSTaskRunner {
 			return (world as WorkerWorld).handleEntityEachWithEntitiesParallelLambda(data);
 		});
 
+		this.jobWithCodeRunner = pool.createTask((data: JobWithCodeLambdaWorkerParams) => {
+			// @ts-ignore
+			return (world as WorkerWorld).handleJobWithCode(data);
+		});
+
 		this.registerSchemasRunner = pool.createTask((data: [string, Definition | undefined][]) => {
 			// @ts-ignore
 			(world as WorkerWorld).registerSchemas(data);
@@ -64,6 +72,10 @@ export class ECSTaskRunner {
 
 	public eachWithEntitiesParallel(data: EntityEachWithEntitiesParallelLambdaWorkerParams): Promise<EnqueuedWorkerWorldCommands> {
 		return this.eachWithEntitiesParallelRunner.run(data);
+	}
+
+	public jobWithCode(data: JobWithCodeLambdaWorkerParams): Promise<void> {
+		return this.jobWithCodeRunner.run(data);
 	}
 
 	public registerSchemas(data: [string, Definition | undefined][]): Promise<void> {

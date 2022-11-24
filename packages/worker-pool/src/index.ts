@@ -92,7 +92,7 @@ type WorkerTaskResponse = {
 export const CORES_COUNT: number = IS_NODE ? require('os').cpus().length : navigator.hardwareConcurrency;
 
 /**
- * A worker pool used to create task, schedulable on multiple threads
+ * A worker pool used to create tasks, executable on multiple threads
  */
 export class WorkerPool implements Disposable {
 	private workers: Worker[] = [];

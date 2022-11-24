@@ -1,9 +1,9 @@
 import { assert } from '@dark-star/core';
 
 import { ComponentQueryDescriptor, ComponentTypes } from '../query';
-import { JobHandle } from '../threads';
+import { Job, JobHandle } from '../threads';
 import { JobScheduler } from '../threads/job-scheduler';
-import { addHandleToSystemDependency } from '../threads/jobs/ecs-query-job';
+import { ECSJobWithCode } from '../threads/jobs/ecs-job-with-code';
 import { WorldUpdateVersion } from '../world';
 
 import { $planner, $scheduler, Planner, System as ISystem } from './planning/__internals__';
@@ -60,9 +60,25 @@ export abstract class System implements ISystem {
 		return factory;
 	}
 
-	// protected jobWithCode<T extends any[]>(params: T, callback: (args: T) => void): JobHandle {
-	// 	addHandleToSystemDependency(this, jobHandle.id);
-	// }
+	protected jobWithCode(callback: () => void): Job;
+	protected jobWithCode<T extends any[]>(params: T, callback: (args: T) => void): Job;
+	protected jobWithCode<T extends any[]>(params: T | (() => void), callback?: (args: T) => void): Job {
+		if(typeof callback === 'function') {
+			return new ECSJobWithCode(
+				this,
+				callback,
+				params as T,
+				this[$scheduler]
+			);	
+		} else {
+			return new ECSJobWithCode(
+				this,
+				params as (args: T) => void,
+				[],
+				this[$scheduler]
+			);
+		}
+	}
 
 	[$scheduler]?: JobScheduler;
 	[$planner]?: Planner;
