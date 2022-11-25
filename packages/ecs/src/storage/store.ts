@@ -75,7 +75,7 @@ export class EntityStore {
 
 	public createEntity<T extends ComponentTypes>(
 		componentTypes?: T,
-		initial?: OptionalComponentPartialsFromTypes<T> | ((values: ComponentInstancesFromTypes<T>) => void)
+		initial?: OptionalComponentPartialsFromTypes<T> | ((entity: Entity, values: ComponentInstancesFromTypes<T>) => void)
 	): Entity {
 		const entity = this.reusableEntities.pop() || this.uid();
 
@@ -109,7 +109,7 @@ export class EntityStore {
 					componentInstances.push(componentArray ? componentArray[oldChunkSize] : undefined);
 				}
 
-				initial(componentInstances as ComponentInstancesFromTypes<T>);
+				initial(entity, componentInstances as ComponentInstancesFromTypes<T>);
 			} else {
 				for (componentTypeIndex = 0; componentTypeIndex < componentTypesArgLength; componentTypeIndex++) {
 					const componentType = componentTypes[componentTypeIndex];

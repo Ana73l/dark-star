@@ -76,7 +76,7 @@ export const bootstrap = async (canvas: HTMLCanvasElement) => {
 		.registerSystem(RenderRectanglesSystem)
 		.build();
 
-	world.spawn([Position, Sprite, Movement, Velocity, Player], ([position, sprite, movement]) => {
+	world.spawn([Position, Sprite, Movement, Velocity, Player], (_, [position, sprite, movement]) => {
 		position.x = 5;
 		position.y = 500;
 
@@ -87,7 +87,7 @@ export const bootstrap = async (canvas: HTMLCanvasElement) => {
 		movement.speed = 2;
 	});
 
-	world.spawn([Position, Sprite, Movement, Velocity, Player], ([position, sprite, movement]) => {
+	world.spawn([Position, Sprite, Movement, Velocity, Player], (_, [position, sprite, movement]) => {
 		position.x = 100;
 		position.y = 300;
 

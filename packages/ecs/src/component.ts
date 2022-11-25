@@ -21,9 +21,16 @@ export type Tag<T extends any = any> = {
  *
  * @example
  * ```ts
+ * import { component } from '@dark-star/ecs';
+ * import { float64 } from '@dark-star/shared-object';
+ *
  * @component()
  * class Position {
- * 	// ...
+ * 	@float64()
+ * 	x: number = 0;
+ *
+ * 	@float64()
+ * 	y: number = 0;
  * }
  * ```
  */
@@ -38,6 +45,8 @@ export const component: <T extends ComponentType>() => (target: T) => T = () => 
  * @returns The target tag constructor
  *
  * ```ts
+ * import { tag } from '@dark-star/ecs';
+ *
  * @tag()
  * class Active {}
  * ```

@@ -1,2 +1,2 @@
-/** Entities are unique Int32 numbers */
+/** Entities are unique Uint32 numbers */
 export type Entity = number;
