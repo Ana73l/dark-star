@@ -63,7 +63,7 @@ export class ContainerBuilder {
 	 * 	.registerTransient(ITaskQueue, TaskQueue);
 	 * ```
 	 * @remarks
-	 * Instances cannot be passed to registerTransient since they are singletons in the container.
+	 * Instances cannot be passed to registerTransient as they are singletons in the container.
 	 * To pass instances use {@link ContainerBuilder.registerSingleton}.
 	 */
 	public registerTransient<T>(

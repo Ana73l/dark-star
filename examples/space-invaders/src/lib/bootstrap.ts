@@ -60,7 +60,7 @@ export const bootstrap = async (canvas: HTMLCanvasElement) => {
 
 	// order of adding systems does not matter as long as they have their @updateBefore @updateAfter @group tags set
 	const world = await new WorldBuilder()
-		.useThreads(CORES_COUNT - 1)
+		.useThreads(CORES_COUNT)
 		.registerSingleton(CanvasRenderingContext2D, canvas.getContext('2d'))
 		.registerSingleton(Keyboard, createKeyboard().attach(window as any))
 		.registerSingleton(AssetStore, assetStore)

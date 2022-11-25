@@ -9,8 +9,11 @@ export type WorldUpdateVersion = number;
 
 /** */
 export abstract class World implements Disposable {
+	/** Current world version. Incremented each time {@link World.step} is called. */
 	abstract readonly version: WorldUpdateVersion;
+	/** Indicates whether world has been disposed. */
 	abstract readonly isDisposed: boolean;
+	/** Indicates whether {@link World.step} is currently in progress. */
 	abstract readonly isStepInProgress: boolean;
 
 	/**
@@ -185,7 +188,7 @@ export abstract class World implements Disposable {
 	 *
 	 * @example
 	 * ```ts
-	 * // create a game loop - game will continuously execute
+	 * // create a game loop
 	 * const gameLoop = async (time: number) => {
 	 * 	await world.step();
 	 *

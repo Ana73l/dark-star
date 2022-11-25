@@ -27,6 +27,7 @@ export type WorldParams = {
 /**
  * @hidden
  * Concrete implementation of {@link World}
+ * {@inheritDoc World}
  */
 export class ECSWorld implements World {
 	private store!: EntityStore;
@@ -68,8 +69,9 @@ export class ECSWorld implements World {
 
 		// if threaded
 		if (threads > 1) {
+			threads = threads - 1;
 			world.workerPool = WorkerPool.create({
-				threads,
+				threads: threads,
 				workerFactory: () => new ECSWorker()
 			});
 
