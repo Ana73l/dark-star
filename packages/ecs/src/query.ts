@@ -68,8 +68,16 @@ export type ComponentInstancesFromQuery<
 		: never;
 };
 
+/**
+ * @internal
+ * Layout of a component query. Components are represented by their unique ids assigned by the {@link component} decorator.
+ */
 export type QueryRecordLayout = [all: Int32Array, some: Int32Array, none?: ComponentTypeId[]];
 
+/**
+ * @internal
+ * Represents a persistent {@link QueryRecordLayout components query layout} and its matching {@link Archetype archetypes}.
+ */
 export type QueryRecord<TAll extends ComponentTypes, TSome extends ComponentTypes = [], TNone extends ComponentTypes = []> = [
 	layout: QueryRecordLayout,
 	archetypes: Archetype[]
@@ -85,14 +93,37 @@ export const write = <T extends ComponentType>(componentType: T): WriteComponent
 	flag: ComponentAccessFlags.Write,
 });
 
+/**
+ * @internal
+ * Converts {@link ComponentTypesQuery} to {@link ComponentQueryDescriptor} array.
+ * Used internally to wrap {@link ComponentTypesQuery query} array as {@link read}/ {@link write} descriptors
+ * 
+ * @param query - Component types to be converted
+ * @returns The component types query converted as {@link read}/ {@link write} descriptors
+ */
 export const convertQueryToDescriptors = <T extends ComponentTypesQuery>(query: T): ComponentQueryDescriptor[] =>
 	query.map((descriptor: any) =>
 		typeof descriptor === 'function' ? { type: descriptor, flag: ComponentAccessFlags.Write } : descriptor
 	);
 
+/**
+ * @internal
+ * Converts {@link ComponentTypesQuery} to {@link ComponentTypesFromQuery} array.
+ * Used internally to get the component types from a {@link ComponentType}/ {@link ComponentQueryDescriptor} array.
+ * 
+ * @param query - Component access descriptors to be converted
+ * @returns The component types contained in the {@link ComponentTypesQuery}
+ */
 export const convertDescriptorsToQuery = <T extends ComponentTypesQuery>(query: T): ComponentTypesFromQuery<T> =>
 	query.map((descriptor: any) => (typeof descriptor === 'function' ? descriptor : descriptor.type)) as ComponentTypesFromQuery<T>;
 
+/**
+ * @internal
+ * Determines whether an {@link ComponentTypesQuery access descriptors query} contains writers.
+ * 
+ * @param query - Component access descriptors
+ * @returns Whether list of descriptors includes a {@link write writer}
+ */
 export const queryHasWriter = <T extends ComponentTypesQuery>(query: T): boolean => {
 	for (const descriptor of query) {
 		if (typeof descriptor === 'function' || descriptor.flag === ComponentAccessFlags.Write) {
@@ -102,59 +133,3 @@ export const queryHasWriter = <T extends ComponentTypesQuery>(query: T): boolean
 
 	return false;
 };
-// export const createQueryResult = <
-//     TAll extends ComponentTypesQuery = ComponentTypesQuery,
-//     TSome extends ComponentTypesQuery = []
-// >(
-//     records: QueryRecord<TAll, TSome>[],
-//     layout: [ComponentTypeId[], ComponentTypeId[]]
-// ): QueryResult<TAll, TSome> => {
-//     const allTypeIds = layout[0];
-//     const someTypeIds = layout[1];
-
-//     const allTypesCount = allTypeIds.length;
-//     const someTypesCount = someTypeIds.length;
-
-//     const each = (
-//         iteratee: (
-//             entity: Entity,
-//             all: ComponentInstancesFromQuery<TAll>,
-//             some?: ComponentInstancesFromQuery<TSome>
-//         ) => void
-//     ): void => {
-//         let recordIndex;
-//         let entities;
-//         let entityIndex;
-//         const mandatoryComponents = new Array(allTypeIds.length).fill(null);
-//         const optionalComponents = new Array(someTypeIds.length).fill(null);
-//         let componentIndex;
-
-//         for (recordIndex = 0; recordIndex < records.length; recordIndex++) {
-//             entities = records[recordIndex][0];
-
-//             for (entityIndex = 0; entityIndex < entities.length; entityIndex++) {
-//                 // proxy for mandatory components
-//                 for (componentIndex = 0; componentIndex < allTypesCount; componentIndex++) {
-//                     mandatoryComponents[componentIndex] = records[recordIndex][1][componentIndex][entityIndex];
-//                 }
-//                 // proxy for optional components
-//                 for (componentIndex = 0; componentIndex < someTypesCount; componentIndex++) {
-//                     optionalComponents[componentIndex] = records[recordIndex][1][componentIndex][entityIndex];
-//                 }
-
-//                 iteratee(
-//                     records[recordIndex][0][entityIndex],
-//                     mandatoryComponents as unknown as ComponentInstancesFromQuery<TAll>,
-//                     optionalComponents as unknown as ComponentInstancesFromQuery<TSome>
-//                 );
-//             }
-//         }
-//     };
-
-//     return {
-//         each,
-//         [Symbol.iterator]() {
-//             return records[Symbol.iterator]();
-//         }
-//     };
-// };

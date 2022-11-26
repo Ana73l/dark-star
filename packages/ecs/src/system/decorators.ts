@@ -1,4 +1,5 @@
 import { ComponentTypes } from '../query';
+
 import { SystemType, SystemGroup, System } from './system';
 import { SystemQuery } from './system-query';
 
@@ -34,7 +35,7 @@ export const entities =
 	): EntitiesDecorator<SystemQuery<TAll, TSome, TNone>> =>
 	<T extends SystemType>(target: InstanceType<T>, property: string): void => {
 		const systemType = target.constructor as T;
-		const queryFields = (systemType.queryFields = systemType.queryFields || {});
+		const queryFields = (systemType.queries = systemType.queries || {});
 
 		queryFields[property] = query;
 	};

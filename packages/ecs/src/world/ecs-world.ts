@@ -25,7 +25,7 @@ export type WorldParams = {
 };
 
 /**
- * @hidden
+ * @internal
  * Concrete implementation of {@link World}
  * {@inheritDoc World}
  */

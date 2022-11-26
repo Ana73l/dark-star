@@ -127,7 +127,7 @@ export class WorldBuilder {
 	}
 
 	/**
-	 * Registers an {@link injectable} {@link System system} that can be injected in other providers or systems in the world.
+	 * Registers an {@link injectable} {@link System system} that can be injected in other systems or providers in the world.
 	 * 
 	 * @param systemType - {@link System} constructor
 	 * @returns The {@link WorldBuilder} instance

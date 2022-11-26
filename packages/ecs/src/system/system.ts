@@ -13,18 +13,28 @@ export type SystemType<T extends System = System> = (new (...args: any[]) => T) 
 	updateBefore?: SystemType;
 	updateAfter?: SystemType;
 	updateInGroup?: SystemType<SystemGroup>;
-	queryFields?: Record<string, [all: ComponentTypes, some?: ComponentTypes, none?: ComponentTypes]>;
+	queries?: Record<string, [all: ComponentTypes, some?: ComponentTypes, none?: ComponentTypes]>;
 };
 
 export abstract class System implements ISystem {
+	/** Indicates whether {@link System system instance} is active for execution */
 	public active: boolean = true;
+	/**  */
 	public tickRate: number = 1;
+	/** Used  internally (along with {@link System.active} and {@link System.tickRate} properties) to determine whether system should execute during the current {@link World.step step}. */
 	public ticksSinceLastExecution: number = 1;
 	public dependency?: JobHandle;
 	public lastWorldVersion: WorldUpdateVersion = -1;
 
+	/**
+	 * @internal
+	 * Injects persistent {@link SystemQuery queries} in the target {@link System system instance} based on its static `queries` property.
+	 * Used internally during the {@link World.create world create} phase.
+	 * 
+	 * @param target - {@link System} instance
+	 */
 	public static injectQueryInSystemInstance(target: System): void {
-		const queries = (target.constructor as SystemType).queryFields;
+		const queries = (target.constructor as SystemType).queries;
 
 		if (queries) {
 			for (const [property, query] of Object.entries(queries)) {
@@ -39,6 +49,27 @@ export abstract class System implements ISystem {
 
 	public abstract update(): Promise<void>;
 
+	/**
+	 * Completes all {@link Job jobs} (if in a {@link WorldBuilder.useThreads multithreaded} {@link World world}) operating on data described with a {@link ComponentQueryDescriptor access descriptor} array.
+	 * 
+	 * @param componentQueryDescriptors - {@link ComponentQueryDescriptor Access descriptors}
+	 * 
+	 * @example
+	 * ```ts
+	 * @injectable()
+	 * class ClearRenderingContext extends System {
+	 * 	constructor(private context: CanvasRenderingContext2D) {
+	 * 		super();
+	 * 	}	
+	 * 
+	 * 	public override update() {
+	 * 		// complete jobs on components relevant to rendering before proceeding
+	 * 		await this.completeJobs([read(Sprite), read(Position)]);
+	 * 		this.context.clearRect(0, 0, this.context.canvas.width, this.context.canvas.height);
+	 * 	}
+	 * }
+	 * ```
+	 */
 	protected async completeJobs(componentQueryDescriptors: ComponentQueryDescriptor[]): Promise<void> {
 		if (this[$scheduler]) {
 			await this[$scheduler].completeJobs(this[$scheduler].getDependencies(componentQueryDescriptors));
@@ -80,7 +111,17 @@ export abstract class System implements ISystem {
 		}
 	}
 
+	/**
+	 * @internal
+	 * {@link JobScheduler} used to schedule jobs. 
+	 * Injected only if {@link World world} to which system belongs uses more than one thread.
+	 */
 	[$scheduler]?: JobScheduler;
+	/**
+	 * @internal
+	 * {@link Planner} used to create {@link SystemQuery queries} and calculate order of systems in a world.
+	 * Injected before {@link System.init} is called and removed after to prevent {@link SystemQuery query} registration after {@link System} has been initialized.
+	 */
 	[$planner]?: Planner;
 }
 
