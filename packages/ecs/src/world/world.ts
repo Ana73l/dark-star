@@ -7,7 +7,13 @@ import { ComponentTypes, ComponentInstancesFromTypes, OptionalComponentPartialsF
 /** Current world version. Used to track for changes. */
 export type WorldUpdateVersion = number;
 
-/** */
+/**
+ * Worlds maintain entities and execute systems.
+ * 
+ * @remarks
+ * Worlds cannot be initialized directly. Use {@link WorldBuilder} to construct and initialize worlds.
+ * @see {@link WorldBuilder}
+ */
 export abstract class World implements Disposable {
 	/** Current world version. Incremented each time {@link World.step} is called. */
 	abstract readonly version: WorldUpdateVersion;

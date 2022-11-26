@@ -16,18 +16,44 @@
 <li><a href="_dark_star_ecs.html">@dark-star/ecs</a></li></ul>
 <h1>Module @dark-star/ecs</h1></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/f2cdbab/packages/ecs/src/index.ts#L1">ecs/src/index.ts:1</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/a7e3674/packages/ecs/src/index.ts#L1">ecs/src/index.ts:1</a></li></ul></aside>
 <section class="tsd-panel-group">
 <section class="tsd-panel tsd-typography">
-<a href="#ecs" id="ecs" style="color: inherit; text-decoration: none;">
-  <h1>ecs</h1>
+<a href="#dark-starecs" id="dark-starecs" style="color: inherit; text-decoration: none;">
+  <h1>@dark-star/ecs</h1>
 </a>
-<p>This library was generated with <a href="https://nx.dev">Nx</a>.</p>
+<p>A multithreaded TypeScript <a href="https://en.wikipedia.org/wiki/Entity_component_system">Entity-Component-System</a> framework for NodeJS and browsers.</p>
+<ul>
+<li>Simple and intuitive</li>
+<li>Multithreaded</li>
+<li>Built-in <a href="https://en.wikipedia.org/wiki/Dependency_injection">dependency injection container</a></li>
+</ul>
 
-<a href="#running-lint" id="running-lint" style="color: inherit; text-decoration: none;">
-  <h2>Running lint</h2>
+<a href="#install" id="install" style="color: inherit; text-decoration: none;">
+  <h2>Install</h2>
 </a>
-<p>Run <code>nx lint ecs</code> to execute the lint via <a href="https://eslint.org/">ESLint</a>.</p>
+<pre><code class="language-sh"><span class="hl-1">npm i @dark-star/ecs</span>
+</code></pre>
+<p>Modify <code>tsconfig.json</code> to enable decorators</p>
+<pre><code class="language-json"><span class="hl-1">{</span><br/><span class="hl-1">    </span><span class="hl-9">&quot;compilerOptions&quot;</span><span class="hl-1">: {</span><br/><span class="hl-1">        </span><span class="hl-9">&quot;experimentalDecorators&quot;</span><span class="hl-1">: </span><span class="hl-0">true</span><span class="hl-1">,</span><br/><span class="hl-1">        </span><span class="hl-9">&quot;emitDecoratorMetadata&quot;</span><span class="hl-1">: </span><span class="hl-0">true</span><br/><span class="hl-1">    }</span><br/><span class="hl-1">}</span>
+</code></pre>
+<p>Add a polyfill for the Reflect extensions.</p>
+<p>The Reflect polyfill is needed to make dependency injection work. It should be imported once, before ECS is used (preferably start of index.ts)</p>
+<pre><code class="language-ts"><span class="hl-5">// index.ts</span><br/><span class="hl-10">import</span><span class="hl-1"> </span><span class="hl-7">&#39;reflect-metadata&#39;</span><span class="hl-1">;</span><br/><br/><span class="hl-5">// ...</span>
+</code></pre>
+
+<a href="#api" id="api" style="color: inherit; text-decoration: none;">
+  <h2>API</h2>
+</a>
+
+<a href="#examples" id="examples" style="color: inherit; text-decoration: none;">
+  <h3>Examples</h3>
+</a>
+
+<a href="#docs" id="docs" style="color: inherit; text-decoration: none;">
+  <h2>Docs</h2>
+</a>
+<p>API documentation can be found <a href="https://ana73l.github.io/dark-star/modules/_dark_star_ecs">here</a></p>
 </section></section>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">

@@ -17,55 +17,77 @@ export class ContainerBuilder {
 	/**
 	 * Registers a transient provider in the container.
 	 * The container will inject a new instance of the provider in each dependee.
-	 *
-	 * @typeParam T - Type of the object created by the factory/ constructor
-	 * @param {InjectableIdentifier} identifier - Class whose prototype matches T
-	 * @param {ClassType | Factory} constructor - Class or function that creates an object matching T
-	 * @returns {ContainerBuilder}
-	 *
+	 * 
+	 * @typeParam T - Type of the object created by the constructor
+	 * @param constructor - Constructor of concrete class
+	 * @returns The {@link ContainerBuilder} instance
+	 * 
 	 * @example
 	 * ```ts
-	 * // using 'interface' and factory
-	 * abstract class ILogger {
-	 * 	abstract log(...args: string[]): void;
-	 * }
-	 *
-	 * const createLogger = (): ILogger => {
-	 * 	log: (...args: string[]) => {
-	 * 		// ...
-	 * 	}
-	 * }
-	 *
-	 * // using class
 	 * @injectable()
-	 * class MyTransientService {
-	 * 	constructor(private logger: ILogger) {}
-	 * }
-	 *
-	 * // using 'interface' and class
-	 * abstract class ITaskQueue<T> {
-	 * 	abstract push(item: T): TaskQueue<T>;
+	 * class Logger {
 	 * 	// ...
 	 * }
-	 *
-	 * @injectable()
-	 * class TaskQueue<T> implements ITaskQueue<T> {
-	 * 	constructor(private service: MyTransientService, private logger: ILogger) {}
-	 * 	push(item: T) {
-	 * 		// ...
-	 * 	}
-	 * 	// ...
-	 * }
-	 *
-	 * const container = new ContainerBuilder()
-	 * 	.registerTransient(ILogger, createLogger)
-	 * 	.registerTransient(MyTransientService)
-	 * 	.registerTransient(ITaskQueue, TaskQueue);
+	 * 
+	 * containerBuilder.registerTransient(Logger);
 	 * ```
+	 */
+	public registerTransient<T>(constructor: ClassType<T>): ContainerBuilder;
+	/**
+	 * Registers a transient provider in the container.
+	 * The container will inject a new instance of the provider in each dependee.
+	 * 
+	 * @typeParam T - Type of the object created by the constructor
+	 * @param {InjectableIdentifier} identifier - Abstract or concrete class
+	 * @param constructor - Constructor of concrete class
+	 * @returns The {@link ContainerBuilder} instance
+	 * 
+	 * @example
+	 * ```ts
+	 * abstract class ILogger {
+	 * 	// ...
+	 * }
+	 * 
+	 * @injectable()
+	 * class Logger {
+	 * 	// ...
+	 * }
+	 * 
+	 * containerBuilder.registerTransient(ILogger, Logger);
+	 * ```
+	 * 
 	 * @remarks
 	 * Instances cannot be passed to registerTransient as they are singletons in the container.
 	 * To pass instances use {@link ContainerBuilder.registerSingleton}.
 	 */
+	public registerTransient<T>(identifier: InjectableIdentifier<T>, constructor: ClassType<T>): ContainerBuilder;
+	/**
+	 * Registers a transient provider in the container.
+	 * The container will inject a new instance of the provider in each dependee.
+	 * 
+	 * @typeParam T - Type of the object created by the constructor
+	 * @param {InjectableIdentifier} identifier - Abstract or concrete class
+	 * @param factory - Function with no parameters which returns an object that implements {@link identifier}
+	 * @returns The {@link ContainerBuilder} instance
+	 * 
+	 * @example
+	 * ```ts
+	 * abstract class ILogger {
+	 * 	// ...
+	 * }
+	 * 
+	 * const createLogger = (): ILogger => {
+	 * 	// ...
+	 * };
+	 * 
+	 * containerBuilder.registerTransient(ILogger, createLogger);
+	 * ```
+	 * 
+	 * @remarks
+	 * Instances cannot be passed to registerTransient as they are singletons in the container.
+	 * To pass instances use {@link ContainerBuilder.registerSingleton}.
+	 */
+	public registerTransient<T>(identifier: InjectableIdentifier<T>, factory: Factory<T>): ContainerBuilder;
 	public registerTransient<T>(
 		identifier: InjectableIdentifier<T>,
 		constructor?: ClassType<T> | Factory<T>
@@ -101,36 +123,92 @@ export class ContainerBuilder {
 	/**
 	 * Registers a singleton provider in the container.
 	 * The container will hold and inject a single instance of the provider in each dependee.
-	 *
+	 * 
 	 * @typeParam T - Type of the object created by the factory/ constructor
-	 * @param {InjectableIdentifier} identifier - Class whose prototype matches T
-	 * @param {ClassType | Factory | Instance} constructor - Class or function that creates an object matching T
-	 * @returns {ContainerBuilder}
-	 *
+	 * @param constructor - Constructor of concrete class
+	 * @returns The {@link ContainerBuilder} instance
+	 * 
 	 * @example
 	 * ```ts
-	 * // using 'interface' and instance
-	 * abstract class IModels {
-	 * 	abstract getModel(name: string): Model;
-	 * }
-	 *
-	 * const models: IModels = {
-	 * 	getModel: (name: string) => {
-	 * 		// ...
-	 * 	}
-	 * }
-	 *
-	 * // using class
 	 * @injectable()
 	 * class World {
-	 * 	constructor(private models: IModels) {}
+	 * 	// ...
 	 * }
-	 *
-	 * const container = new ContainerBuilder()
-	 * 	.registerSingleton(IModels, models)
-	 * 	.registerSingleton(World);
+	 * 
+	 * containerBuilder.registerSingleton(World);
 	 * ```
 	 */
+	public registerSingleton<T>(constructor: ClassType<T>): ContainerBuilder;
+	/**
+	 * Registers a singleton provider in the container.
+	 * The container will hold and inject a single instance of the provider in each dependee.
+	 * 
+	 * @typeParam T - Type of the object created by the factory/ constructor
+	 * @param {InjectableIdentifier} identifier - Abstract or concrete class
+	 * @param constructor - Constructor of concrete class
+	 * @returns The {@link ContainerBuilder} instance
+	 * 
+	 * @example
+	 * ```ts
+	 * abstract class IWorld {
+	 * 	// ...
+	 * }
+	 * 
+	 * @injectable()
+	 * class World implements IWorld {
+	 * 	// ...
+	 * }
+	 * 
+	 * containerBuilder.registerSingleton(IWorld, World);
+	 * ```
+	 */
+	public registerSingleton<T>(identifier: InjectableIdentifier<T>, constructor: ClassType<T>): ContainerBuilder;
+	/**
+	 * Registers a singleton provider in the container.
+	 * The container will hold and inject a single instance of the provider in each dependee.
+	 * 
+	 * @typeParam T - Type of the object created by the factory/ constructor
+	 * @param {InjectableIdentifier} identifier - Abstract or concrete class
+	 * @param factory - Function with no parameters which returns an object that implements {@link identifier}
+	 * @returns The {@link ContainerBuilder} instance
+	 * 
+	 * @example
+	 * ```ts
+	 * abstract class IWorld {
+	 * 	// ...
+	 * }
+	 * 
+	 * const createWorld = (): IWorld => {
+	 * 	// ...
+	 * };
+	 * 
+	 * containerBuilder.registerSingleton(IWorld, createWorld);
+	 * ```
+	 */
+	public registerSingleton<T>(identifier: InjectableIdentifier<T>, factory: Factory<T>): ContainerBuilder;
+	 /**
+	 * Registers a singleton provider in the container.
+	 * The container will hold and inject a single instance of the provider in each dependee.
+	 * 
+	 * @typeParam T - Type of the object created by the factory/ constructor
+	 * @param {InjectableIdentifier} identifier - Abstract or concrete class
+	 * @param instance - Object that implements {@link identifier}
+	 * @returns The {@link ContainerBuilder} instance
+	 * 
+	 * @example
+	 * ```ts
+	 * abstract class IWorld {
+	 * 	// ...
+	 * }
+	 * 
+	 * const world: IWorld = {
+	 * 	// ...
+	 * };
+	 * 
+	 * containerBuilder.registerSingleton(IWorld, world);
+	 * ```
+	 */
+	public registerSingleton<T>(identifier: InjectableIdentifier<T>, instance: Instance<T>): ContainerBuilder;
 	public registerSingleton<T>(
 		identifier: InjectableIdentifier<T>,
 		constructor?: ClassType<T> | Factory<T> | Instance<T>
@@ -171,9 +249,9 @@ export class ContainerBuilder {
 	}
 
 	/**
-	 * Creates a container from which instances of the providers can be retrieved
+	 * Creates a container from which instances of the providers can be retrieved.
 	 *
-	 * @returns {Container}
+	 * @returns {Container} The {@link Container} instance containing all registered providers
 	 */
 	public build(): Container {
 		return new DSContainer(this.injectables);

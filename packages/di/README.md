@@ -79,7 +79,7 @@ console.log(userService.logger === database.logger); // false - Logger is regist
 import { ContainerBuilder, injectable } from '@dark-star/di';
 
 abstract class ILogger {
-    abstract log(...inputs: []): void;
+    abstract log(...inputs: string[]): void;
     // ...
 }
 
@@ -90,10 +90,20 @@ class UserService {
 }
 
 const logger: ILogger = {
-    log: (...inputs[]) => {
+    log: (...inputs: string[]) => {
         // ...
     }
 };
+
+/**
+ * Alternatively a factory can be used
+ * 
+ * const logger = (): ILogger => {
+ * 	log: (...inputs: string[]) => {
+ * 		// ...
+ * 	}
+ * };
+ */
 
 // instances can only be added as singleton providers
 const container = new ContainerBuilder()

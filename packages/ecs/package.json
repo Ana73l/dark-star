@@ -1,7 +1,7 @@
 {
 	"name": "@dark-star/ecs",
 	"version": "0.0.1",
-	"description": "Multithreaded TypeScript/JavaScript Entity Component System library",
+	"description": "Multithreaded TypeScript Entity Component System framework for Node and browsers",
 	"keywords": [
 		"dark",
 		"star",
@@ -18,6 +18,11 @@
 		"multithreaded",
 		"multithreading"
 	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Ana73l/dark-star.git",
+		"directory": "packages/ecs"
+	},
 	"dependencies": {
 		"@dark-star/core": "*",
 		"@dark-star/di": "*",

@@ -8,6 +8,11 @@
 		"container",
 		"dependency-injection"
 	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Ana73l/dark-star.git",
+		"directory": "packages/di"
+	},
 	"typedoc": {
 		"entryPoint": "./src/index.ts",
 		"readmeFile": "./README.md",

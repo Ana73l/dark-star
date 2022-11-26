@@ -16,6 +16,13 @@
 <li><a href="../modules/_dark_star_ecs.html">@dark-star/ecs</a></li>
 <li><a href="_dark_star_ecs.World.html">World</a></li></ul>
 <h1>Class World<code class="tsd-tag ts-flagAbstract">Abstract</code> </h1></div>
+<section class="tsd-panel tsd-comment">
+<div class="tsd-comment tsd-typography"><p>Worlds maintain entities and execute systems.</p>
+
+<h3>Remarks</h3><p>Worlds cannot be initialized directly. Use <a href="_dark_star_ecs.WorldBuilder.html">WorldBuilder</a> to construct and initialize worlds.</p>
+
+<h3>See</h3><p><a href="_dark_star_ecs.WorldBuilder.html">WorldBuilder</a></p>
+</div></section>
 <section class="tsd-panel tsd-hierarchy">
 <h4>Hierarchy</h4>
 <ul class="tsd-hierarchy">
@@ -25,7 +32,7 @@
 <ul class="tsd-hierarchy">
 <li><span class="tsd-signature-type">Disposable</span></li></ul></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/f2cdbab/packages/ecs/src/world/world.ts#L11">ecs/src/world/world.ts:11</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/a7e3674/packages/ecs/src/world/world.ts#L17">ecs/src/world/world.ts:17</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
@@ -70,21 +77,21 @@
 </div><aside class="tsd-sources">
 <p>Implementation of Disposable.isDisposed</p>
 <ul>
-<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/f2cdbab/packages/ecs/src/world/world.ts#L15">ecs/src/world/world.ts:15</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/a7e3674/packages/ecs/src/world/world.ts#L21">ecs/src/world/world.ts:21</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="isStepInProgress" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <code class="tsd-tag ts-flagAbstract">Abstract</code> <span>is<wbr/>Step<wbr/>In<wbr/>Progress</span><a href="#isStepInProgress" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">is<wbr/>Step<wbr/>In<wbr/>Progress<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 <div class="tsd-comment tsd-typography"><p>Indicates whether <a href="_dark_star_ecs.World.html#step">step</a> is currently in progress.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/f2cdbab/packages/ecs/src/world/world.ts#L17">ecs/src/world/world.ts:17</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/a7e3674/packages/ecs/src/world/world.ts#L23">ecs/src/world/world.ts:23</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="version" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <code class="tsd-tag ts-flagAbstract">Abstract</code> <span>version</span><a href="#version" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">version<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 <div class="tsd-comment tsd-typography"><p>Current world version. Incremented each time <a href="_dark_star_ecs.World.html#step">step</a> is called.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/f2cdbab/packages/ecs/src/world/world.ts#L13">ecs/src/world/world.ts:13</a></li></ul></aside></section></section>
+<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/a7e3674/packages/ecs/src/world/world.ts#L19">ecs/src/world/world.ts:19</a></li></ul></aside></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Methods</h2>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="attach" class="tsd-anchor"></a>
@@ -115,7 +122,7 @@
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/f2cdbab/packages/ecs/src/world/world.ts#L124">ecs/src/world/world.ts:124</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/a7e3674/packages/ecs/src/world/world.ts#L130">ecs/src/world/world.ts:130</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="attach.attach-2">attach<span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">(</span>entity<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, componentTypes<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span>, init<span class="tsd-signature-symbol">: </span><a href="../types/_dark_star_ecs.OptionalComponentPartialsFromTypes.html" class="tsd-signature-type" data-tsd-kind="Type alias">OptionalComponentPartialsFromTypes</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#attach.attach-2" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Attaches one or more component types to an existing entities and assigns their values using a given list of optional component partials.</p>
@@ -145,7 +152,7 @@
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/f2cdbab/packages/ecs/src/world/world.ts#L137">ecs/src/world/world.ts:137</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/a7e3674/packages/ecs/src/world/world.ts#L143">ecs/src/world/world.ts:143</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="attach.attach-3">attach<span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">(</span>entity<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, componentTypes<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span>, init<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span>components<span class="tsd-signature-symbol">: </span><a href="../types/_dark_star_ecs.ComponentInstancesFromTypes.html" class="tsd-signature-type" data-tsd-kind="Type alias">ComponentInstancesFromTypes</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#attach.attach-3" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Attaches one or more component types to an existing entities and assigns their values using a given callback.</p>
@@ -186,7 +193,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4></li></ul></li></ul></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/f2cdbab/packages/ecs/src/world/world.ts#L155">ecs/src/world/world.ts:155</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/a7e3674/packages/ecs/src/world/world.ts#L161">ecs/src/world/world.ts:161</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="destroy" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagAbstract">Abstract</code> <span>destroy</span><a href="#destroy" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -206,7 +213,7 @@
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/f2cdbab/packages/ecs/src/world/world.ts#L184">ecs/src/world/world.ts:184</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/a7e3674/packages/ecs/src/world/world.ts#L190">ecs/src/world/world.ts:190</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="detach" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagAbstract">Abstract</code> <span>detach</span><a href="#detach" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -235,7 +242,7 @@
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/f2cdbab/packages/ecs/src/world/world.ts#L172">ecs/src/world/world.ts:172</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/a7e3674/packages/ecs/src/world/world.ts#L178">ecs/src/world/world.ts:178</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="dispose" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagAbstract">Abstract</code> <span>dispose</span><a href="#dispose" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -249,7 +256,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of Disposable.dispose</p>
 <ul>
-<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/f2cdbab/packages/ecs/src/world/world.ts#L212">ecs/src/world/world.ts:212</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/a7e3674/packages/ecs/src/world/world.ts#L218">ecs/src/world/world.ts:218</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="exists" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagAbstract">Abstract</code> <span>exists</span><a href="#exists" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -269,7 +276,7 @@
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/f2cdbab/packages/ecs/src/world/world.ts#L86">ecs/src/world/world.ts:86</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/a7e3674/packages/ecs/src/world/world.ts#L92">ecs/src/world/world.ts:92</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="get" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagAbstract">Abstract</code> <span>get</span><a href="#get" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -297,7 +304,7 @@
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">InstanceType</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/f2cdbab/packages/ecs/src/world/world.ts#L111">ecs/src/world/world.ts:111</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/a7e3674/packages/ecs/src/world/world.ts#L117">ecs/src/world/world.ts:117</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="has" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagAbstract">Abstract</code> <span>has</span><a href="#has" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -326,7 +333,7 @@
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/f2cdbab/packages/ecs/src/world/world.ts#L99">ecs/src/world/world.ts:99</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/a7e3674/packages/ecs/src/world/world.ts#L105">ecs/src/world/world.ts:105</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="spawn" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagAbstract">Abstract</code> <span>spawn</span><a href="#spawn" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -339,7 +346,7 @@
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/f2cdbab/packages/ecs/src/world/world.ts#L27">ecs/src/world/world.ts:27</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/a7e3674/packages/ecs/src/world/world.ts#L33">ecs/src/world/world.ts:33</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="spawn.spawn-2">spawn<span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">(</span>componentTypes<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#spawn.spawn-2" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Spawns an entity with a list of component types in the world.</p>
@@ -361,7 +368,7 @@
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/f2cdbab/packages/ecs/src/world/world.ts#L38">ecs/src/world/world.ts:38</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/a7e3674/packages/ecs/src/world/world.ts#L44">ecs/src/world/world.ts:44</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="spawn.spawn-3">spawn<span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">(</span>componentTypes<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span>, init<span class="tsd-signature-symbol">: </span><a href="../types/_dark_star_ecs.OptionalComponentPartialsFromTypes.html" class="tsd-signature-type" data-tsd-kind="Type alias">OptionalComponentPartialsFromTypes</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#spawn.spawn-3" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Spawns an entity with a list of component types in the world and assigns their values using a given list of optional component partials.</p>
@@ -387,7 +394,7 @@
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/f2cdbab/packages/ecs/src/world/world.ts#L50">ecs/src/world/world.ts:50</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/a7e3674/packages/ecs/src/world/world.ts#L56">ecs/src/world/world.ts:56</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="spawn.spawn-4">spawn<span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">(</span>componentTypes<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span>, init<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span>entity<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, components<span class="tsd-signature-symbol">: </span><a href="../types/_dark_star_ecs.ComponentInstancesFromTypes.html" class="tsd-signature-type" data-tsd-kind="Type alias">ComponentInstancesFromTypes</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#spawn.spawn-4" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Spawns an entity with a list of component types in the world and assigns their values using a given callback.</p>
@@ -426,7 +433,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4></li></ul></li></ul></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/f2cdbab/packages/ecs/src/world/world.ts#L71">ecs/src/world/world.ts:71</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/a7e3674/packages/ecs/src/world/world.ts#L77">ecs/src/world/world.ts:77</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="step" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagAbstract">Abstract</code> <span>step</span><a href="#step" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -439,7 +446,7 @@
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/f2cdbab/packages/ecs/src/world/world.ts#L202">ecs/src/world/world.ts:202</a></li></ul></aside></li></ul></section></section></div>
+<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/a7e3674/packages/ecs/src/world/world.ts#L208">ecs/src/world/world.ts:208</a></li></ul></aside></li></ul></section></section></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 <div class="tsd-navigation settings">
 <details class="tsd-index-accordion"><summary class="tsd-accordion-summary">

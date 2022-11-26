@@ -2,6 +2,11 @@
 	"name": "@dark-star/core",
 	"description": "Set of utilities to be shared across @dark-star packages",
 	"version": "0.0.1",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Ana73l/dark-star.git",
+		"directory": "packages/core"
+	},
 	"typedoc": {
 		"entryPoint": "./src/index.ts",
 		"readmeFile": "./README.md",

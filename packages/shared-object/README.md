@@ -8,7 +8,9 @@
 
 ## Install
 
-    npm i @dark-star/shared-object
+```sh
+npm i @dark-star/shared-object
+```
 
 ## API
 

@@ -1,13 +1,13 @@
 import { ClassType, Instance } from '@dark-star/core';
-import { Factory, InjectableIdentifier, ContainerBuilder, injectable } from '@dark-star/di';
+import { Factory, InjectableIdentifier, ContainerBuilder } from '@dark-star/di';
 
-import { SystemType, System } from '../system';
+import { SystemType } from '../system';
 
 import { World } from './world';
 import { ECSWorld } from './ecs-world';
 
 /**
- * Class used to construct and initialize {@link World worlds}.
+ * Used to construct and initialize {@link World worlds}.
  */
 export class WorldBuilder {
 	private systems: SystemType[] = [];
@@ -16,7 +16,7 @@ export class WorldBuilder {
 	constructor(private containerBuilder: ContainerBuilder = new ContainerBuilder()) {}
 
 	/**
-	 * Sets the number of threads to be used by the created {@link World}. 
+	 * Sets the number of threads to be used by the created {@link World}.
 	 * By default the {@link World} uses a single thread.
 	 * 
 	 * @param threadsCount - number of threads
@@ -30,12 +30,38 @@ export class WorldBuilder {
 
 	/**
 	 * Registers an {@link injectable} transient provider that can be injected in other providers or systems in the world.
-	 * See {@link ContainerBuilder.registerTransient}.
+	 * @see {@link ContainerBuilder.registerTransient}.
+	 * 
+	 * @param constructor - Concrete class constructor serving both as {@link injectable} identifier and transient initializer
+	 * @returns The {@link WorldBuilder} instance
+	 */
+	 public registerTransient<T>(
+		constructor: ClassType<T>
+	): WorldBuilder;
+	/**
+	 * Registers an {@link injectable} transient provider that can be injected in other providers or systems in the world.
+	 * @see {@link ContainerBuilder.registerTransient}.
 	 * 
 	 * @param identifier - Abstract or concrete class serving as {@link injectable} identifier
 	 * @param constructor - Concrete class constructor
 	 * @returns The {@link WorldBuilder} instance
 	 */
+	 public registerTransient<T>(
+		identifier: InjectableIdentifier<T>,
+		constructor: ClassType<T>
+	): WorldBuilder;
+	/**
+	 * Registers an {@link injectable} transient provider that can be injected in other providers or systems in the world.
+	 * @see {@link ContainerBuilder.registerTransient}.
+	 * 
+	 * @param identifier - Abstract or concrete class serving as {@link injectable} identifier
+	 * @param factory - Function with no parameters which returns an object that implements {@link identifier}
+	 * @returns The {@link WorldBuilder} instance
+	 */
+	 public registerTransient<T>(
+		identifier: InjectableIdentifier<T>,
+		factory: Factory<T>
+	): WorldBuilder;
 	public registerTransient<T>(
 		identifier: InjectableIdentifier<T>,
 		constructor?: ClassType<T> | Factory<T>
@@ -47,12 +73,50 @@ export class WorldBuilder {
 
 	/**
 	 * Registers an {@link injectable} singleton provider that can be injected in other providers or systems in the world.
-	 * See {@link ContainerBuilder.registerSingleton}.
+	 * @see {@link ContainerBuilder.registerSingleton}.
+	 * 
+	 * @param constructor - Concrete class constructor serving both as {@link injectable} identifier and singleton initializer
+	 * @returns The {@link WorldBuilder} instance
+	 */
+	 public registerSingleton<T>(
+		constructor: ClassType<T>
+	): WorldBuilder;
+	/**
+	 * Registers an {@link injectable} singleton provider that can be injected in other providers or systems in the world.
+	 * @see {@link ContainerBuilder.registerSingleton}.
 	 * 
 	 * @param identifier - Abstract or concrete class serving as {@link injectable} identifier
 	 * @param constructor - Concrete class constructor
 	 * @returns The {@link WorldBuilder} instance
 	 */
+	 public registerSingleton<T>(
+		identifier: InjectableIdentifier<T>,
+		constructor: ClassType<T>
+	): WorldBuilder;
+	/**
+	 * Registers an {@link injectable} singleton provider that can be injected in other providers or systems in the world.
+	 * @see {@link ContainerBuilder.registerSingleton}.
+	 * 
+	 * @param identifier - Abstract or concrete class serving as {@link injectable} identifier
+	 * @param factory - Function with no parameters which returns an object that implements {@link identifier}
+	 * @returns The {@link WorldBuilder} instance
+	 */
+	 public registerSingleton<T>(
+		identifier: InjectableIdentifier<T>,
+		factory: Factory<T>
+	): WorldBuilder;
+	/**
+	 * Registers an {@link injectable} singleton provider that can be injected in other providers or systems in the world.
+	 * @see {@link ContainerBuilder.registerSingleton}.
+	 * 
+	 * @param identifier - Abstract or concrete class serving as {@link injectable} identifier
+	 * @param instance - Object that implements {@link identifier}
+	 * @returns The {@link WorldBuilder} instance
+	 */
+	 public registerSingleton<T>(
+		identifier: InjectableIdentifier<T>,
+		instance: Instance<T>
+	): WorldBuilder;
 	public registerSingleton<T>(
 		identifier: InjectableIdentifier<T>,
 		constructor?: ClassType<T> | Factory<T> | Instance<T>
@@ -76,6 +140,7 @@ export class WorldBuilder {
 	}
 
 	/**
+	 * Creates a world with registered providers and {@link System systems}.
 	 * 
 	 * @returns The newly created {@link World world}
 	 */

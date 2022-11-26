@@ -2,7 +2,6 @@
 	"name": "@dark-star/worker-pool",
 	"version": "0.0.1",
 	"description": "A worker pool for NodeJS and browsers.",
-	"repository": "https://github.com/Ana73l/dark-star.git",
 	"keywords": [
 		"worker",
 		"pool",
@@ -11,6 +10,11 @@
 		"multithreading",
 		"multi-threading"
 	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Ana73l/dark-star.git",
+		"directory": "packages/worker-pool"
+	},
 	"typedoc": {
 		"entryPoint": "./src/index.ts",
 		"readmeFile": "./README.md",
