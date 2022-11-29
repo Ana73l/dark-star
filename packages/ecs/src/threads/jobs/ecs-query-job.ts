@@ -26,7 +26,7 @@ export const addHandleToSystemDependency = (system: System, handleId: JobId): vo
 				get isComplete() {
 					return isComplete;
 				},
-				complete: async function() {
+				complete: async () => {
 					if(isComplete) {
 						return;
 					}
@@ -35,7 +35,7 @@ export const addHandleToSystemDependency = (system: System, handleId: JobId): vo
 						return promise;
 					}
 
-					promise = new Promise(async function(resolve) {
+					promise = new Promise(async (resolve) => {
 						await scheduler.completeJobs(system.dependency![$dependencies]!);
 
 						isComplete = true;

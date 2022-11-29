@@ -9,26 +9,145 @@ import { WorldUpdateVersion } from '../world';
 import { $planner, $scheduler, Planner, System as ISystem } from './planning/__internals__';
 import { SystemQuery } from './system-query';
 
-export type SystemType<T extends System = System> = (new (...args: any[]) => T) & {
+/**
+ * Utility type representing possible {@link System system} static properties.
+ */
+export type SystemStaticProperties = {
+	/**
+	 * {@link System} before which current system should be executed if both systems are in the same group.
+	 * 
+	 * @see
+	 * {@link updateBefore}
+	 */
 	updateBefore?: SystemType;
+	/**
+	 * {@link System} after which current system should be executed if both systems are in the same group.
+	 * 
+	 * @see
+	 * {@link updateAfter}
+	 */
 	updateAfter?: SystemType;
+	/**
+	 * {@link SystemGroup} to which current system belongs.
+	 * 
+	 * @see
+	 * {@link group}
+	 */
 	updateInGroup?: SystemType<SystemGroup>;
+	/**
+	 * Key-Value pairs representing [name of field] - [{@link SystemQuery}] which will automatically be injected on {@link System} {@link System.init initialization}.
+	 * 
+	 * @see
+	 * {@link entities}\
+	 * {@link System.query}
+	 */
 	queries?: Record<string, [all: ComponentTypes, some?: ComponentTypes, none?: ComponentTypes]>;
 };
 
+/** 
+ * Utility type representing a {@link System system} class constructor and its possible static properties.
+ */
+export type SystemType<T extends System = System> = (new (...args: any[]) => T) & SystemStaticProperties;
+
+/**
+ * Base class from which all systems should inherit.
+ * 
+ * @remarks
+ * Systems are the 'S' in [ECS](https://en.wikipedia.org/wiki/Entity_component_system).
+ * All game/ simulation logic should be placed within systems.
+ * They are responsible for transormation of data ({@link component components}) from its current to its next state.
+ * Quering data can be done using its {@link System.query query} method or the {@link entities} decorator.
+ * 
+ * Systems {@link System.update run} on the main thread based on the system's {@link System.active active} and {@link System.tickRate tickRate} properties.
+ * 
+ * Logic that runs on background threads in {@link WorldBuilder.useThreads multithreaded} {@link World world} can be scheduled within the system's {@link System.update update} method using its {@link System.jobWithCode jobWithCode} method or using its {@link System.query query} {@link Job} factory.
+ * 
+ * Systems can be injected and injected in to.
+ * Systems must be decorated with the {@link injectable} decorator.
+ * 
+ * @example
+ * ```ts
+ * @injectable()
+ * class ApplyVelocity extends System {
+ * 	@entities([Position, Velocity])
+ * 	public moveables!: SystemQuery<[typeof Position, typeof Velocity]>;
+ * 
+ * 	constructor(private deltaT: DeltaTime) {
+ * 		super();
+ * 	}
+ * 
+ * 	public override async update() {
+ * 		this.moveables
+ * 			.each([write(Position), read(Velocity)], [this.deltaT.value], ([position, velocity], [deltaT]) => {
+ * 				position.x += velocity.x * deltaT;
+ * 				position.y += velocity.y * deltaT;
+ * 				position.z += velocity.z * deltaT;
+ * 			})
+ * 			.scheduleParallel();
+ * 	}
+ * }
+ * ``` 
+ */
 export abstract class System implements ISystem {
-	/** Indicates whether {@link System system instance} is active for execution */
+	/** 
+	 * Indicates whether the system instance is active for execution.
+	 * 
+	 * @remarks
+	 * Used internally (along with {@link System.tickRate} and {@link System.ticksSinceLastExecution} properties) to determine whether system should execute during the current {@link World.step step}.
+	 */
 	public active: boolean = true;
-	/**  */
+	/** 
+	 * Indicates the tick rate of the system.
+	 * 
+	 * @remarks
+	 * Used internally (along with {@link System.active} and {@link System.ticksSinceLastExecution} properties) to determine whether system should execute during the current {@link World.step step}.
+	 * {@link System.tickRate tickRate} represents the interval of execution.
+	 * For example, a {@link System.tickRate tickRate} of 2 indicates that the system will be executed every second world {@link World.step step}.
+	 * 
+	 * @example
+	 * ```ts
+	 * @injectable()
+	 * class Physics extends System {
+	 * 	// system will be executed every 4th world step
+	 * 	public override tickRate: number = 4;
+	 * }
+	 * ```
+	 * @example
+	 * ```ts
+	 * @injectable()
+	 * class Physics extends System {
+	 * 	constructor() {
+	 * 		// alternatively tickRate can be set in the constructor
+	 * 		this.tickRate = 4;
+	 * 	}
+	 * }
+	 * ```
+	 */
 	public tickRate: number = 1;
-	/** Used  internally (along with {@link System.active} and {@link System.tickRate} properties) to determine whether system should execute during the current {@link World.step step}. */
+	/** 
+	 * Number of {@link World.step steps} since last system execution.
+	 * 
+	 * @remarks
+	 * Used internally (along with {@link System.active} and {@link System.tickRate} properties) to determine whether system should execute during the current {@link World.step step}.
+	 * Should not be manually set.
+	 */
 	public ticksSinceLastExecution: number = 1;
+	/**
+	 * {@link Job Jobs} scheduled during the previous execution of the system.
+	 * 
+	 * @remarks
+	 * Set only in a {@link WorldBuilder.useThreads multithreaded} {@link World world}.
+	 * Any {@link Job jobs} scheduled using {@link SystemQuery queries} or {@link System.jobWithCode jobWithCode} will automatically be added to the {@link System.dependency dependency} property.
+	 * Completed internally before {@link System.update update} is called.
+	 * Can be referenced and set as dependee for other {@link Job jobs}.
+	 * Should not be manually set.
+	 */
 	public dependency?: JobHandle;
 	public lastWorldVersion: WorldUpdateVersion = -1;
 
 	/**
 	 * @internal
-	 * Injects persistent {@link SystemQuery queries} in the target {@link System system instance} based on its static `queries` property.
+	 * Injects persistent {@link SystemQuery queries} in the target system instance based on its static `queries` property.
 	 * Used internally during the {@link World.create world create} phase.
 	 * 
 	 * @param target - {@link System} instance
@@ -43,16 +162,77 @@ export abstract class System implements ISystem {
 		}
 	}
 
-	public init() {}
+	/**
+	 * Called when the system is created.
+	 * 
+	 * @remarks
+	 * Override to set up system resources when it is created.
+	 * Typically used to register {@link SystemQuery persistent queries}.
+	 * 
+	 * @example
+	 * @injectable()
+	 * class RenderSprites extends System {
+	 * 	// ...
+	 * 	public override async init() {
+	 * 		this.sprites = this.query([Position, Sprite]);
+	 * 	}
+	 * }
+	 */
+	public async init() {}
 
-	public start() {}
-
+	/**
+	 * Invoked once every {@link System.tickRate} {@link World.step steps}.
+	 * 
+	 * @remarks
+	 * Override to perform the major work of the system.
+	 * 
+	 * The update() function is ran on the main thread but can be used to schedule {@link Job jobs} using the {@link System.query query} and {@link System.jobWithCode jobWithCode} methods.
+	 * 
+	 * Entity commands ({@link World.spawn spawn}, {@link World.attach attach}, {@link World.detach detach}, {@link World.destroy destroy}, {@link World.has has}, {@link World.get get}, {@link World.exists exists}) can be invoked only from the main thread and cannot be used in {@link Job jobs}.
+	 * 
+	 * @example
+	 * ```ts
+	 * @injectable()
+	 * class RenderSprites extends System {
+	 * 	// ...
+	 * 
+	 * 	public override async update() {
+	 * 		const context = this.renderingContext;
+	 * 		const assetStore = this.assetStore;
+	 * 
+	 * 		// run on the main thread since main thread APIs/ providers are used
+	 * 		await this.sprites
+	 * 			.each([read(Sprite), read(Position)], ([sprite, position]) => {
+	 * 				const image = assetStore.getSprite(sprite.image);
+	 * 				context.drawImage(image, 0, 0, image.width, image.height, position.x, position.y, sprite.width, sprite.height);
+	 * 			})
+	 * 			.run();
+	 * 	}	
+	 * }
+	 * 
+	 * @injectable()
+	 * class ApplyVelocity extends System {
+	 * 	// ...
+	 * 
+	 * 	public override async update() {
+	 * 		// schedule work to be done on multiple background threads
+	 * 		this.moveables
+	 * 			.each([write(Position), read(Velocity)], [this.deltaT.value], ([position, velocity], [deltaT]) => {
+	 * 				position.x += velocity.x * deltaT;
+	 * 				position.y += velocity.y * deltaT;
+	 * 				position.z += velocity.z * deltaT;
+	 * 			})
+	 * 			.scheduleParallel();
+	 * 	}
+	 * }
+	 * ```
+	 */
 	public abstract update(): Promise<void>;
 
 	/**
-	 * Completes all {@link Job jobs} (if in a {@link WorldBuilder.useThreads multithreaded} {@link World world}) operating on data described with a {@link ComponentQueryDescriptor access descriptor} array.
+	 * Completes all {@link Job jobs} (if in a {@link WorldBuilder.useThreads multithreaded} {@link World world}) operating on data described with a {@link ComponentQueryDescriptor component access descriptors} array.
 	 * 
-	 * @param componentQueryDescriptors - {@link ComponentQueryDescriptor Access descriptors}
+	 * @param componentQueryDescriptors - {@link ComponentQueryDescriptor Component access descriptors}
 	 * 
 	 * @example
 	 * ```ts
@@ -62,7 +242,7 @@ export abstract class System implements ISystem {
 	 * 		super();
 	 * 	}	
 	 * 
-	 * 	public override update() {
+	 * 	public override async update() {
 	 * 		// complete jobs on components relevant to rendering before proceeding
 	 * 		await this.completeJobs([read(Sprite), read(Position)]);
 	 * 		this.context.clearRect(0, 0, this.context.canvas.width, this.context.canvas.height);
@@ -76,6 +256,46 @@ export abstract class System implements ISystem {
 		}
 	}
 
+	/**
+	 * Registers a persistent {@link SystemQuery query}.
+	 * 
+	 * @remarks
+	 * The query is automatically updated. Queries are used to retrieve entities with given sets of components and provide mechanisms for scheduling {@link Job jobs}.
+	 * 
+	 * Can be called only in the {@link System.init init} method.
+	 * @see
+	 * Alternatively queries can be registered using the {@link entities} decorator.
+	 * 
+	 * @param all - Include archetypes that have every component in this list
+	 * @param some - Include archetypes that have any component in this list (or none)
+	 * @param none - Exclude archetypes that have any component in this list
+	 * @returns The persistent {@link SystemQuery} query
+	 * 
+	 * @example
+	 * ```ts
+	 * @injectable()
+	 * class ApplyVelocity extends System {
+	 * 	private moveables!: SystemQuery<[typeof Position, typeof Velocity]>;
+	 * 
+	 * 	public override init() {
+	 * 		// include all entities having both Position and Velocity
+	 * 		this.moveables = this.query([Position, Velocity]);
+	 * 	}
+	 * 
+	 * 	// ...
+	 * }
+	 * 
+	 * @injectable()
+	 * class ApplyDamage extends System {
+	 * 	// ...
+	 * 
+	 * 	public override init() {
+	 * 		// include entities having both IncomingDamage and Health, exclude entities having Immune
+	 * 		this.damageables = this.query([IncomingDamage, Health], [], [Immune]);
+	 * 	}
+	 * }
+	 * ```
+	 */
 	protected query<TAll extends ComponentTypes, TSome extends ComponentTypes = [], TNone extends ComponentTypes = []>(
 		all: TAll,
 		some?: TSome,
@@ -83,15 +303,72 @@ export abstract class System implements ISystem {
 	): SystemQuery<TAll, TSome, TNone> {
 		assert(
 			this[$planner] !== undefined,
-			`Error registering query in system ${this.constructor.name}: Cannot register query after system initialization`
+			`Error registering query in system ${this.constructor.name}: Cannot register query before or after system initialization`
 		);
 
-		const factory = this[$planner]!.registerSystemQuery(this)<TAll, TSome, TNone>(all, some, none) as any;
+		const factory = this[$planner]!.registerSystemQuery(this)(all, some, none) as any;
 
 		return factory;
 	}
 
+	/**
+	 * Provides a mechanism for defining and executing {@link Job jobs}.
+	 * 
+	 * @param callback - Function to be executed with no arguments
+	 * 
+	 * @example
+	 * ```ts
+	 * @injectable()
+	 * class LogSystem extends System {
+	 * 	// ...
+	 * 	
+	 * 	public override async update() {
+	 * 		this.jobWithCode(() => {
+	 * 			console.log('Logged from jobWithCode, possibly from a background thread when schedule() is called in a multithreaded world.');
+	 * 		}).schedule();
+	 * 	}
+	 * }
+	 * ```
+	 */
 	protected jobWithCode(callback: () => void): Job;
+	/**
+	 * Provides a mechanism for defining and executing {@link Job jobs}.
+	 * 
+	 * @param params - List of arguments that will be passed to the callback function
+	 * @param callback - Function to be executed
+	 * 
+	 * @remarks
+	 * Data passed to background threads is copied, not shared as described [here](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers#transferring_data_to_and_from_workers_further_details),
+	 * which introduces performance overhead of serializing and deserializing the parameters. This also means data is not shared between threads, so any change to the parameters will not be reflected on other threads.
+	 * If data needs to be modified/ retrieved from background threads, [SharedArrayBuffer](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/SharedArrayBuffer) must be used.
+	 * 
+	 * @example
+	 * ```ts
+	 * @injectable()
+	 * class AddOnePlusTwo extends System {
+	 * 	// ...
+	 * 	public override async update() {
+	 * 		// buffer size for result
+	 * 		const bufferSize = Uint8Array.BYTES_PER_ELEMENT;
+	 * 		// buffer to be written to
+	 * 		const buffer = new SharedArrayBuffer(bufferSize);
+	 * 
+	 * 		// execute on background thread and wait for the result
+	 * 		await this.jobWithCode([buffer], ([resultBuffer]) => {
+	 * 			// TypedArray view allowing writing to the buffer from a background thread
+	 * 			const resultArray = new Uint8Array(resultBuffer);
+	 * 
+	 * 			resultArray[0] = 1 + 2;
+	 * 		})
+	 * 			.schedule()
+	 * 			.complete();
+	 * 
+	 * 		// data is safe to be accessed from main thread after job completion
+	 * 		console.log(new Uint8Array(buffer)[0]); // 3
+	 * 	}
+	 * }
+	 * ```
+	 */
 	protected jobWithCode<T extends any[]>(params: T, callback: (args: T) => void): Job;
 	protected jobWithCode<T extends any[]>(params: T | (() => void), callback?: (args: T) => void): Job {
 		if(typeof callback === 'function') {
@@ -104,7 +381,7 @@ export abstract class System implements ISystem {
 		} else {
 			return new ECSJobWithCode(
 				this,
-				params as (args: T) => void,
+				params as () => void,
 				[],
 				this[$scheduler]
 			);
@@ -113,18 +390,57 @@ export abstract class System implements ISystem {
 
 	/**
 	 * @internal
-	 * {@link JobScheduler} used to schedule jobs. 
-	 * Injected only if {@link World world} to which system belongs uses more than one thread.
+	 * {@link JobScheduler} used to schedule and complete jobs. 
+	 * 
+	 * @remarks
+	 * Injected only if the {@link World world} to which system instance belongs uses more than one thread.
 	 */
 	[$scheduler]?: JobScheduler;
 	/**
 	 * @internal
 	 * {@link Planner} used to create {@link SystemQuery queries} and calculate order of systems in a world.
-	 * Injected before {@link System.init} is called and removed after to prevent {@link SystemQuery query} registration after {@link System} has been initialized.
+	 * 
+	 * @remarks
+	 * Injected before {@link System.init} is called and removed after to prevent {@link SystemQuery query} registration after the system has been initialized.
 	 */
 	[$planner]?: Planner;
 }
 
+/**
+ * Represents a list of related {@link System systems} that should be updated together in a specific order.
+ * 
+ * @remarks
+ * SystemGroup extends {@link System} so it behaves like a system and can be ordered relative to other {@link System systems}.
+ * System groups can be nested in other {@link SystemGroup system groups}, forming a hierarchy.
+ * Any {@link System system} without a system group will be added to the root system group.
+ *  
+ * @see 
+ * {@link group} - Grouping systems\
+ * {@link updateBefore} - Ordering systems in a group\
+ * {@link updateAfter} - Ordering systems in a group\
+ * {@link SystemType} - Possible static properties for a {@link System system} constructor
+ * 
+ * @example
+ * ```ts
+ * @injectable()
+ * class RenderingGroup extends SystemGroup {}
+ * 
+ * @injectable()
+ * @group(RenderingGroup)
+ * @updateAfter(ClearRenderingContext)
+ * class RenderSprites extends System {
+ * 	// ...
+ * }
+ * 
+ * // alternatively an 'updateInGroup' static property can be declared
+ * @injectable()
+ * class ClearRenderingContext extends System {
+ * 	public static updateInGroup: SystemGroup = RenderingGroup;
+ * 
+ * 	// ...
+ * }
+ * ```
+ */
 export abstract class SystemGroup extends System {
 	public readonly systems: System[] = [];
 

@@ -34,7 +34,8 @@
 <li class="tsd-signature" id="__type.__type-1.__type-2"><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Worker</span></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Optional worker factory.</p>
-<p>Use this property instead of workerScript when custom worker needs to be initialized (from a file etc.)
+
+<h3>Remarks</h3><p>Use this property instead of workerScript when custom worker needs to be initialized (from a file etc.)
 Worker &#39;message&#39; event listener will be overriden by the worker pool in order to handle worker responses.
 If this property is set workerScript is ignored.</p>
 
@@ -45,14 +46,15 @@ If this property is set workerScript is ignored.</p>
 <li class="tsd-parameter">
 <h5><code class="tsd-tag ts-flagOptional">Optional</code> worker<wbr/>Script<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span></h5>
 <div class="tsd-comment tsd-typography"><p>Optional worker global scope definitions</p>
-<p>Use this property to set up initial worker global scope.
+
+<h3>Remarks</h3><p>Use this property to set up initial worker global scope.
 Functions and classes defined in this string will be available to be called from tasks.</p>
 
 <h3>Example</h3><pre><code class="language-ts"><span class="hl-0">const</span><span class="hl-1"> </span><span class="hl-2">workerScript</span><span class="hl-1"> = </span><span class="hl-7">`</span><br/><span class="hl-7">const add = (a, b) =&gt; a + b;</span><br/><span class="hl-7">const mul = (a, b) =&gt; a * b;</span><br/><span class="hl-7">`</span><span class="hl-1">;</span><br/><br/><span class="hl-0">const</span><span class="hl-1"> </span><span class="hl-2">config</span><span class="hl-1">: </span><span class="hl-3">WorkerPoolConfig</span><span class="hl-1"> = {</span><br/><span class="hl-1">    </span><span class="hl-8">threads:</span><span class="hl-1"> </span><span class="hl-4">4</span><span class="hl-1">,</span><br/><span class="hl-1">    </span><span class="hl-8">workerScript</span><br/><span class="hl-1">};</span>
 </code></pre>
 </div></li></ul></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/a5a02ec/packages/worker-pool/src/index.ts#L9">worker-pool/src/index.ts:9</a></li></ul></aside></div>
+<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/8c312a6/packages/worker-pool/src/index.ts#L9">worker-pool/src/index.ts:9</a></li></ul></aside></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 <div class="tsd-navigation settings">
 <details class="tsd-index-accordion"><summary class="tsd-accordion-summary">

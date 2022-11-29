@@ -110,6 +110,7 @@ export abstract class World implements Disposable {
 	 * @param entity - Entity whose component instance should be retrieved
 	 * @param componentType - Component type to be retrieved
 	 *
+	 * @example
 	 * ```ts
 	 * const position = world.get(5, Position);
 	 * ```

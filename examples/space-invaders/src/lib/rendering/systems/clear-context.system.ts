@@ -10,7 +10,7 @@ export class ClearContextSystem extends System {
 		super();
 	}
 
-	public override async update(): Promise<void> {
+	public override async update() {
 		this.context.clearRect(0, 0, this.context.canvas.width, this.context.canvas.height);
 	}
 }

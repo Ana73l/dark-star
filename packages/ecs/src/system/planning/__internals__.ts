@@ -24,7 +24,6 @@ export interface System {
 	lastWorldVersion: number;
 
 	init(): void;
-	start(): void;
 	update(): Promise<void>;
 
 	[$planner]?: Planner;

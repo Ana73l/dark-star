@@ -19,7 +19,7 @@ export class RenderSpritesSystem extends System {
 		super();
 	}
 
-	public override async update(): Promise<void> {
+	public override async update() {
 		const context = this.context;
 		const assetStore = this.assetStore;
 

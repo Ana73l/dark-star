@@ -12,6 +12,7 @@ export type WorkerPoolConfig = {
 	/**
 	 * Optional worker global scope definitions
 	 *
+	 * @remarks
 	 * Use this property to set up initial worker global scope.
 	 * Functions and classes defined in this string will be available to be called from tasks.
 	 *
@@ -32,6 +33,7 @@ export type WorkerPoolConfig = {
 	/**
 	 * Optional worker factory.
 	 *
+	 * @remarks
 	 * Use this property instead of workerScript when custom worker needs to be initialized (from a file etc.)
 	 * Worker 'message' event listener will be overriden by the worker pool in order to handle worker responses.
 	 * If this property is set workerScript is ignored.

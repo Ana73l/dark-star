@@ -8,5 +8,5 @@ export class EnemyCombatSystem extends System {
 	@entities([Enemy])
 	public entities!: SystemQuery<[typeof Enemy]>;
 
-	public override async update(): Promise<void> {}
+	public override async update() {}
 }

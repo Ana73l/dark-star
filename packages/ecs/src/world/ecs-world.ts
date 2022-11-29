@@ -54,6 +54,7 @@ export class ECSWorld implements World {
 		// init systems
 		const systemInstances: System[] = systems.map((systemType) => world.injectablesContainer.get(systemType));
 		const planner = new Planner(world.store, systemInstances);
+		const initSystemPromises = [];
 
 		for (const system of systemInstances) {
 			system[$planner] = planner;
@@ -61,11 +62,13 @@ export class ECSWorld implements World {
 			// add queries marked by decorator to instance
 			System.injectQueryInSystemInstance(system);
 
-			system.init();
+			initSystemPromises.push(system.init());
 
 			// remove planner from system to enforce query creation during init phase
 			system[$planner] = undefined;
 		}
+
+		await Promise.all(initSystemPromises);
 
 		// if threaded
 		if (threads > 1) {

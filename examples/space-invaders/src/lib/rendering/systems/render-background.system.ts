@@ -11,11 +11,11 @@ export class RenderBackgroundSystem extends System {
 		super();
 	}
 
-	public override init(): void {
+	public override async init() {
 		this.entities = this.query([Background]);
 	}
 
-	public override async update(): Promise<void> {
+	public override async update() {
 		const width = this.context.canvas.clientHeight;
 		const height = this.context.canvas.clientHeight;
 

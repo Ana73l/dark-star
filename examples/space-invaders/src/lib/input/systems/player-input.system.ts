@@ -15,7 +15,7 @@ export class PlayerInputSystem extends System {
 		super();
 	}
 
-	public override async update(): Promise<void> {
+	public override async update() {
 		const keyboard = this.keyboard;
 		/**
 		 * Run this action on the main thread since we are accessing main thread APIs

@@ -7,11 +7,11 @@ import { Health } from '../components/health.data';
 export class DeathSystem extends System {
 	private entities!: SystemQuery<[typeof Health]>;
 
-	public override init(): void {
+	public override async init() {
 		this.entities = this.query([Health]);
 	}
 
-	public override async update(): Promise<void> {
+	public override async update() {
 		this.entities
 			.eachWithEntities([read(Health)], (entity, [health]) => {
 				if (health.currentHealth <= 0) {

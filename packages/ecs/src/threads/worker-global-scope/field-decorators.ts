@@ -17,6 +17,13 @@ import {
 	TypedFieldDecoratorFactory,
 } from '@dark-star/shared-object';
 
+/**
+ * @internal
+ * Key-Value pairs representing [kind of field] - [class property decorator for the kind].
+ * 
+ * @remarks
+ * Used internally in {@link WorkerWorld} (running in [worker threads](https://en.wikipedia.org/wiki/Thread_pool)) to define serializable objects. 
+ */
 export const fieldDecorators: Record<PrimitiveTypes, TypedFieldDecoratorFactory<any>> = {
 	[PrimitiveTypes.Int8]: int8,
 	[PrimitiveTypes.Uint8]: uint8,

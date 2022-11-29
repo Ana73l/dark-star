@@ -10,7 +10,6 @@ import { DeathSystem } from './combat/systems/death.system';
 import { createAssetLoader } from './asset-loader';
 import { AssetStore } from './asset-store';
 import { RenderGroupSystem } from './rendering/systems/render-group.system';
-import { RenderRectanglesSystem } from './rendering/systems/render-rectangles.system';
 import { Position } from './movement/components/position.data';
 import { Velocity } from './movement/components/velocity.data';
 import { Movement } from './movement/components/movement.data';
@@ -73,7 +72,6 @@ export const bootstrap = async (canvas: HTMLCanvasElement) => {
 		.registerSystem(PrepareMovementSystem)
 		.registerSystem(DeathSystem)
 		.registerSystem(RenderGroupSystem)
-		.registerSystem(RenderRectanglesSystem)
 		.build();
 
 	world.spawn([Position, Sprite, Movement, Velocity, Player], (_, [position, sprite, movement]) => {

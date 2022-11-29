@@ -17,7 +17,7 @@ export class ApplyMovementSystem extends System {
 		super();
 	}
 
-	public override async update(): Promise<void> {
+	public override async update() {
 		this.entities
 			.eachWithEntities([write(Position), read(Velocity)], [this.deltaT.value], (entity, [position, velocity], [deltaT]) => {
 				position.x += velocity.x * deltaT;
