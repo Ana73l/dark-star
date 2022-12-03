@@ -1,8 +1,10 @@
 import { $id, $view } from '@dark-star/core';
 import { ComponentTypesQuery, ComponentTypes, convertDescriptorsToQuery } from '../../query';
-import { JobHandle } from '..';
-import { createNullHandle } from './job';
-import { addHandleToSystemDependency, ECSQueryJob } from './ecs-query-job';
+
+import { $scheduler } from '../../system/planning/__internals__';
+import { JobHandle, createNullHandle } from './job';
+import { ECSQueryJob } from './ecs-query-job';
+import { addHandleToSystemDependency } from './helpers';
 
 export class ECSEachWithEntitiesJob<
 	T extends ComponentTypesQuery,
@@ -11,13 +13,15 @@ export class ECSEachWithEntitiesJob<
 	TNone extends ComponentTypes
 > extends ECSQueryJob<T, TAll, TSome, TNone> {
 	public schedule(...dependencies: JobHandle[]): JobHandle {
-		if (this.scheduler) {
+		const scheduler = this.system[$scheduler];
+
+		if (scheduler) {
 			const self = this;
 
-			const jobHandle = this.scheduler.scheduleJob(
+			const jobHandle = scheduler.scheduleJob(
 				this.accessDescriptors,
 				async function (taskRunner) {
-					const layout = new Int32Array(convertDescriptorsToQuery(self.accessDescriptors).map((type) => type[$id]!));
+					const layout = new Uint32Array(convertDescriptorsToQuery(self.accessDescriptors).map((type) => type[$id]!));
 					const lambdaString = self.lambda.toString();
 
 					const buffers: [size: number, entities: SharedArrayBuffer, buffers: (SharedArrayBuffer | undefined)[]][] = [];
@@ -50,13 +54,15 @@ export class ECSEachWithEntitiesJob<
 	}
 
 	public scheduleParallel(...dependencies: JobHandle[]): JobHandle {
-		if (this.scheduler) {
+		const scheduler = this.system[$scheduler];
+
+		if (scheduler) {
 			const self = this;
 
-			const jobHandle = this.scheduler.scheduleJob(
+			const jobHandle = scheduler.scheduleJob(
 				this.accessDescriptors,
 				async function (taskRunner) {
-					const layout = new Int32Array(convertDescriptorsToQuery(self.accessDescriptors).map((type) => type[$id]!));
+					const layout = new Uint32Array(convertDescriptorsToQuery(self.accessDescriptors).map((type) => type[$id]!));
 					const lambdaString = self.lambda.toString();
 
 					const tasks: Promise<any>[] = [];
@@ -98,8 +104,10 @@ export class ECSEachWithEntitiesJob<
 	}
 
 	public async run(): Promise<void> {
-		if (this.scheduler) {
-			await this.scheduler.completeJobs(this.scheduler.getDependencies(this.accessDescriptors));
+		const scheduler = this.system[$scheduler];
+
+		if (scheduler) {
+			await scheduler.completeJobs(scheduler.getDependencies(this.accessDescriptors));
 		}
 
 		this.execute();

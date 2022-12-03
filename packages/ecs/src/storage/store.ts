@@ -2,7 +2,7 @@ import { $definition, $id, $size, assert, createUIDGenerator, UINT32_MAX } from 
 
 import { Entity } from '../entity';
 import { ComponentType, ComponentTypeId } from '../component';
-import { QueryRecord, OptionalComponentPartialsFromTypes, ComponentInstancesFromTypes, ComponentTypes } from '../query';
+import { QueryRecord, ComponentInstancesFromTypes, ComponentTypes } from '../query';
 
 import { $componentsTable, $entitiesArray } from './archetype/__internals__';
 import { Archetype, EntityType } from './archetype/archetype';
@@ -38,7 +38,7 @@ export const entityTypeHasAll = (toMatch: Set<ComponentType>, entityType: Entity
 
 	return true;
 };
-export const typeIdsMatchEntityType = (toMatch: ComponentTypeId[] | Int32Array, entityType: EntityType): boolean => {
+export const typeIdsMatchEntityType = (toMatch: ComponentTypeId[] | Uint32Array, entityType: EntityType): boolean => {
 	for (const componentTypeId of toMatch) {
 		if (!entityType.has(componentTypeId)) {
 			return false;
@@ -47,7 +47,7 @@ export const typeIdsMatchEntityType = (toMatch: ComponentTypeId[] | Int32Array, 
 
 	return true;
 };
-export const anyTypeIdsMatchEntityType = (toMatch: ComponentTypeId[] | Int32Array, entityType: EntityType): boolean => {
+export const anyTypeIdsMatchEntityType = (toMatch: ComponentTypeId[] | Uint32Array, entityType: EntityType): boolean => {
 	for (const componentTypeId of toMatch) {
 		if (entityType.has(componentTypeId)) {
 			return true;
@@ -71,11 +71,11 @@ export class EntityStore {
 	private uid = createUIDGenerator(1);
 
 	private archetypes: Archetype[] = [];
-	private queries: QueryRecord<ComponentTypes, ComponentTypes, ComponentTypes>[] = [];
+	private queries: QueryRecord[] = [];
 
 	public createEntity<T extends ComponentTypes>(
 		componentTypes?: T,
-		initial?: OptionalComponentPartialsFromTypes<T> | ((entity: Entity, values: ComponentInstancesFromTypes<T>) => void)
+		initial?: (entity: Entity, values: ComponentInstancesFromTypes<T>) => void
 	): Entity {
 		const entity = this.reusableEntities.pop() || this.uid();
 
@@ -101,38 +101,14 @@ export class EntityStore {
 			const componentTypesArgLength = componentTypes.length;
 			let componentTypeIndex;
 
-			if (typeof initial === 'function') {
-				const componentInstances = [];
-				for (componentTypeIndex = 0; componentTypeIndex < componentTypesArgLength; componentTypeIndex++) {
-					const componentType = componentTypes[componentTypeIndex];
-					const componentArray = chunk.getComponentArray(componentType);
-					componentInstances.push(componentArray ? componentArray[oldChunkSize] : undefined);
-				}
-
-				initial(entity, componentInstances as ComponentInstancesFromTypes<T>);
-			} else {
-				for (componentTypeIndex = 0; componentTypeIndex < componentTypesArgLength; componentTypeIndex++) {
-					const componentType = componentTypes[componentTypeIndex];
-					const definition = componentType[$definition];
-
-					if (definition) {
-						const componentData = initial[componentTypeIndex];
-
-						if (componentData) {
-							const componentsArray = chunk.getComponentArray(componentType)!;
-							const componentInstance = componentsArray[oldChunkSize];
-
-							for (const property of Object.keys(definition)) {
-								const componentDataValue = componentData[property];
-
-								if (componentDataValue !== undefined) {
-									componentInstance[property] = componentDataValue;
-								}
-							}
-						}
-					}
-				}
+			const componentInstances = [];
+			for (componentTypeIndex = 0; componentTypeIndex < componentTypesArgLength; componentTypeIndex++) {
+				const componentType = componentTypes[componentTypeIndex];
+				const componentArray = chunk.getComponentArray(componentType);
+				componentInstances.push(componentArray ? componentArray[oldChunkSize] : undefined);
 			}
+
+			initial(entity, componentInstances as ComponentInstancesFromTypes<T>);
 		}
 
 		// increment chunk size
@@ -249,7 +225,7 @@ export class EntityStore {
 	public attachComponents<T extends ComponentTypes>(
 		entity: Entity,
 		componentTypes: T,
-		initial?: OptionalComponentPartialsFromTypes<T> | ((values: ComponentInstancesFromTypes<T>) => void)
+		initial?: (values: ComponentInstancesFromTypes<T>) => void
 	): void {
 		assert(this.entities.has(entity), `Error attaching components to entity ${entity} - entity does not exist`);
 
@@ -320,80 +296,14 @@ export class EntityStore {
 					const componentTypesArgLength = componentTypes.length;
 					let componentTypeIndex;
 
-					if (typeof initial === 'function') {
-						const componentInstances = [];
-						for (componentTypeIndex = 0; componentTypeIndex < componentTypesArgLength; componentTypeIndex++) {
-							const componentType = componentTypes[componentTypeIndex];
-							const componentArray = newChunk.getComponentArray(componentType);
-							componentInstances.push(componentInstances.push(componentArray ? componentArray[newIndex] : undefined));
-						}
-
-						initial(componentInstances as ComponentInstancesFromTypes<T>);
-					} else {
-						if (initial.length > 0) {
-							for (componentTypeIndex = 0; componentTypeIndex < componentTypesArgLength; componentTypeIndex++) {
-								const componentType = componentTypes[componentTypeIndex];
-								const definition = componentType[$definition];
-
-								if (definition) {
-									const componentData = initial[componentTypeIndex];
-
-									if (componentData) {
-										const fieldNames = Object.keys(definition);
-										const componentsArray = newChunk.getComponentArray(componentType)!;
-										const componentInstance = componentsArray[newIndex];
-
-										for (const fieldName of fieldNames) {
-											const componentDataValue = componentData[fieldName];
-
-											if (componentDataValue !== undefined) {
-												componentInstance[fieldName] = componentDataValue;
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			} else if (initial) {
-				const componentTypesArgLength = componentTypes.length;
-				let componentTypeIndex;
-
-				if (typeof initial === 'function') {
 					const componentInstances = [];
 					for (componentTypeIndex = 0; componentTypeIndex < componentTypesArgLength; componentTypeIndex++) {
 						const componentType = componentTypes[componentTypeIndex];
-						const componentArray = oldChunk.getComponentArray(componentType)!;
-						componentInstances.push(componentArray[oldIndex]);
+						const componentArray = newChunk.getComponentArray(componentType);
+						componentInstances.push(componentInstances.push(componentArray ? componentArray[newIndex] : undefined));
 					}
 
 					initial(componentInstances as ComponentInstancesFromTypes<T>);
-				} else {
-					if (initial.length > 0) {
-						for (componentTypeIndex = 0; componentTypeIndex < componentTypesArgLength; componentTypeIndex++) {
-							const componentType = componentTypes[componentTypeIndex];
-							const definition = componentType[$definition];
-
-							if (definition) {
-								const componentData = initial[componentTypeIndex];
-
-								if (componentData) {
-									const fieldNames = Object.keys(definition);
-									const componentsArray = oldChunk.getComponentArray(componentType)!;
-									const componentInstance = componentsArray[oldIndex];
-
-									for (const fieldName of fieldNames) {
-										const componentDataValue = componentData[fieldName];
-
-										if (componentDataValue !== undefined) {
-											componentInstance[fieldName] = componentDataValue;
-										}
-									}
-								}
-							}
-						}
-					}
 				}
 			}
 		}
@@ -477,9 +387,9 @@ export class EntityStore {
 		all: TAll,
 		some?: TSome,
 		none?: TNone
-	): QueryRecord<TAll, TSome, TNone> {
-		const queryAll = new Int32Array(all.map((componentType) => componentType[$id]!));
-		const querySome = new Int32Array((some || []).map((componentType) => componentType[$id]!));
+	): QueryRecord {
+		const queryAll = new Uint32Array(all.map((componentType) => componentType[$id]!));
+		const querySome = new Uint32Array((some || []).map((componentType) => componentType[$id]!));
 		const queryNone = (none || []).map((componentType) => componentType[$id]!);
 
 		const queryAllSize = queryAll.length;
@@ -535,7 +445,7 @@ export class EntityStore {
 			}
 		}
 
-		const record = [[queryAll, querySome, queryNone], matchingArchetypes] as QueryRecord<TAll, TSome, TNone>;
+		const record = [[queryAll, querySome, queryNone], matchingArchetypes] as QueryRecord;
 
 		this.queries.push(record);
 

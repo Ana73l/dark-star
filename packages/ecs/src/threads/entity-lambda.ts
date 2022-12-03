@@ -10,7 +10,7 @@ export type EntityEachLambda<
 
 export type EntityEachLambdaWithParams<
 	T extends ComponentTypesQuery,
-	P extends any[],
+	P extends ReadonlyArray<any>,
 	TAll extends ComponentTypes,
 	TSome extends ComponentTypes,
 	TNone extends ComponentTypes
@@ -25,7 +25,7 @@ export type EntityEachLambdaWithEntities<
 
 export type EntityEachLambdaWithEntitiesAndParams<
 	T extends ComponentTypesQuery,
-	P extends any[],
+	P extends ReadonlyArray<any>,
 	TAll extends ComponentTypes,
 	TSome extends ComponentTypes,
 	TNone extends ComponentTypes

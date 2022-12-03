@@ -2,7 +2,7 @@ import { Disposable } from '@dark-star/core';
 
 import { ComponentType } from '../component';
 import { Entity } from '../entity';
-import { ComponentTypes, ComponentInstancesFromTypes, OptionalComponentPartialsFromTypes } from '../query';
+import { ComponentTypes, ComponentInstancesFromTypes } from '../query';
 
 /** Current world version. Used to track for changes. */
 export type WorldUpdateVersion = number;
@@ -42,18 +42,6 @@ export abstract class World implements Disposable {
 	 * ````
 	 */
 	abstract spawn<T extends ComponentTypes>(componentTypes: T): void;
-	/**
-	 * Spawns an entity with a list of component types in the world and assigns their values using a given list of optional component partials.
-	 *
-	 * @param componentTypes - List of component types to be attached
-	 * @param init - List of optional component partials whose values will be assigned to the corresponding components attached
-	 *
-	 * @example
-	 * ```ts
-	 * world.spawn([Player, Position, Velocity], [{ name: 'Illidan' }, { x: 100, y: -15 }, { x: 0, y: 0 }]);
-	 * ```
-	 */
-	abstract spawn<T extends ComponentTypes>(componentTypes: T, init: OptionalComponentPartialsFromTypes<T>): void;
 	/**
 	 * Spawns an entity with a list of component types in the world and assigns their values using a given callback.
 	 *
@@ -129,19 +117,6 @@ export abstract class World implements Disposable {
 	 * ```
 	 */
 	abstract attach<T extends ComponentTypes>(entity: Entity, componentTypes: T): void;
-	/**
-	 * Attaches one or more component types to an existing entities and assigns their values using a given list of optional component partials.
-	 *
-	 * @param entity - Entity to which components will be attached
-	 * @param componentTypes - List of component types to attach
-	 * @param init - List of optional component partials whose values will be assigned to the corresponding components attached
-	 *
-	 * @example
-	 * ```ts
-	 * world.attach(5, [Position, Velocity], [{ x: 1, y: 2 }, { x: 0, y: 0}]);
-	 * ```
-	 */
-	abstract attach<T extends ComponentTypes>(entity: Entity, componentTypes: T, init: OptionalComponentPartialsFromTypes<T>): void;
 	/**
 	 * Attaches one or more component types to an existing entities and assigns their values using a given callback.
 	 *

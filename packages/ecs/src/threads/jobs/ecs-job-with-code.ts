@@ -1,11 +1,11 @@
 import { ComponentTypesQuery, ComponentQueryDescriptor, convertQueryToDescriptors } from '../../query';
-import { JobHandle } from './job';
-import { createNullHandle, Job } from './job';
-import { addHandleToSystemDependency } from './ecs-query-job';
 import { System } from '../../system';
 import { JobScheduler } from '../job-scheduler';
 
-export class ECSJobWithCode<T extends ComponentTypesQuery = []> implements Job {
+import { createNullHandle, Job, JobHandle } from './job';
+import { addHandleToSystemDependency } from './helpers';
+
+export class ECSJobWithCode implements Job {
     private accessDescriptors: ComponentQueryDescriptor[];
 
     constructor(
@@ -13,7 +13,7 @@ export class ECSJobWithCode<T extends ComponentTypesQuery = []> implements Job {
         private lambda: (...args: any[]) => any,
         private params?: any[], 
         private scheduler?: JobScheduler,
-        access?: T
+        access?: ComponentTypesQuery
     ) {
         this.accessDescriptors = access ? convertQueryToDescriptors(access) : [];
     }

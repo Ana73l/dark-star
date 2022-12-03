@@ -1,7 +1,10 @@
-import { ComponentTypes, ComponentTypesQuery, convertQueryToDescriptors, QueryRecord } from '../query';
+import { Entity } from '../entity';
+import { ComponentType } from '../component';
+import { ComponentTypes, ComponentTypesQuery, convertQueryToDescriptors, QueryRecord, read, write } from '../query';
 import { WorldUpdateVersion } from '../world';
-import { JobScheduler } from '../threads/job-scheduler';
 import { Job } from '../threads/jobs/job';
+import { ECSEachJob } from '../threads/jobs/ecs-each';
+import { ECSEachWithEntitiesJob } from '../threads/jobs/ecs-each-with-entities';
 import {
 	EntityEachLambda,
 	EntityEachLambdaWithEntities,
@@ -9,23 +12,16 @@ import {
 	EntityEachLambdaWithParams,
 } from '../threads/entity-lambda';
 
-import { $scheduler, System } from './planning/__internals__';
-import { ECSEachJob } from '../threads/jobs/ecs-each';
-import { ECSEachWithEntitiesJob } from '../threads/jobs/ecs-each-with-entities';
+import { System } from './planning/__internals__';
+import { ComponentLookup } from './component-lookup';
 
+/**
+ * Provides a mechanism for iterating and invoking a lambda expression on each {@link Entity} selected by a {@link System.query query}.
+ */
 export class SystemQuery<TAll extends ComponentTypes, TSome extends ComponentTypes = [], TNone extends ComponentTypes = []> {
 	public lastWorldVersion: WorldUpdateVersion = -1;
 
 	private withChanges: boolean = false;
-
-	/**
-	 * @internal
-	 * {@link JobScheduler} used to schedule and complete jobs.
-	 * 
-	 * @remarks
-	 * Injected only if the {@link World world} instance in which {@link Job jobs} are scheduled uses more than one thread.
-	 */
-	[$scheduler]?: JobScheduler;
 
 	/**
 	 * @internal
@@ -42,10 +38,10 @@ export class SystemQuery<TAll extends ComponentTypes, TSome extends ComponentTyp
 	 * @param system - {@link System} that has registered the query
 	 * @param query - Persistent {@link QueryRecord} containing layout of the query and matching archetypes
 	 */
-	constructor(private system: System, private query: QueryRecord<TAll, TSome, TNone>) {}
+	constructor(private system: System, private query: QueryRecord) {}
 
 	/**
-	 * Include only chunks that have been written to since {@link System system} update.
+	 * Include only chunks that have been written to since last {@link System system} update.
 	 * 
 	 * @returns The SystemQuery instance
 	 */
@@ -53,6 +49,10 @@ export class SystemQuery<TAll extends ComponentTypes, TSome extends ComponentTyp
 		this.withChanges = true;
 
 		return this;
+	}
+
+	public getComponentLookup<T extends ComponentType, R extends boolean = false>(componentType: T, readonly?: R): ComponentLookup<T, R> {
+		return new ComponentLookup(componentType, this.query, readonly);
 	}
 
 	/**
@@ -164,12 +164,12 @@ export class SystemQuery<TAll extends ComponentTypes, TSome extends ComponentTyp
 	 * }
 	 * ```
 	 */
-	public each<T extends ComponentTypesQuery, P extends any[]>(
+	public each<T extends ComponentTypesQuery, P extends ReadonlyArray<any>>(
 		componentAccessDescriptors: T,
 		params: P,
 		lambda: EntityEachLambdaWithParams<T, P, TAll, TSome, TNone>
 	): Job;
-	public each<T extends ComponentTypesQuery, P extends any[]>(
+	public each<T extends ComponentTypesQuery, P extends ReadonlyArray<any>>(
 		componentAccessDescriptors: T,
 		params: P | EntityEachLambda<T, TAll, TSome, TNone>,
 		lambda?: EntityEachLambdaWithParams<T, P, TAll, TSome, TNone>
@@ -181,7 +181,6 @@ export class SystemQuery<TAll extends ComponentTypes, TSome extends ComponentTyp
 				convertQueryToDescriptors(componentAccessDescriptors) as any,
 				params,
 				undefined,
-				this[$scheduler],
 				this.withChanges
 			);
 		} else {
@@ -191,7 +190,6 @@ export class SystemQuery<TAll extends ComponentTypes, TSome extends ComponentTyp
 				convertQueryToDescriptors(componentAccessDescriptors) as any,
 				lambda!,
 				params,
-				this[$scheduler],
 				this.withChanges
 			);
 		}
@@ -286,12 +284,12 @@ export class SystemQuery<TAll extends ComponentTypes, TSome extends ComponentTyp
 	 * }
 	 * ```
 	 */
-	public eachWithEntities<T extends ComponentTypesQuery, P extends any[]>(
+	public eachWithEntities<T extends ComponentTypesQuery, P extends ReadonlyArray<any>>(
 		componentAccessDescriptors: T,
 		params: P,
 		lambda: EntityEachLambdaWithEntitiesAndParams<T, P, TAll, TSome, TNone>
 	): Job;
-	public eachWithEntities<T extends ComponentTypesQuery, P extends any[]>(
+	public eachWithEntities<T extends ComponentTypesQuery, P extends ReadonlyArray<any>>(
 		componentAccessDescriptors: T,
 		params: P | EntityEachLambdaWithEntities<T, TAll, TSome, TNone>,
 		lambda?: EntityEachLambdaWithEntitiesAndParams<T, P, TAll, TSome, TNone>
@@ -303,7 +301,6 @@ export class SystemQuery<TAll extends ComponentTypes, TSome extends ComponentTyp
 				convertQueryToDescriptors(componentAccessDescriptors) as any,
 				params,
 				undefined,
-				this[$scheduler],
 				this.withChanges
 			);
 		} else {
@@ -313,7 +310,6 @@ export class SystemQuery<TAll extends ComponentTypes, TSome extends ComponentTyp
 				convertQueryToDescriptors(componentAccessDescriptors) as any,
 				lambda!,
 				params,
-				this[$scheduler],
 				this.withChanges
 			);
 		}

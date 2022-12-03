@@ -4,7 +4,7 @@ import { WorkerPool } from '@dark-star/worker-pool';
 
 import { ComponentType } from '../component';
 import { Entity } from '../entity';
-import { ComponentInstancesFromTypes, ComponentTypes, OptionalComponentPartialsFromTypes } from '../query';
+import { ComponentInstancesFromTypes, ComponentTypes } from '../query';
 import { DeferredCommandsProcessor } from '../storage/deferred-commands-processor';
 import { EntityStore } from '../storage/store';
 import { System, SystemType } from '../system';
@@ -91,7 +91,6 @@ export class ECSWorld implements World {
 			await Promise.all(registerSchemasTasks);
 
 			world.jobScheduler = new JobScheduler(ecsTaskRunner);
-			planner.addSchedulerToJobFactories(world.jobScheduler);
 
 			// add scheduler to systems
 			for (const system of systemInstances) {
@@ -120,11 +119,10 @@ export class ECSWorld implements World {
 
 	public spawn<T extends ComponentTypes>(): void;
 	public spawn<T extends ComponentTypes>(componentTypes: T): void;
-	public spawn<T extends ComponentTypes>(componentTypes: T, init?: OptionalComponentPartialsFromTypes<T>): void;
-	public spawn<T extends ComponentTypes>(componentTypes: T, init: (components: ComponentInstancesFromTypes<T>) => void): void;
+	public spawn<T extends ComponentTypes>(componentTypes: T, init: (entity: Entity, components: ComponentInstancesFromTypes<T>) => void): void;
 	public spawn<T extends ComponentTypes>(
 		componentTypes?: T,
-		init?: (components: ComponentInstancesFromTypes<T>) => void | OptionalComponentPartialsFromTypes<T>
+		init?: (entity: Entity, components: ComponentInstancesFromTypes<T>) => void
 	): void {
 		this.deferredCommands.create(componentTypes, init);
 	}
@@ -142,7 +140,6 @@ export class ECSWorld implements World {
 	}
 
 	public attach<T extends ComponentTypes>(entity: Entity, componentTypes: T): void;
-	public attach<T extends ComponentTypes>(entity: Entity, componentTypes: T, init?: OptionalComponentPartialsFromTypes<T>): void;
 	public attach<T extends ComponentTypes>(
 		entity: Entity,
 		componentTypes: T,
@@ -151,7 +148,7 @@ export class ECSWorld implements World {
 	public attach<T extends ComponentTypes>(
 		entity: Entity,
 		componentTypes: T,
-		init?: (components: ComponentInstancesFromTypes<T>) => void | OptionalComponentPartialsFromTypes<T>
+		init?: (components: ComponentInstancesFromTypes<T>) => void
 	): void {
 		this.deferredCommands.attach(entity, componentTypes, init);
 	}

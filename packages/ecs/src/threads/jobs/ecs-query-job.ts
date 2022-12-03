@@ -7,48 +7,8 @@ import {
 	queryHasWriter,
 } from '../../query';
 import { ArchetypeChunk } from '../../storage/archetype/archetype-chunk';
-import { ParallelJob, JobHandle, $dependencies, JobId } from './job';
-import { JobScheduler } from '../job-scheduler';
-import { $scheduler, System } from '../../system/planning/__internals__';
-
-export const addHandleToSystemDependency = (system: System, handleId: JobId): void => {
-	const scheduler = system[$scheduler];
-	// only combine dependencies in a threaded environment
-	if(scheduler) {
-		if(system.dependency) {
-			system.dependency[$dependencies]!.add(handleId);
-		} else {
-			let isComplete = false;
-			let promise: Promise<void>;
-
-			system.dependency = {
-				id: 0,
-				get isComplete() {
-					return isComplete;
-				},
-				complete: async () => {
-					if(isComplete) {
-						return;
-					}
-
-					if(promise) {
-						return promise;
-					}
-
-					promise = new Promise(async (resolve) => {
-						await scheduler.completeJobs(system.dependency![$dependencies]!);
-
-						isComplete = true;
-						resolve();							
-					});
-
-					return promise;
-				},
-				[$dependencies]: new Set([handleId])
-			}
-		}
-	}
-}
+import { ParallelJob, JobHandle } from './job';
+import { System } from '../../system/planning/__internals__';
 
 export abstract class ECSQueryJob<
 	T extends ComponentTypesQuery,
@@ -61,11 +21,10 @@ export abstract class ECSQueryJob<
 
 	constructor(
 		protected system: System,
-		protected query: QueryRecord<TAll, TSome, TNone>,
+		protected query: QueryRecord,
 		access: T,
 		protected lambda: (...args: any[]) => any,
-		protected params?: any[],
-		protected scheduler?: JobScheduler,
+		protected params?: ReadonlyArray<any>,
 		protected withChanges: boolean = false
 	) {
 		this.accessDescriptors = convertQueryToDescriptors(access);

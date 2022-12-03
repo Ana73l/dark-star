@@ -2,67 +2,47 @@ import { $id, Definition, PrimitiveTypes, schemas } from '@dark-star/core';
 import { createSharedObjectArray, serializable } from '@dark-star/shared-object';
 
 import { ComponentType, ComponentTypeId } from '../../component';
-import { World } from '../../world/world';
-import { ComponentInstancesFromTypes, OptionalComponentPartialsFromTypes } from '../../query';
-import {
-	CreateEntityCommand,
-	AttachComponentsCommand,
-	DetachComponentsCommand,
-	DestroyEntityCommand,
-} from '../../storage/deferred-commands-processor';
 import { Entity } from '../../entity';
 
 import { fieldDecorators } from './field-decorators';
 
 export type EntityEachLambdaWorkerParams = [
-	layout: Int32Array,
+	layout: Uint32Array,
 	chunks: [size: number, buffers: (SharedArrayBuffer | undefined)[]][],
 	lambda: string,
-	params?: any[]
+	params?: ReadonlyArray<any>
 ];
 
 export type EntityEachParallelLambdaWorkerParams = [
-	layout: Int32Array,
+	layout: Uint32Array,
 	size: number,
 	buffers: (SharedArrayBuffer | undefined)[],
 	lambda: string,
-	params?: any[]
+	params?: ReadonlyArray<any>
 ];
 
 export type EntityEachWithEntitiesLambdaWorkerParams = [
-	layout: Int32Array,
+	layout: Uint32Array,
 	chunks: [size: number, entities: SharedArrayBuffer, buffers: (SharedArrayBuffer | undefined)[]][],
 	lambda: string,
-	params?: any[]
+	params?: ReadonlyArray<any>
 ];
 
 export type EntityEachWithEntitiesParallelLambdaWorkerParams = [
-	layout: Int32Array,
+	layout: Uint32Array,
 	size: number,
 	entities: SharedArrayBuffer,
 	buffers: (SharedArrayBuffer | undefined)[],
 	lambda: string,
-	params?: any[]
+	params?: ReadonlyArray<any>
 ];
 
 export type JobWithCodeLambdaWorkerParams = [
 	lambda: string,
-	params?: any[]
-]
-
-export type EnqueuedWorkerWorldCommands = [
-	create: [componentTypeIds?: ComponentTypeId[], componentInstances?: any[]][],
-	attach: [entity: Entity, componentTypeIds: ComponentTypeId[], componentInstances?: any[]][],
-	detach: [entity: Entity, componentTypeIds: ComponentTypeId[]][],
-	destroy: Entity[]
+	params?: ReadonlyArray<any>
 ];
 
-export class WorkerWorld implements Pick<World, 'spawn' | 'attach' | 'detach' | 'destroy'> {
-	private createEntityCommands: CreateEntityCommand<any>[] = [];
-	private attachComponentsCommands: AttachComponentsCommand<any>[] = [];
-	private detachComponentsCommands: DetachComponentsCommand[] = [];
-	private destroyEntityCommands: DestroyEntityCommand[] = [];
-
+export class WorkerWorld {
 	public registerSchemas(schemaTypes: [string, Definition | undefined][]): void {
 		for (const [schemaName, definition] of schemaTypes) {
 			const schemaClass = class {};
@@ -84,33 +64,7 @@ export class WorkerWorld implements Pick<World, 'spawn' | 'attach' | 'detach' | 
 		}
 	}
 
-	public spawn(): void;
-	public spawn<T extends ComponentType<any>[]>(componentTypes?: T): void;
-	public spawn<T extends ComponentType<any>[]>(
-		componentTypes?: T,
-		init?: (...components: ComponentInstancesFromTypes<T>) => void | OptionalComponentPartialsFromTypes<T>
-	): void {
-		this.createEntityCommands.push({ componentTypes, init });
-	}
-
-	public attach<T extends ComponentType<any>[]>(entity: Entity, componentTypes: T): void;
-	public attach<T extends ComponentType<any>[]>(
-		entity: number,
-		componentTypes: T,
-		init?: ((component: ComponentInstancesFromTypes<T>) => void) | OptionalComponentPartialsFromTypes<T>
-	): void {
-		this.attachComponentsCommands.push({ entity, componentTypes, init });
-	}
-
-	public detach<T extends ComponentType<any>[]>(entity: Entity, componentTypes: T): void {
-		this.detachComponentsCommands.push({ entity, componentTypes });
-	}
-
-	public destroy(entity: Entity): void {
-		this.destroyEntityCommands.push(entity);
-	}
-
-	public handleEntityEachLambda([layout, chunks, lambda, params]: EntityEachLambdaWorkerParams): EnqueuedWorkerWorldCommands {
+	public handleEntityEachLambda([layout, chunks, lambda, params]: EntityEachLambdaWorkerParams) {
 		const parsedLambda = eval(`(${lambda})`);
 
 		const layoutSize = layout.length;
@@ -146,8 +100,6 @@ export class WorkerWorld implements Pick<World, 'spawn' | 'attach' | 'detach' | 
 				parsedLambda(components, params);
 			}
 		}
-
-		return this.flush();
 	}
 
 	public handleEntityEachParallelLambda([
@@ -156,7 +108,7 @@ export class WorkerWorld implements Pick<World, 'spawn' | 'attach' | 'detach' | 
 		buffers,
 		lambda,
 		params,
-	]: EntityEachParallelLambdaWorkerParams): EnqueuedWorkerWorldCommands {
+	]: EntityEachParallelLambdaWorkerParams) {
 		const parsedLambda = eval(`(${lambda})`);
 		const layoutSize = layout.length;
 		const componentArrays = this.buildComponentArrays(layout, buffers, size);
@@ -174,8 +126,6 @@ export class WorkerWorld implements Pick<World, 'spawn' | 'attach' | 'detach' | 
 
 			parsedLambda(components, params);
 		}
-
-		return this.flush();
 	}
 
 	public handleEntityEachWithEntitiesLambda([layout, chunks, lambda, params]: EntityEachWithEntitiesLambdaWorkerParams) {
@@ -215,8 +165,6 @@ export class WorkerWorld implements Pick<World, 'spawn' | 'attach' | 'detach' | 
 				parsedLambda(entities[indexInChunk], components, params);
 			}
 		}
-
-		return this.flush();
 	}
 
 	public handleEntityEachWithEntitiesParallelLambda([
@@ -245,8 +193,6 @@ export class WorkerWorld implements Pick<World, 'spawn' | 'attach' | 'detach' | 
 
 			parsedLambda(entities[entityIndex], components, params);
 		}
-
-		return this.flush();
 	}
 
 	public handleJobWithCode([
@@ -258,7 +204,7 @@ export class WorkerWorld implements Pick<World, 'spawn' | 'attach' | 'detach' | 
 		return parsedCallback(params);
 	}
 
-	private buildComponentArrays(layout: Int32Array, buffers: (SharedArrayBuffer | undefined)[], length: number): any[] {
+	private buildComponentArrays(layout: Uint32Array, buffers: (SharedArrayBuffer | undefined)[], length: number): any[] {
 		const componentArrays = [];
 		const layoutSize = layout.length;
 		let bufferIndex;
@@ -271,90 +217,5 @@ export class WorkerWorld implements Pick<World, 'spawn' | 'attach' | 'detach' | 
 		}
 
 		return componentArrays;
-	}
-
-	private flush(): EnqueuedWorkerWorldCommands {
-		const spawn: [componentTypeIds?: ComponentTypeId[], instances?: any[]][] = this.createEntityCommands.map((command) => {
-			const componentTypes = command.componentTypes;
-			const init = command.init;
-
-			if (!componentTypes) {
-				return [[] as ComponentTypeId[], []];
-			}
-
-			const componentTypeIds: ComponentTypeId[] = componentTypes.map((type: ComponentType) => type[$id]);
-
-			if (!init) {
-				return [componentTypeIds, []];
-			}
-
-			const initial: any[] = componentTypes.map((type: ComponentType) => new type());
-
-			if (typeof init === 'function') {
-				init(initial as any);
-			} else {
-				for (let i = 0; i < componentTypeIds.length; i++) {
-					if (init[i]) {
-						Object.assign(initial[i], init[i]);
-					}
-				}
-			}
-
-			return [componentTypeIds, initial];
-		});
-
-		const attach: [entity: Entity, componentTypeIds: ComponentTypeId[], instances?: any[]][] = this.attachComponentsCommands.map(
-			(command) => {
-				const entity = command.entity;
-				const componentTypes = command.componentTypes;
-				const init = command.init;
-
-				const componentTypeIds: ComponentTypeId[] = componentTypes.map((type: ComponentType) => type[$id]);
-
-				if (!init) {
-					return [entity, componentTypeIds, []];
-				}
-
-				const initial: any[] = componentTypes.map((type: ComponentType) => new type());
-
-				if (typeof init === 'function') {
-					init(initial as any);
-				} else {
-					for (let i = 0; i < componentTypeIds.length; i++) {
-						if (init[i]) {
-							Object.assign(initial[i], init[i]);
-						}
-					}
-				}
-
-				return [entity, componentTypeIds, initial];
-			}
-		);
-
-		const detach: [entity: Entity, componentTypeIds: ComponentTypeId[]][] = this.detachComponentsCommands.map((command) => {
-			const entity = command.entity;
-			const componentTypes = command.componentTypes;
-
-			const componentTypeIds: ComponentTypeId[] = componentTypes.map((type: ComponentType) => type[$id]!);
-
-			return [entity, componentTypeIds];
-		});
-
-		const destroy = this.destroyEntityCommands.concat([]);
-
-		while (this.createEntityCommands.length) {
-			this.createEntityCommands.pop();
-		}
-		while (this.attachComponentsCommands.length) {
-			this.attachComponentsCommands.pop();
-		}
-		while (this.detachComponentsCommands.length) {
-			this.detachComponentsCommands.pop();
-		}
-		while (this.destroyEntityCommands.length) {
-			this.destroyEntityCommands.pop();
-		}
-
-		return [spawn, attach, detach, destroy];
 	}
 }

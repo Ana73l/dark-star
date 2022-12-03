@@ -5,7 +5,7 @@ import { Archetype } from './storage/archetype/archetype';
 
 export enum ComponentAccessFlags {
 	Read,
-	Write,
+	Write
 }
 
 export interface ReadComponentAccess<T extends ComponentType = ComponentType> {
@@ -29,10 +29,6 @@ export type ComponentInstancesFromTypes<T> = {
 
 export type OptionalComponentInstancesFromTypes<T> = {
 	[P in keyof T]: T[P] extends ComponentType<infer U> ? U | undefined : never;
-};
-
-export type OptionalComponentPartialsFromTypes<T> = {
-	[P in keyof T]: T[P] extends ComponentType ? InstanceType<T[P]> | undefined : never;
 };
 
 export type ComponentTypesFromQuery<T> = {
@@ -72,13 +68,13 @@ export type ComponentInstancesFromQuery<
  * @internal
  * Layout of a component query. Components are represented by their unique ids assigned by the {@link component} decorator.
  */
-export type QueryRecordLayout = [all: Int32Array, some: Int32Array, none?: ComponentTypeId[]];
+export type QueryRecordLayout = [all: Uint32Array, some: Uint32Array, none?: ComponentTypeId[]];
 
 /**
  * @internal
  * Represents a persistent {@link QueryRecordLayout components query layout} and its matching {@link Archetype archetypes}.
  */
-export type QueryRecord<TAll extends ComponentTypes, TSome extends ComponentTypes = [], TNone extends ComponentTypes = []> = [
+export type QueryRecord = [
 	layout: QueryRecordLayout,
 	archetypes: Archetype[]
 ];
@@ -96,7 +92,9 @@ export const write = <T extends ComponentType>(componentType: T): WriteComponent
 /**
  * @internal
  * Converts {@link ComponentTypesQuery} to {@link ComponentQueryDescriptor} array.
- * Used internally to wrap {@link ComponentTypesQuery query} array as {@link read}/ {@link write} descriptors
+ * 
+ * @remarks
+ * Used internally to wrap {@link ComponentTypesQuery query} array as {@link read}/ {@link write} descriptors.
  * 
  * @param query - Component types to be converted
  * @returns The component types query converted as {@link read}/ {@link write} descriptors
@@ -109,6 +107,8 @@ export const convertQueryToDescriptors = <T extends ComponentTypesQuery>(query: 
 /**
  * @internal
  * Converts {@link ComponentTypesQuery} to {@link ComponentTypesFromQuery} array.
+ * 
+ * @remarks
  * Used internally to get the component types from a {@link ComponentType}/ {@link ComponentQueryDescriptor} array.
  * 
  * @param query - Component access descriptors to be converted

@@ -2,18 +2,18 @@ import { Disposable } from '@dark-star/core';
 
 import { Entity } from '../entity';
 import { ComponentType } from '../component';
-import { ComponentInstancesFromTypes, ComponentTypes, OptionalComponentPartialsFromTypes } from '../query';
+import { ComponentInstancesFromTypes, ComponentTypes } from '../query';
 import { EntityStore } from './store';
 
 export type CreateEntityCommand<T extends ComponentTypes> = {
 	componentTypes?: T;
-	init?: ((components: ComponentInstancesFromTypes<T>) => void) | OptionalComponentPartialsFromTypes<T>;
+	init?: (entity: Entity, components: ComponentInstancesFromTypes<T>) => void;
 };
 
 export type AttachComponentsCommand<T extends ComponentTypes> = {
 	entity: Entity;
 	componentTypes: T;
-	init?: ((components: ComponentInstancesFromTypes<T>) => void) | OptionalComponentPartialsFromTypes<T>;
+	init?: (components: ComponentInstancesFromTypes<T>) => void;
 };
 
 export type DetachComponentsCommand = {
@@ -38,7 +38,7 @@ export class DeferredCommandsProcessor implements Disposable {
 
 	public create<T extends ComponentTypes>(
 		componentTypes?: T,
-		init?: (components: ComponentInstancesFromTypes<T>) => void | OptionalComponentPartialsFromTypes<T>
+		init?: (entity: Entity, components: ComponentInstancesFromTypes<T>) => void
 	): void {
 		this.createEntityCommands.push({ componentTypes, init });
 	}
@@ -46,7 +46,7 @@ export class DeferredCommandsProcessor implements Disposable {
 	public attach<T extends ComponentTypes>(
 		entity: Entity,
 		componentTypes?: T,
-		init?: (components: ComponentInstancesFromTypes<T>) => void | OptionalComponentPartialsFromTypes<T>
+		init?: (components: ComponentInstancesFromTypes<T>) => void
 	): void {
 		this.attachComponentsCommands.push({ entity, componentTypes, init });
 	}

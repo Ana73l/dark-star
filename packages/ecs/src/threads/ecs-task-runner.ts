@@ -2,7 +2,6 @@ import { Definition } from '@dark-star/core';
 import { TaskRunner, WorkerPool } from '@dark-star/worker-pool';
 
 import {
-	EnqueuedWorkerWorldCommands,
 	EntityEachLambdaWorkerParams,
 	EntityEachParallelLambdaWorkerParams,
 	EntityEachWithEntitiesLambdaWorkerParams,
@@ -11,12 +10,12 @@ import {
 	WorkerWorld,
 } from './worker-global-scope/worker-world';
 
-type EntityEachRunner = TaskRunner<EntityEachLambdaWorkerParams, EnqueuedWorkerWorldCommands>;
-type EntityEachWithEntitiesRunner = TaskRunner<EntityEachWithEntitiesLambdaWorkerParams, EnqueuedWorkerWorldCommands>;
-type EntityEachParallelRunner = TaskRunner<EntityEachParallelLambdaWorkerParams, EnqueuedWorkerWorldCommands>;
-type EntityEachWithEntitiesParallelRunner = TaskRunner<EntityEachWithEntitiesParallelLambdaWorkerParams, EnqueuedWorkerWorldCommands>;
+type EntityEachRunner = TaskRunner<EntityEachLambdaWorkerParams, void>;
+type EntityEachWithEntitiesRunner = TaskRunner<EntityEachWithEntitiesLambdaWorkerParams, void>;
+type EntityEachParallelRunner = TaskRunner<EntityEachParallelLambdaWorkerParams, void>;
+type EntityEachWithEntitiesParallelRunner = TaskRunner<EntityEachWithEntitiesParallelLambdaWorkerParams, void>;
 type RegisterSchemasRunner = TaskRunner<[string, Definition | undefined][], void>;
-type JobWithCodeRunner = TaskRunner<JobWithCodeLambdaWorkerParams, any>;
+type JobWithCodeRunner = TaskRunner<JobWithCodeLambdaWorkerParams, void>;
 
 export class ECSTaskRunner {
 	private eachRunner: EntityEachRunner;
@@ -58,19 +57,19 @@ export class ECSTaskRunner {
 		})
 	}
 
-	public each(data: EntityEachLambdaWorkerParams): Promise<EnqueuedWorkerWorldCommands> {
+	public each(data: EntityEachLambdaWorkerParams): Promise<void> {
 		return this.eachRunner.run(data);
 	}
 
-	public eachParallel(data: EntityEachParallelLambdaWorkerParams): Promise<EnqueuedWorkerWorldCommands> {
+	public eachParallel(data: EntityEachParallelLambdaWorkerParams): Promise<void> {
 		return this.eachParallelRunner.run(data);
 	}
 
-	public eachWithEntities(data: EntityEachWithEntitiesLambdaWorkerParams): Promise<EnqueuedWorkerWorldCommands> {
+	public eachWithEntities(data: EntityEachWithEntitiesLambdaWorkerParams): Promise<void> {
 		return this.eachWithEntitiesRunner.run(data);
 	}
 
-	public eachWithEntitiesParallel(data: EntityEachWithEntitiesParallelLambdaWorkerParams): Promise<EnqueuedWorkerWorldCommands> {
+	public eachWithEntitiesParallel(data: EntityEachWithEntitiesParallelLambdaWorkerParams): Promise<void> {
 		return this.eachWithEntitiesParallelRunner.run(data);
 	}
 

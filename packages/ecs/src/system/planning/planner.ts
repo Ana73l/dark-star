@@ -1,14 +1,11 @@
 import { Disposable, Instance, assert } from '@dark-star/core';
-
-import { ComponentType } from '../../component';
 import { ComponentAccessFlags, ComponentQueryDescriptor, ComponentTypes, convertQueryToDescriptors } from '../../query';
 import { EntityStore } from '../../storage/store';
 
 import { System, SystemGroup, SystemType } from '../system';
-import { Planner as IPlanner, $scheduler } from './__internals__';
+import { Planner as IPlanner } from './__internals__';
 import { RootSystem } from './root-system';
 import { SystemQuery } from '../system-query';
-import { JobScheduler } from '../../threads/job-scheduler';
 
 export class Planner implements IPlanner, Disposable {
 	private queries: Map<System, [ComponentQueryDescriptor[]]> = new Map();
@@ -37,7 +34,7 @@ export class Planner implements IPlanner, Disposable {
 
 			const record = this.store.registerQuery(all, some, none);
 
-			const factory = new SystemQuery(system, record);
+			const factory = new SystemQuery<TAll, TSome, TNone>(system, record);
 
 			this.lambdaFactories.push(factory);
 
@@ -107,14 +104,6 @@ export class Planner implements IPlanner, Disposable {
 		systemToGroup.clear();
 
 		return systemRoot;
-	}
-
-	public addSchedulerToJobFactories(jobScheduler: JobScheduler): void {
-		const factories = this.lambdaFactories;
-
-		for (const factory of factories) {
-			factory[$scheduler] = jobScheduler;
-		}
 	}
 
 	public dispose(): void {

@@ -133,7 +133,7 @@ export abstract class System implements ISystem {
 	 */
 	public ticksSinceLastExecution: number = 1;
 	/**
-	 * {@link Job Jobs} scheduled during the previous execution of the system.
+	 * Combined {@link Job jobs} scheduled during the previous execution of the system.
 	 * 
 	 * @remarks
 	 * Set only in a {@link WorldBuilder.useThreads multithreaded} {@link World world}.
@@ -232,10 +232,41 @@ export abstract class System implements ISystem {
 	/**
 	 * Completes all {@link Job jobs} (if in a {@link WorldBuilder.useThreads multithreaded} {@link World world}) operating on data described with a {@link ComponentQueryDescriptor component access descriptors} array.
 	 * 
+	 * @remarks
+	 * If {@link World.get} needs to be used (only available on main thread) - {@link Job jobs} using those {@link component components} need to be {@link JobHandle.complete completed} before retrieving the component instance in order to prevent [race conditions](https://en.wikipedia.org/wiki/Race_condition).
+	 * 
 	 * @param componentQueryDescriptors - {@link ComponentQueryDescriptor Component access descriptors}
 	 * 
 	 * @example
 	 * ```ts
+	 * @injectable()
+	 * class ApplyProjectileDamage extends System {
+	 * 	@entities([Projectile, CollisionWith, Damage])
+	 * 	public projectiles: SystemQuery<[typeof Projectile, typeof Collision, typeof Damage]>;
+	 * 
+	 * 	constructor(private world: World) {
+	 * 		super();
+	 * 	}
+	 * 
+	 * 	// ...
+	 * 	public override async update() {
+	 * 		const world = this.world;
+	 * 
+	 * 		// complete jobs accessing Health component since we use World.get
+	 * 		await this.completeJobs([write(Health)]);
+	 * 
+	 * 		await this.projectiles
+	 * 			.each([read(CollisionWith), read(Damage)], ([collisionWith, damage]) => {
+	 * 				if(world.has(collisionWith.entity, Health)) {
+	 * 					const health = world.get(collisionWith.entity, Health);
+	 * 
+	 * 					health.currentHealth -= damage.value;
+	 * 				}
+	 * 			})
+	 * 			.run();
+	 * 	}
+	 * }
+	 * 
 	 * @injectable()
 	 * class ClearRenderingContext extends System {
 	 * 	constructor(private context: CanvasRenderingContext2D) {
@@ -277,7 +308,7 @@ export abstract class System implements ISystem {
 	 * class ApplyVelocity extends System {
 	 * 	private moveables!: SystemQuery<[typeof Position, typeof Velocity]>;
 	 * 
-	 * 	public override init() {
+	 * 	public override async init() {
 	 * 		// include all entities having both Position and Velocity
 	 * 		this.moveables = this.query([Position, Velocity]);
 	 * 	}
@@ -289,7 +320,7 @@ export abstract class System implements ISystem {
 	 * class ApplyDamage extends System {
 	 * 	// ...
 	 * 
-	 * 	public override init() {
+	 * 	public override async init() {
 	 * 		// include entities having both IncomingDamage and Health, exclude entities having Immune
 	 * 		this.damageables = this.query([IncomingDamage, Health], [], [Immune]);
 	 * 	}
