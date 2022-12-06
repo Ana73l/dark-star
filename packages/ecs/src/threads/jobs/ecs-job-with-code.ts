@@ -3,7 +3,7 @@ import { System } from '../../system';
 import { JobScheduler } from '../job-scheduler';
 
 import { createNullHandle, Job, JobHandle } from './job';
-import { addHandleToSystemDependency } from './helpers';
+import { addHandleToSystemDependency, JobParamPayload, mapJobParamsForMainThread, serializeJobParams } from './helpers';
 
 export class ECSJobWithCode implements Job {
     private accessDescriptors: ComponentQueryDescriptor[];
@@ -21,11 +21,19 @@ export class ECSJobWithCode implements Job {
 	public schedule(...dependencies: JobHandle[]): JobHandle {
 		if (this.scheduler) {
 			const self = this;
+			let serializedParams: JobParamPayload | undefined;
+
+			if(self.params) {
+				const paramsData = serializeJobParams(self.params);
+				serializedParams = paramsData[0];
+
+				self.accessDescriptors = self.accessDescriptors.concat(paramsData[1]);
+			}
 
 			const jobHandle = this.scheduler.scheduleJob(
 				self.accessDescriptors,
 				async function (taskRunner) {
-					await taskRunner.jobWithCode([self.lambda.toString(), self.params]);
+					await taskRunner.jobWithCode([self.lambda.toString(), serializedParams]);
 				},
 				dependencies
 			);
@@ -49,6 +57,8 @@ export class ECSJobWithCode implements Job {
 	}
 
 	private execute(): void {
-        this.lambda.call(null, this.params);
+		const mappedParams = this.params ? mapJobParamsForMainThread(this.params) : undefined;
+		
+        this.lambda.call(null, mappedParams);
 	}
 }

@@ -4,7 +4,7 @@ import { ComponentTypesQuery, ComponentTypes, convertDescriptorsToQuery } from '
 import { $scheduler } from '../../system/planning/__internals__';
 import { JobHandle, createNullHandle } from './job';
 import { ECSQueryJob } from './ecs-query-job';
-import { addHandleToSystemDependency } from './helpers';
+import { addHandleToSystemDependency, JobParamPayload, mapJobParamsForMainThread, serializeJobParams } from './helpers';
 
 export class ECSEachWithEntitiesJob<
 	T extends ComponentTypesQuery,
@@ -17,7 +17,15 @@ export class ECSEachWithEntitiesJob<
 
 		if (scheduler) {
 			const self = this;
+			let serializedParams: JobParamPayload | undefined;
 
+			if(self.params) {
+				const paramsData = serializeJobParams(self.params);
+				serializedParams = paramsData[0];
+
+				self.accessDescriptors = self.accessDescriptors.concat(paramsData[1]);
+			}
+			
 			const jobHandle = scheduler.scheduleJob(
 				this.accessDescriptors,
 				async function (taskRunner) {
@@ -38,7 +46,7 @@ export class ECSEachWithEntitiesJob<
 						buffers.push([chunk.size, chunk.getEntitiesArray().buffer as SharedArrayBuffer, componentArrayBuffers]);
 					});
 
-					const commands = await taskRunner.eachWithEntities([layout, buffers, lambdaString, self.params]);
+					const commands = await taskRunner.eachWithEntities([layout, buffers, lambdaString, serializedParams]);
 				},
 				dependencies
 			);
@@ -58,6 +66,14 @@ export class ECSEachWithEntitiesJob<
 
 		if (scheduler) {
 			const self = this;
+			let serializedParams: JobParamPayload | undefined;
+
+			if(self.params) {
+				const paramsData = serializeJobParams(self.params);
+				serializedParams = paramsData[0];
+
+				self.accessDescriptors = self.accessDescriptors.concat(paramsData[1]);
+			}
 
 			const jobHandle = scheduler.scheduleJob(
 				this.accessDescriptors,
@@ -83,7 +99,7 @@ export class ECSEachWithEntitiesJob<
 								chunk.getEntitiesArray().buffer as SharedArrayBuffer,
 								componentArrayBuffers,
 								lambdaString,
-								self.params,
+								serializedParams
 							])
 						);
 					});
@@ -114,6 +130,7 @@ export class ECSEachWithEntitiesJob<
 	}
 
 	private execute(): void {
+		const mappedParams = this.params ? mapJobParamsForMainThread(this.params) : undefined;
 		const layout = this.accessDescriptors.map((descriptor) => descriptor.type[$id]!);
 		const accessorsCount = layout.length;
 		const lambda = this.lambda;
@@ -135,7 +152,7 @@ export class ECSEachWithEntitiesJob<
 					componentsProxy[inLayoutIndex] = componentsArrayProxy[inLayoutIndex][entityIndex];
 				}
 
-				lambda.call(null, entities[entityIndex], componentsProxy, this.params);
+				lambda.call(null, entities[entityIndex], componentsProxy, mappedParams);
 			}
 		});
 	}

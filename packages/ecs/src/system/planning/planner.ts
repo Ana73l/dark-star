@@ -6,11 +6,12 @@ import { System, SystemGroup, SystemType } from '../system';
 import { Planner as IPlanner } from './__internals__';
 import { RootSystem } from './root-system';
 import { SystemQuery } from '../system-query';
+import { ComponentLookup } from '../component-lookup';
+import { ComponentType } from '../../component';
 
 export class Planner implements IPlanner, Disposable {
 	private queries: Map<System, [ComponentQueryDescriptor[]]> = new Map();
 	private disposed: boolean = false;
-	private lambdaFactories: SystemQuery<any, any, any>[] = [];
 
 	constructor(private store: EntityStore, private systems: System[]) {}
 
@@ -34,12 +35,14 @@ export class Planner implements IPlanner, Disposable {
 
 			const record = this.store.registerQuery(all, some, none);
 
-			const factory = new SystemQuery<TAll, TSome, TNone>(system, record);
-
-			this.lambdaFactories.push(factory);
-
-			return factory;
+			return new SystemQuery<TAll, TSome, TNone>(system, record);
 		};
+	}
+
+	public getComponentLookup<T extends ComponentType = ComponentType, R extends boolean = false>(componentType: T, readonly?: R): ComponentLookup<T, R> {
+		const query = this.store.registerQuery([componentType]);
+		
+		return new ComponentLookup(componentType, query, readonly);
 	}
 
 	public createSystemRoot(): Instance<RootSystem> {
@@ -111,10 +114,6 @@ export class Planner implements IPlanner, Disposable {
 
 		while (this.systems.length) {
 			this.systems.pop();
-		}
-
-		while (this.lambdaFactories.length) {
-			this.lambdaFactories.pop();
 		}
 	}
 }

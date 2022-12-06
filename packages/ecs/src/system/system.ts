@@ -1,10 +1,12 @@
 import { assert } from '@dark-star/core';
+import { ComponentType } from '../component';
 
 import { ComponentQueryDescriptor, ComponentTypes } from '../query';
 import { Job, JobHandle } from '../threads';
 import { JobScheduler } from '../threads/job-scheduler';
 import { ECSJobWithCode } from '../threads/jobs/ecs-job-with-code';
 import { WorldUpdateVersion } from '../world';
+import { ComponentLookup } from './component-lookup';
 
 import { $planner, $scheduler, Planner, System as ISystem } from './planning/__internals__';
 import { SystemQuery } from './system-query';
@@ -294,6 +296,7 @@ export abstract class System implements ISystem {
 	 * The query is automatically updated. Queries are used to retrieve entities with given sets of components and provide mechanisms for scheduling {@link Job jobs}.
 	 * 
 	 * Can be called only in the {@link System.init init} method.
+	 * 
 	 * @see
 	 * Alternatively queries can be registered using the {@link entities} decorator.
 	 * 
@@ -337,9 +340,67 @@ export abstract class System implements ISystem {
 			`Error registering query in system ${this.constructor.name}: Cannot register query before or after system initialization`
 		);
 
-		const factory = this[$planner]!.registerSystemQuery(this)(all, some, none) as any;
+		return this[$planner]!.registerSystemQuery(this)(all, some, none);
+	}
 
-		return factory;
+	/**
+	 * Registers a persistent {@link ComponentLookup component lookup}.
+	 * 
+	 * @remarks
+	 * {@link World.get} cannot be used inside {@link Job jobs} scheduled on background threads, but a {@link ComponentLookup} can be passed as a parameter to jobs.
+	 * 
+	 * The {@link ComponentLookup} should only be passed as a parameter to a {@link Job job} in a {@link WorldBuilder.useThreads multithreaded} {@link World world}.
+	 * In a singlethreaded world {@link World.get} should be used instead as {@link ComponentLookup} is recreated in each {@link Job job} instance which introduces overhead.
+	 * {@link ComponentLookup} is recreated in {@link Job jobs} {@link Job.schedule scheduled} in a singlethreaded world or {@link Job.run ran} on the main thread for compatibility purposes.
+	 * 
+	 * Can be called only in the {@link System.init init} method.
+	 * 
+	 * @see
+	 * {@link ComponentLookup}\
+	 * {@link World.get}
+	 * 
+	 * @param componentType - Include all entities and their component instances having this type
+	 * @param readonly - True if access is read-only
+	 * @returns The persistent {@link ComponentLookup}
+	 * 
+	 * @example
+	 * ```ts
+	 * @injectable()
+	 * class FollowEntity extends System {
+	 * 	private following!: SystemQuery<[typeof Position, typeof Follow, typeof Translation]>;
+	 * 
+	 * 	// all entities with Position component and the corresponding component instances
+	 * 	private positions!: ComponentLookup<Position, true>;
+	 * 
+	 * 	public override async init() {
+	 * 		this.following = this.query([Position, Follow, Translation]);
+	 * 		// Position of target entity will not be written to so readonly access is assigned via second parameter
+	 * 		this.positions = this.getComponentLookup(Position, true);
+	 * 	}
+	 * 
+	 * 	public override async update() {
+	 * 		this.following
+	 * 			.each([write(Translation), read(Position), read(Follow)], [this.positions] as const, ([translation, position, follow], [positions]) => {
+	 * 				// get position of followed entity
+	 * 				const followedPosition = positions[follow.entity];
+	 * 
+	 * 				// check if followed entity has position and implement follow logic
+	 * 				if(followedPosition) {
+	 * 					// ...
+	 * 				}
+	 * 			})
+	 * 			.scheduleParallel();
+	 * 	}
+	 * }
+	 * ```
+	 */
+	protected getComponentLookup<T extends ComponentType, R extends boolean = false>(componentType: T, readonly?: R): ComponentLookup<T, R> {
+		assert(
+			this[$planner] !== undefined,
+			`Error registering ComponentLookup in system ${this.constructor.name}: Cannot register ComponentLookup before or after system initialization`
+		);
+
+		return this[$planner]!.getComponentLookup(componentType, readonly);
 	}
 
 	/**

@@ -1,8 +1,7 @@
-import { $id, Definition, PrimitiveTypes, schemas } from '@dark-star/core';
+import { Definition, PrimitiveTypes, schemas } from '@dark-star/core';
 import { createSharedObjectArray, serializable } from '@dark-star/shared-object';
 
-import { ComponentType, ComponentTypeId } from '../../component';
-import { Entity } from '../../entity';
+import { JobParamPayload, deserializeJobParams } from '../jobs/helpers';
 
 import { fieldDecorators } from './field-decorators';
 
@@ -10,7 +9,7 @@ export type EntityEachLambdaWorkerParams = [
 	layout: Uint32Array,
 	chunks: [size: number, buffers: (SharedArrayBuffer | undefined)[]][],
 	lambda: string,
-	params?: ReadonlyArray<any>
+	params?: JobParamPayload
 ];
 
 export type EntityEachParallelLambdaWorkerParams = [
@@ -18,14 +17,14 @@ export type EntityEachParallelLambdaWorkerParams = [
 	size: number,
 	buffers: (SharedArrayBuffer | undefined)[],
 	lambda: string,
-	params?: ReadonlyArray<any>
+	params?: JobParamPayload
 ];
 
 export type EntityEachWithEntitiesLambdaWorkerParams = [
 	layout: Uint32Array,
 	chunks: [size: number, entities: SharedArrayBuffer, buffers: (SharedArrayBuffer | undefined)[]][],
 	lambda: string,
-	params?: ReadonlyArray<any>
+	params?: JobParamPayload
 ];
 
 export type EntityEachWithEntitiesParallelLambdaWorkerParams = [
@@ -34,12 +33,12 @@ export type EntityEachWithEntitiesParallelLambdaWorkerParams = [
 	entities: SharedArrayBuffer,
 	buffers: (SharedArrayBuffer | undefined)[],
 	lambda: string,
-	params?: ReadonlyArray<any>
+	params?: JobParamPayload
 ];
 
 export type JobWithCodeLambdaWorkerParams = [
 	lambda: string,
-	params?: ReadonlyArray<any>
+	params?: JobParamPayload
 ];
 
 export class WorkerWorld {
@@ -65,6 +64,7 @@ export class WorkerWorld {
 	}
 
 	public handleEntityEachLambda([layout, chunks, lambda, params]: EntityEachLambdaWorkerParams) {
+		const parsedParams = params ? deserializeJobParams(params) : undefined;
 		const parsedLambda = eval(`(${lambda})`);
 
 		const layoutSize = layout.length;
@@ -97,7 +97,7 @@ export class WorkerWorld {
 					components[componentArrayIndex] = componentArrays[componentArrayIndex][indexInChunk];
 				}
 
-				parsedLambda(components, params);
+				parsedLambda(components, parsedParams);
 			}
 		}
 	}
@@ -109,6 +109,7 @@ export class WorkerWorld {
 		lambda,
 		params,
 	]: EntityEachParallelLambdaWorkerParams) {
+		const parsedParams = params ? deserializeJobParams(params) : undefined;
 		const parsedLambda = eval(`(${lambda})`);
 		const layoutSize = layout.length;
 		const componentArrays = this.buildComponentArrays(layout, buffers, size);
@@ -124,11 +125,12 @@ export class WorkerWorld {
 				components[componentArrayIndex] = componentArrays[componentArrayIndex][entityIndex];
 			}
 
-			parsedLambda(components, params);
+			parsedLambda(components, parsedParams);
 		}
 	}
 
 	public handleEntityEachWithEntitiesLambda([layout, chunks, lambda, params]: EntityEachWithEntitiesLambdaWorkerParams) {
+		const parsedParams = params ? deserializeJobParams(params) : undefined;
 		const parsedLambda = eval(`(${lambda})`);
 
 		// iterate chunks
@@ -162,7 +164,7 @@ export class WorkerWorld {
 					components[componentArrayIndex] = componentArrays[componentArrayIndex][indexInChunk];
 				}
 
-				parsedLambda(entities[indexInChunk], components, params);
+				parsedLambda(entities[indexInChunk], components, parsedParams);
 			}
 		}
 	}
@@ -175,6 +177,7 @@ export class WorkerWorld {
 		lambda,
 		params,
 	]: EntityEachWithEntitiesParallelLambdaWorkerParams) {
+		const parsedParams = params ? deserializeJobParams(params) : undefined;
 		const parsedLambda = eval(`(${lambda})`);
 		const layoutSize = layout.length;
 		const componentArrays = this.buildComponentArrays(layout, buffers, size);
@@ -191,7 +194,7 @@ export class WorkerWorld {
 				components[componentArrayIndex] = componentArrays[componentArrayIndex][entityIndex];
 			}
 
-			parsedLambda(entities[entityIndex], components, params);
+			parsedLambda(entities[entityIndex], components, parsedParams);
 		}
 	}
 
@@ -199,9 +202,10 @@ export class WorkerWorld {
 		lambda,
 		params
 	]: JobWithCodeLambdaWorkerParams): any {
+		const parsedParams = params ? deserializeJobParams(params) : undefined;
 		const parsedCallback = eval(`(${lambda})`);
 
-		return parsedCallback(params);
+		return parsedCallback(parsedParams);
 	}
 
 	private buildComponentArrays(layout: Uint32Array, buffers: (SharedArrayBuffer | undefined)[], length: number): any[] {

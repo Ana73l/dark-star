@@ -51,10 +51,6 @@ export class SystemQuery<TAll extends ComponentTypes, TSome extends ComponentTyp
 		return this;
 	}
 
-	public getComponentLookup<T extends ComponentType, R extends boolean = false>(componentType: T, readonly?: R): ComponentLookup<T, R> {
-		return new ComponentLookup(componentType, this.query, readonly);
-	}
-
 	/**
 	 * Allows iteration on the results of a SystemQuery on the main thread or background threads.
 	 * 
@@ -164,12 +160,12 @@ export class SystemQuery<TAll extends ComponentTypes, TSome extends ComponentTyp
 	 * }
 	 * ```
 	 */
-	public each<T extends ComponentTypesQuery, P extends ReadonlyArray<any>>(
+	public each<T extends ComponentTypesQuery, P extends readonly any[]>(
 		componentAccessDescriptors: T,
 		params: P,
 		lambda: EntityEachLambdaWithParams<T, P, TAll, TSome, TNone>
 	): Job;
-	public each<T extends ComponentTypesQuery, P extends ReadonlyArray<any>>(
+	public each<T extends ComponentTypesQuery, P extends readonly any[]>(
 		componentAccessDescriptors: T,
 		params: P | EntityEachLambda<T, TAll, TSome, TNone>,
 		lambda?: EntityEachLambdaWithParams<T, P, TAll, TSome, TNone>
@@ -284,12 +280,12 @@ export class SystemQuery<TAll extends ComponentTypes, TSome extends ComponentTyp
 	 * }
 	 * ```
 	 */
-	public eachWithEntities<T extends ComponentTypesQuery, P extends ReadonlyArray<any>>(
+	public eachWithEntities<T extends ComponentTypesQuery, P extends readonly any[]>(
 		componentAccessDescriptors: T,
 		params: P,
 		lambda: EntityEachLambdaWithEntitiesAndParams<T, P, TAll, TSome, TNone>
 	): Job;
-	public eachWithEntities<T extends ComponentTypesQuery, P extends ReadonlyArray<any>>(
+	public eachWithEntities<T extends ComponentTypesQuery, P extends readonly any[]>(
 		componentAccessDescriptors: T,
 		params: P | EntityEachLambdaWithEntities<T, TAll, TSome, TNone>,
 		lambda?: EntityEachLambdaWithEntitiesAndParams<T, P, TAll, TSome, TNone>

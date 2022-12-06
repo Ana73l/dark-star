@@ -24,7 +24,7 @@ export abstract class ECSQueryJob<
 		protected query: QueryRecord,
 		access: T,
 		protected lambda: (...args: any[]) => any,
-		protected params?: ReadonlyArray<any>,
+		protected params?: readonly any[],
 		protected withChanges: boolean = false
 	) {
 		this.accessDescriptors = convertQueryToDescriptors(access);
