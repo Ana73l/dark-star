@@ -3,20 +3,20 @@ import { createSharedObject } from '@dark-star/shared-object';
 
 import { createKeyboard, Keyboard } from './input/providers/keyboard';
 
-import { ClearVelocitySytem } from './movement/systems/clear-velocity.system';
-import { PrepareMovementSystem } from './movement/systems/prepare-movement.system';
-import { ApplyMovementSystem } from './movement/systems/apply-movement.system';
+import { ClearVelocity } from './movement/systems/clear-velocity.system';
+import { PrepareMovement } from './movement/systems/prepare-movement.system';
+import { ApplyMovement } from './movement/systems/apply-movement.system';
 import { DeathSystem } from './combat/systems/death.system';
 import { createAssetLoader } from './asset-loader';
 import { AssetStore } from './asset-store';
-import { RenderGroupSystem } from './rendering/systems/render-group.system';
+import { RenderGroup } from './rendering/systems/render-group.system';
 import { Position } from './movement/components/position.data';
 import { Velocity } from './movement/components/velocity.data';
 import { Movement } from './movement/components/movement.data';
 import { Player } from './tags/player';
-import { PlayerInputSystem } from './input/systems/player-input.system';
-import { ClearContextSystem } from './rendering/systems/clear-context.system';
-import { RenderSpritesSystem } from './rendering/systems/render-sprites.system';
+import { PlayerInput } from './input/systems/player-input.system';
+import { ClearContext } from './rendering/systems/clear-context.system';
+import { RenderSprites } from './rendering/systems/render-sprites.system';
 import { Sprite } from './rendering/components/sprite.data';
 import { DeltaTime } from './delta-time';
 import { CORES_COUNT } from '@dark-star/worker-pool';
@@ -64,14 +64,14 @@ export const bootstrap = async (canvas: HTMLCanvasElement) => {
 		.registerSingleton(Keyboard, createKeyboard().attach(window as any))
 		.registerSingleton(AssetStore, assetStore)
 		.registerSingleton(DeltaTime, deltaT)
-		.registerSystem(PlayerInputSystem)
-		.registerSystem(ClearVelocitySytem)
-		.registerSystem(ClearContextSystem)
-		.registerSystem(RenderSpritesSystem)
-		.registerSystem(ApplyMovementSystem)
-		.registerSystem(PrepareMovementSystem)
+		.registerSystem(PlayerInput)
+		.registerSystem(ClearVelocity)
+		.registerSystem(ClearContext)
+		.registerSystem(RenderSprites)
+		.registerSystem(ApplyMovement)
+		.registerSystem(PrepareMovement)
 		.registerSystem(DeathSystem)
-		.registerSystem(RenderGroupSystem)
+		.registerSystem(RenderGroup)
 		.build();
 
 	world.spawn([Position, Sprite, Movement, Velocity, Player], (_, [position, sprite, movement]) => {

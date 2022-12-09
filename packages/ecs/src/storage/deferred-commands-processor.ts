@@ -1,7 +1,6 @@
 import { Disposable } from '@dark-star/core';
 
 import { Entity } from '../entity';
-import { ComponentType } from '../component';
 import { ComponentInstancesFromTypes, ComponentTypes } from '../query';
 import { EntityStore } from './store';
 

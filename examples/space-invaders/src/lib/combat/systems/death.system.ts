@@ -13,7 +13,8 @@ export class DeathSystem extends System {
 
 	public override async update() {
 		this.entities
-			.eachWithEntities([read(Health)], (entity, [health]) => {
+			.withEntities()
+			.each([read(Health)], (entity, [health]) => {
 				if (health.currentHealth <= 0) {
 					// @ts-ignore
 					(world as World).destroy(entity);

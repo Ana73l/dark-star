@@ -5,7 +5,7 @@ import { Velocity } from '../components/velocity.data';
 import { Movement } from '../components/movement.data';
 
 @injectable()
-export class PrepareMovementSystem extends System {
+export class PrepareMovement extends System {
 	@entities([Velocity, Movement])
 	public entities!: SystemQuery<[typeof Velocity, typeof Movement]>;
 

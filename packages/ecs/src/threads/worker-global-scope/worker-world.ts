@@ -36,16 +36,13 @@ export type EntityEachWithEntitiesParallelLambdaWorkerParams = [
 	params?: JobParamPayload
 ];
 
-export type JobWithCodeLambdaWorkerParams = [
-	lambda: string,
-	params?: JobParamPayload
-];
+export type JobWithCodeLambdaWorkerParams = [lambda: string, params?: JobParamPayload];
 
 export class WorkerWorld {
 	public registerSchemas(schemaTypes: [string, Definition | undefined][]): void {
 		for (const [schemaName, definition] of schemaTypes) {
 			const schemaClass = class {};
-			
+
 			Object.entries(definition || []).forEach(([fieldName, { type, args = [] }]) => {
 				const decorator = fieldDecorators[type];
 
@@ -64,28 +61,16 @@ export class WorkerWorld {
 	}
 
 	public handleEntityEachLambda([layout, chunks, lambda, params]: EntityEachLambdaWorkerParams) {
-		const parsedParams = params ? deserializeJobParams(params) : undefined;
+		const parsedParams = this.buildJobParams(params);
 		const parsedLambda = eval(`(${lambda})`);
 
 		const layoutSize = layout.length;
-
 		// proxy for components
 		const components = new Array(layoutSize);
 
 		// iterate chunks
 		for (const [size, buffers] of chunks) {
-			const componentArrays = [];
-
-			let bufferIndexInLayout = 0;
-
-			// build component arrays for chunk
-			for (const buffer of buffers) {
-				const componentType = schemas[layout[bufferIndexInLayout] - 1];
-
-				componentArrays.push(buffer ? createSharedObjectArray(componentType, buffer, { length: size }) : []);
-
-				bufferIndexInLayout++;
-			}
+			const componentArrays = this.buildComponentArrays(layout, buffers, size);
 
 			// call lambda on each entity of chunk
 			let indexInChunk;
@@ -102,57 +87,18 @@ export class WorkerWorld {
 		}
 	}
 
-	public handleEntityEachParallelLambda([
-		layout,
-		size,
-		buffers,
-		lambda,
-		params,
-	]: EntityEachParallelLambdaWorkerParams) {
-		const parsedParams = params ? deserializeJobParams(params) : undefined;
+	public handleEntityEachWithEntitiesLambda([layout, chunks, lambda, params]: EntityEachWithEntitiesLambdaWorkerParams) {
+		const parsedParams = this.buildJobParams(params);
 		const parsedLambda = eval(`(${lambda})`);
+
 		const layoutSize = layout.length;
-		const componentArrays = this.buildComponentArrays(layout, buffers, size);
 		// proxy for components
 		const components = new Array(layoutSize);
 
-		// iterate entities and call lamda
-		let entityIndex;
-		let componentArrayIndex;
-
-		for (entityIndex = 0; entityIndex < size; entityIndex++) {
-			for (componentArrayIndex = 0; componentArrayIndex < layoutSize; componentArrayIndex++) {
-				components[componentArrayIndex] = componentArrays[componentArrayIndex][entityIndex];
-			}
-
-			parsedLambda(components, parsedParams);
-		}
-	}
-
-	public handleEntityEachWithEntitiesLambda([layout, chunks, lambda, params]: EntityEachWithEntitiesLambdaWorkerParams) {
-		const parsedParams = params ? deserializeJobParams(params) : undefined;
-		const parsedLambda = eval(`(${lambda})`);
-
 		// iterate chunks
 		for (const [size, entitiesBuffer, buffers] of chunks) {
-			const componentArrays = [];
+			const componentArrays = this.buildComponentArrays(layout, buffers, size);
 			const entities = new Uint32Array(entitiesBuffer);
-
-			let bufferIndexInLayout = 0;
-
-			// build component arrays for chunk
-			for (const buffer of buffers) {
-				const componentType = schemas[layout[bufferIndexInLayout] - 1];
-
-				componentArrays.push(buffer ? createSharedObjectArray(componentType, buffer, { length: size }) : []);
-
-				bufferIndexInLayout++;
-			}
-
-			const layoutSize = layout.length;
-
-			// proxy for components
-			const components = new Array(layoutSize);
 
 			// call lambda on each entity of chunk
 			let indexInChunk;
@@ -169,40 +115,8 @@ export class WorkerWorld {
 		}
 	}
 
-	public handleEntityEachWithEntitiesParallelLambda([
-		layout,
-		size,
-		entitiesBuffer,
-		buffers,
-		lambda,
-		params,
-	]: EntityEachWithEntitiesParallelLambdaWorkerParams) {
-		const parsedParams = params ? deserializeJobParams(params) : undefined;
-		const parsedLambda = eval(`(${lambda})`);
-		const layoutSize = layout.length;
-		const componentArrays = this.buildComponentArrays(layout, buffers, size);
-		const entities = new Uint32Array(entitiesBuffer);
-		// proxy for components
-		const components = new Array(layoutSize);
-
-		// iterate entities and call lamda
-		let entityIndex;
-		let componentArrayIndex;
-
-		for (entityIndex = 0; entityIndex < size; entityIndex++) {
-			for (componentArrayIndex = 0; componentArrayIndex < layoutSize; componentArrayIndex++) {
-				components[componentArrayIndex] = componentArrays[componentArrayIndex][entityIndex];
-			}
-
-			parsedLambda(entities[entityIndex], components, parsedParams);
-		}
-	}
-
-	public handleJobWithCode([
-		lambda,
-		params
-	]: JobWithCodeLambdaWorkerParams): any {
-		const parsedParams = params ? deserializeJobParams(params) : undefined;
+	public handleJobWithCode([lambda, params]: JobWithCodeLambdaWorkerParams): any {
+		const parsedParams = this.buildJobParams(params);
 		const parsedCallback = eval(`(${lambda})`);
 
 		return parsedCallback(parsedParams);
@@ -221,5 +135,9 @@ export class WorkerWorld {
 		}
 
 		return componentArrays;
+	}
+
+	private buildJobParams(params?: JobParamPayload): any[] | undefined {
+		return params ? deserializeJobParams(params) : undefined;
 	}
 }

@@ -5,13 +5,13 @@ import { Position } from '../../movement/components/position.data';
 import { Sprite } from '../components/sprite.data';
 import { AssetStore } from '../../asset-store';
 
-import { RenderGroupSystem } from './render-group.system';
-import { ClearContextSystem } from './clear-context.system';
+import { RenderGroup } from './render-group.system';
+import { ClearContext } from './clear-context.system';
 
 @injectable()
-@group(RenderGroupSystem)
-@updateAfter(ClearContextSystem)
-export class RenderSpritesSystem extends System {
+@group(RenderGroup)
+@updateAfter(ClearContext)
+export class RenderSprites extends System {
 	@entities([Sprite, Position])
 	public entities!: SystemQuery<[typeof Sprite, typeof Position]>;
 

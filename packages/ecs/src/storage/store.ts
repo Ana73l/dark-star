@@ -65,8 +65,8 @@ export type EntityRecord = {
 
 export class EntityStore {
 	public currentWorldVersion: number = 0;
+	public readonly entities: Map<Entity, EntityRecord> = new Map();
 
-	private entities: Map<Entity, EntityRecord> = new Map();
 	private reusableEntities: Entity[] = [];
 	private uid = createUIDGenerator(1);
 
@@ -77,9 +77,9 @@ export class EntityStore {
 		componentTypes?: T,
 		initial?: (entity: Entity, values: ComponentInstancesFromTypes<T>) => void
 	): Entity {
-		const entity = this.reusableEntities.pop() || this.uid();
+		const entity = this.uid() || this.reusableEntities.pop();
 
-		assert(entity !== null, `Entity limit ${UINT32_MAX} reached.`);
+		assert(entity !== undefined, `Entity limit ${UINT32_MAX} reached.`);
 
 		const uniqueComponentTypes = new Set(componentTypes);
 

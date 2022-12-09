@@ -1,11 +1,11 @@
 import { group, System } from '@dark-star/ecs';
 import { injectable } from '@dark-star/di';
 
-import { RenderGroupSystem } from './render-group.system';
+import { RenderGroup } from './render-group.system';
 
 @injectable()
-@group(RenderGroupSystem)
-export class ClearContextSystem extends System {
+@group(RenderGroup)
+export class ClearContext extends System {
 	constructor(private context: CanvasRenderingContext2D) {
 		super();
 	}

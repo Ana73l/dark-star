@@ -1,14 +1,8 @@
-import {
-	ComponentTypesQuery,
-	ComponentTypes,
-	ComponentQueryDescriptor,
-	QueryRecord,
-	convertQueryToDescriptors,
-	queryHasWriter,
-} from '../../query';
+import { ComponentTypesQuery, ComponentTypes, ComponentQueryDescriptor, QueryRecord, queryHasWriter, write } from '../../query';
 import { ArchetypeChunk } from '../../storage/archetype/archetype-chunk';
-import { ParallelJob, JobHandle } from './job';
+import { ParallelJob, JobHandle, JobArgs } from './job';
 import { System } from '../../system/planning/__internals__';
+import { $id } from '@dark-star/core';
 
 export abstract class ECSQueryJob<
 	T extends ComponentTypesQuery,
@@ -18,16 +12,35 @@ export abstract class ECSQueryJob<
 > implements ParallelJob
 {
 	protected accessDescriptors: ComponentQueryDescriptor[];
+	protected layout: Uint32Array;
 
 	constructor(
 		protected system: System,
 		protected query: QueryRecord,
 		access: T,
 		protected lambda: (...args: any[]) => any,
-		protected params?: readonly any[],
+		protected params?: JobArgs,
 		protected withChanges: boolean = false
 	) {
-		this.accessDescriptors = convertQueryToDescriptors(access);
+		const accessorsLength = access.length;
+		const layout = new Uint32Array(accessorsLength);
+		const accessDescriptors = [];
+		let accessorIndex;
+
+		for (accessorIndex = 0; accessorIndex < accessorsLength; accessorIndex++) {
+			const accessor = access[accessorIndex];
+
+			if (typeof accessor === 'function') {
+				layout[accessorIndex] = accessor[$id]!;
+				accessDescriptors[accessorIndex] = write(accessor);
+			} else {
+				layout[accessorIndex] = accessor.type[$id]!;
+				accessDescriptors[accessorIndex] = accessor;
+			}
+		}
+
+		this.layout = layout;
+		this.accessDescriptors = accessDescriptors;
 	}
 
 	public withChangedFilter(): this {

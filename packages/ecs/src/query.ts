@@ -5,17 +5,18 @@ import { Archetype } from './storage/archetype/archetype';
 
 export enum ComponentAccessFlags {
 	Read,
-	Write
+	Write,
 }
 
-export interface ReadComponentAccess<T extends ComponentType = ComponentType> {
+export type ReadComponentAccess<T extends ComponentType = ComponentType> = {
 	type: T;
 	flag: ComponentAccessFlags.Read;
-}
-export interface WriteComponentAccess<T extends ComponentType = ComponentType> {
+};
+
+export type WriteComponentAccess<T extends ComponentType = ComponentType> = {
 	type: T;
 	flag: ComponentAccessFlags.Write;
-}
+};
 
 export type ComponentQueryDescriptor<T extends ComponentType = ComponentType> = ReadComponentAccess<T> | WriteComponentAccess<T>;
 
@@ -74,10 +75,7 @@ export type QueryRecordLayout = [all: Uint32Array, some: Uint32Array, none?: Com
  * @internal
  * Represents a persistent {@link QueryRecordLayout components query layout} and its matching {@link Archetype archetypes}.
  */
-export type QueryRecord = [
-	layout: QueryRecordLayout,
-	archetypes: Archetype[]
-];
+export type QueryRecord = [layout: QueryRecordLayout, archetypes: Archetype[]];
 
 export const read = <T extends ComponentType>(componentType: T): ReadComponentAccess<T> => ({
 	type: componentType,
@@ -92,10 +90,10 @@ export const write = <T extends ComponentType>(componentType: T): WriteComponent
 /**
  * @internal
  * Converts {@link ComponentTypesQuery} to {@link ComponentQueryDescriptor} array.
- * 
+ *
  * @remarks
  * Used internally to wrap {@link ComponentTypesQuery query} array as {@link read}/ {@link write} descriptors.
- * 
+ *
  * @param query - Component types to be converted
  * @returns The component types query converted as {@link read}/ {@link write} descriptors
  */
@@ -107,10 +105,10 @@ export const convertQueryToDescriptors = <T extends ComponentTypesQuery>(query: 
 /**
  * @internal
  * Converts {@link ComponentTypesQuery} to {@link ComponentTypesFromQuery} array.
- * 
+ *
  * @remarks
  * Used internally to get the component types from a {@link ComponentType}/ {@link ComponentQueryDescriptor} array.
- * 
+ *
  * @param query - Component access descriptors to be converted
  * @returns The component types contained in the {@link ComponentTypesQuery}
  */
@@ -120,7 +118,7 @@ export const convertDescriptorsToQuery = <T extends ComponentTypesQuery>(query: 
 /**
  * @internal
  * Determines whether an {@link ComponentTypesQuery access descriptors query} contains writers.
- * 
+ *
  * @param query - Component access descriptors
  * @returns Whether list of descriptors includes a {@link write writer}
  */

@@ -7,7 +7,7 @@ import { Movement } from '../../movement/components/movement.data';
 import { Player } from '../../tags/player';
 
 @injectable()
-export class PlayerInputSystem extends System {
+export class PlayerInput extends System {
 	@entities([Player, Movement])
 	public entities!: SystemQuery<[typeof Player, typeof Movement]>;
 

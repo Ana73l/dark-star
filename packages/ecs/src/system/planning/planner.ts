@@ -5,8 +5,8 @@ import { EntityStore } from '../../storage/store';
 import { System, SystemGroup, SystemType } from '../system';
 import { Planner as IPlanner } from './__internals__';
 import { RootSystem } from './root-system';
-import { SystemQuery } from '../system-query';
-import { ComponentLookup } from '../component-lookup';
+import { SystemQuery } from '../query-factories/system-query';
+import { ComponentLookup } from '../../threads/jobs/job-transferables/component-lookup';
 import { ComponentType } from '../../component';
 
 export class Planner implements IPlanner, Disposable {
@@ -39,9 +39,12 @@ export class Planner implements IPlanner, Disposable {
 		};
 	}
 
-	public getComponentLookup<T extends ComponentType = ComponentType, R extends boolean = false>(componentType: T, readonly?: R): ComponentLookup<T, R> {
+	public getComponentLookup<T extends ComponentType = ComponentType, R extends boolean = false>(
+		componentType: T,
+		readonly?: R
+	): ComponentLookup<T, R> {
 		const query = this.store.registerQuery([componentType]);
-		
+
 		return new ComponentLookup(componentType, query, readonly);
 	}
 

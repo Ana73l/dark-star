@@ -1,0 +1,1 @@
+export { ComponentLookup } from './component-lookup';

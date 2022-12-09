@@ -19,13 +19,13 @@ export class ECSEachWithEntitiesJob<
 			const self = this;
 			let serializedParams: JobParamPayload | undefined;
 
-			if(self.params) {
+			if (self.params) {
 				const paramsData = serializeJobParams(self.params);
 				serializedParams = paramsData[0];
 
 				self.accessDescriptors = self.accessDescriptors.concat(paramsData[1]);
 			}
-			
+
 			const jobHandle = scheduler.scheduleJob(
 				this.accessDescriptors,
 				async function (taskRunner) {
@@ -68,7 +68,7 @@ export class ECSEachWithEntitiesJob<
 			const self = this;
 			let serializedParams: JobParamPayload | undefined;
 
-			if(self.params) {
+			if (self.params) {
 				const paramsData = serializeJobParams(self.params);
 				serializedParams = paramsData[0];
 
@@ -93,13 +93,11 @@ export class ECSEachWithEntitiesJob<
 						}
 
 						tasks.push(
-							taskRunner.eachWithEntitiesParallel([
+							taskRunner.eachWithEntities([
 								layout,
-								chunk.size,
-								chunk.getEntitiesArray().buffer as SharedArrayBuffer,
-								componentArrayBuffers,
+								[[chunk.size, chunk.getEntitiesArray().buffer as SharedArrayBuffer, componentArrayBuffers]],
 								lambdaString,
-								serializedParams
+								serializedParams,
 							])
 						);
 					});
@@ -131,7 +129,7 @@ export class ECSEachWithEntitiesJob<
 
 	private execute(): void {
 		const mappedParams = this.params ? mapJobParamsForMainThread(this.params) : undefined;
-		const layout = this.accessDescriptors.map((descriptor) => descriptor.type[$id]!);
+		const layout = this.layout;
 		const accessorsCount = layout.length;
 		const lambda = this.lambda;
 		const componentsProxy = new Array(accessorsCount);

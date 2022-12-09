@@ -3,11 +3,11 @@ import { injectable } from '@dark-star/di';
 
 import { Velocity } from '../components/velocity.data';
 
-import { PrepareMovementSystem } from './prepare-movement.system';
+import { PrepareMovement } from './prepare-movement.system';
 
 @injectable()
-@updateBefore(PrepareMovementSystem)
-export class ClearVelocitySytem extends System {
+@updateBefore(PrepareMovement)
+export class ClearVelocity extends System {
 	@entities([Velocity])
 	public entities!: SystemQuery<[typeof Velocity]>;
 

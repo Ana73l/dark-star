@@ -5,11 +5,11 @@ import { DeltaTime } from '../../delta-time';
 import { Position } from '../components/position.data';
 import { Velocity } from '../components/velocity.data';
 
-import { PrepareMovementSystem } from './prepare-movement.system';
+import { PrepareMovement } from './prepare-movement.system';
 
 @injectable()
-@updateAfter(PrepareMovementSystem)
-export class ApplyMovementSystem extends System {
+@updateAfter(PrepareMovement)
+export class ApplyMovement extends System {
 	@entities([Position, Velocity])
 	public entities!: SystemQuery<[typeof Position, typeof Velocity]>;
 
@@ -19,10 +19,10 @@ export class ApplyMovementSystem extends System {
 
 	public override async update() {
 		this.entities
-			.eachWithEntities([write(Position), read(Velocity)], [this.deltaT.value], (entity, [position, velocity], [deltaT]) => {
+			.each([write(Position), read(Velocity)], [this.deltaT.value], ([position, velocity], [deltaT]) => {
 				position.x += velocity.x * deltaT;
 				position.y += velocity.y * deltaT;
 			})
-			.schedule();
+			.scheduleParallel();
 	}
 }

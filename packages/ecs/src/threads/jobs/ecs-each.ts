@@ -19,17 +19,17 @@ export class ECSEachJob<
 			const self = this;
 			let serializedParams: JobParamPayload | undefined;
 
-			if(self.params) {
+			if (self.params) {
 				const paramsData = serializeJobParams(self.params);
 				serializedParams = paramsData[0];
 
 				self.accessDescriptors = self.accessDescriptors.concat(paramsData[1]);
 			}
-			
+
 			const jobHandle = scheduler.scheduleJob(
 				this.accessDescriptors,
 				async function (taskRunner) {
-					const layout = new Uint32Array(convertDescriptorsToQuery(self.accessDescriptors).map((type) => type[$id]!));
+					const layout = self.layout;
 					const lambdaString = self.lambda.toString();
 
 					const buffers: [size: number, buffers: (SharedArrayBuffer | undefined)[]][] = [];
@@ -68,7 +68,7 @@ export class ECSEachJob<
 			const self = this;
 			let serializedParams: JobParamPayload | undefined;
 
-			if(self.params) {
+			if (self.params) {
 				const paramsData = serializeJobParams(self.params);
 				serializedParams = paramsData[0];
 
@@ -78,7 +78,7 @@ export class ECSEachJob<
 			const jobHandle = scheduler.scheduleJob(
 				this.accessDescriptors,
 				async function (taskRunner) {
-					const layout = new Uint32Array(convertDescriptorsToQuery(self.accessDescriptors).map((type) => type[$id]!));
+					const layout = self.layout;
 					const lambdaString = self.lambda.toString();
 
 					const tasks: Promise<any>[] = [];
@@ -92,7 +92,7 @@ export class ECSEachJob<
 							);
 						}
 
-						tasks.push(taskRunner.eachParallel([layout, chunk.size, componentArrayBuffers, lambdaString, serializedParams]));
+						tasks.push(taskRunner.each([layout, [[chunk.size, componentArrayBuffers]], lambdaString, serializedParams]));
 					});
 
 					const responses = await Promise.all(tasks);
@@ -122,7 +122,7 @@ export class ECSEachJob<
 
 	private execute(): void {
 		const mappedParams = this.params ? mapJobParamsForMainThread(this.params) : undefined;
-		const layout = this.accessDescriptors.map((descriptor) => descriptor.type[$id]!);
+		const layout = this.layout;
 		const accessorsCount = layout.length;
 		const lambda = this.lambda;
 		const componentsProxy = new Array(accessorsCount);
