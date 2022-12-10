@@ -1,7 +1,7 @@
 import { $id, $size } from '@dark-star/core';
 import { createSharedObjectArray, SharedObjectArray } from '@dark-star/shared-object';
 
-import { ComponentType, ComponentTypeId } from '../../component';
+import { ComponentType, ComponentTypeId } from '../../component/component';
 import { WorldUpdateVersion } from '../../world';
 import { $entitiesArray, $componentsTable } from './__internals__';
 

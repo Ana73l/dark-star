@@ -20,6 +20,8 @@ import { RenderSprites } from './rendering/systems/render-sprites.system';
 import { Sprite } from './rendering/components/sprite.data';
 import { DeltaTime } from './delta-time';
 import { CORES_COUNT } from '@dark-star/worker-pool';
+import { Health } from './combat/components/health.data';
+import { RemoveHealthFromEntityOne } from './removeHealthFromEntityOne';
 
 export const bootstrap = async (canvas: HTMLCanvasElement) => {
 	const assetStore = await createAssetLoader()
@@ -70,11 +72,12 @@ export const bootstrap = async (canvas: HTMLCanvasElement) => {
 		.registerSystem(RenderSprites)
 		.registerSystem(ApplyMovement)
 		.registerSystem(PrepareMovement)
-		.registerSystem(DeathSystem)
+		.registerSystem(RemoveHealthFromEntityOne)
+		// .registerSystem(DeathSystem)
 		.registerSystem(RenderGroup)
 		.build();
 
-	world.spawn([Position, Sprite, Movement, Velocity, Player], (_, [position, sprite, movement]) => {
+	world.spawn([Position, Sprite, Movement, Velocity, Player, Health], (_, [position, sprite, movement]) => {
 		position.x = 5;
 		position.y = 500;
 

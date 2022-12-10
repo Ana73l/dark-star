@@ -84,68 +84,62 @@ export type ComponentLookupPayload = [size: number, entities: SharedArrayBuffer,
  * @see
  * {@link deserializeJobParams}
  */
-export function serializeJobParams(): undefined;
-export function serializeJobParams(params: readonly any[]): [JobParamPayload, ComponentQueryDescriptor[]];
-export function serializeJobParams(params?: readonly any[]): [JobParamPayload, ComponentQueryDescriptor[]] | undefined {
-	if (params) {
-		const serializedParams: JobParamPayload = [];
-		const componentAccessDescriptors: ComponentQueryDescriptor[] = [];
-		const paramsLength = params.length;
-		let currentParamIndex;
+export function serializeJobParams(params: readonly any[]): [JobParamPayload, ComponentQueryDescriptor[]] {
+	const serializedParams: JobParamPayload = [];
+	const componentAccessDescriptors: ComponentQueryDescriptor[] = [];
+	const paramsLength = params.length;
+	let currentParamIndex;
 
-		for (currentParamIndex = 0; currentParamIndex < paramsLength; currentParamIndex++) {
-			const param = params[currentParamIndex];
+	for (currentParamIndex = 0; currentParamIndex < paramsLength; currentParamIndex++) {
+		const param = params[currentParamIndex];
 
-			if (param instanceof ComponentLookup) {
-				// ComponentLookup
-				// add component type access descriptor
-				componentAccessDescriptors.push({
-					type: param[$componentType],
-					flag: param[$accessFlag],
-				});
+		if (param instanceof ComponentLookup) {
+			// ComponentLookup
+			// add component type access descriptor
+			componentAccessDescriptors.push({
+				type: param[$componentType],
+				flag: param[$accessFlag],
+			});
 
-				const payload: ComponentLookupPayload = [];
-				const componentTypeId = param[$componentType][$id];
-				const query = param[$query];
-				const archetypes = query[1];
-				const archetypesLength = archetypes.length;
-				let archetypeIndex;
+			const payload: ComponentLookupPayload = [];
+			const componentTypeId = param[$componentType][$id];
+			const query = param[$query];
+			const archetypes = query[1];
+			const archetypesLength = archetypes.length;
+			let archetypeIndex;
 
-				for (archetypeIndex = 0; archetypeIndex < archetypesLength; archetypeIndex++) {
-					const chunks = archetypes[archetypeIndex].chunks;
-					const chunksCount = chunks.length;
-					let chunkIndex;
+			for (archetypeIndex = 0; archetypeIndex < archetypesLength; archetypeIndex++) {
+				const chunks = archetypes[archetypeIndex].chunks;
+				const chunksCount = chunks.length;
+				let chunkIndex;
 
-					for (chunkIndex = 0; chunkIndex < chunksCount; chunkIndex++) {
-						const chunk = chunks[chunkIndex];
-						const chunkSize = chunk.size;
+				for (chunkIndex = 0; chunkIndex < chunksCount; chunkIndex++) {
+					const chunk = chunks[chunkIndex];
+					const chunkSize = chunk.size;
 
-						if (chunkSize > 0) {
-							payload.push([
-								chunkSize,
-								chunk.getEntitiesArray().buffer as SharedArrayBuffer,
-								chunk.getComponentArray(componentTypeId)![$view].buffer as SharedArrayBuffer,
-							]);
-						}
+					if (chunkSize > 0) {
+						payload.push([
+							chunkSize,
+							chunk.getEntitiesArray().buffer as SharedArrayBuffer,
+							chunk.getComponentArray(componentTypeId)![$view].buffer as SharedArrayBuffer,
+						]);
 					}
 				}
-
-				serializedParams[currentParamIndex] = [JobParamsTypes.ComponentLookup, payload, componentTypeId];
-			} else if (param && param[$id]) {
-				// ComponentType
-				serializedParams[currentParamIndex] = [JobParamsTypes.ComponentType, param[$id]];
-			} else if(param.step !== undefined) {
-				// World
-				serializedParams[currentParamIndex] = [JobParamsTypes.World];
-			} else {
-				serializedParams[currentParamIndex] = [JobParamsTypes.Any, param];
 			}
-		}
 
-		return [serializedParams, componentAccessDescriptors];
-	} else {
-		return undefined;
+			serializedParams[currentParamIndex] = [JobParamsTypes.ComponentLookup, payload, componentTypeId];
+		} else if (param && param[$id]) {
+			// ComponentType
+			serializedParams[currentParamIndex] = [JobParamsTypes.ComponentType, param[$id]];
+		} else if (param.step !== undefined) {
+			// World
+			serializedParams[currentParamIndex] = [JobParamsTypes.World];
+		} else {
+			serializedParams[currentParamIndex] = [JobParamsTypes.Any, param];
+		}
 	}
+
+	return [serializedParams, componentAccessDescriptors];
 }
 
 /**
@@ -154,7 +148,7 @@ export function serializeJobParams(params?: readonly any[]): [JobParamPayload, C
  *
  * @remarks
  * ONLY to be used from background thread.
- * 
+ *
  * @see
  * {@link serializeJobParams} - serialization function on the main thread\
  * {@link mapJobParamsForMainThread} - use this on main thread to map and init job parameters

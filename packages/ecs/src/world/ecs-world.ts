@@ -2,7 +2,7 @@ import { $definition, assert, Definition, schemas } from '@dark-star/core';
 import { Container, ContainerBuilder } from '@dark-star/di';
 import { WorkerPool } from '@dark-star/worker-pool';
 
-import { ComponentType } from '../component';
+import { ComponentType } from '../component/component';
 import { Entity } from '../entity';
 import { ComponentInstancesFromTypes, ComponentTypes } from '../query';
 import { DeferredCommandsProcessor } from '../storage/deferred-commands-processor';
@@ -75,7 +75,7 @@ export class ECSWorld implements World {
 			threads = threads - 1;
 			world.workerPool = WorkerPool.create({
 				threads: threads,
-				workerFactory: () => new ECSWorker()
+				workerFactory: () => new ECSWorker(),
 			});
 
 			const ecsTaskRunner = new ECSTaskRunner(world.workerPool);
@@ -84,8 +84,8 @@ export class ECSWorld implements World {
 			const schemasData: [string, Definition | undefined][] = schemas.map((schemaDef) => [schemaDef.name, schemaDef[$definition]]);
 			const registerSchemasTasks = [];
 
-			for(let i = 0; i < threads; i++) {
-				registerSchemasTasks.push(ecsTaskRunner.registerSchemas(schemasData))
+			for (let i = 0; i < threads; i++) {
+				registerSchemasTasks.push(ecsTaskRunner.registerSchemas(schemasData));
 			}
 
 			await Promise.all(registerSchemasTasks);
@@ -119,7 +119,10 @@ export class ECSWorld implements World {
 
 	public spawn<T extends ComponentTypes>(): void;
 	public spawn<T extends ComponentTypes>(componentTypes: T): void;
-	public spawn<T extends ComponentTypes>(componentTypes: T, init: (entity: Entity, components: ComponentInstancesFromTypes<T>) => void): void;
+	public spawn<T extends ComponentTypes>(
+		componentTypes: T,
+		init: (entity: Entity, components: ComponentInstancesFromTypes<T>) => void
+	): void;
 	public spawn<T extends ComponentTypes>(
 		componentTypes?: T,
 		init?: (entity: Entity, components: ComponentInstancesFromTypes<T>) => void

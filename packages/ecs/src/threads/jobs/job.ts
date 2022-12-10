@@ -1,4 +1,4 @@
-import { ComponentTypeId } from '../../component';
+import { ComponentTypeId } from '../../component/component';
 
 export const $dependencies = Symbol('dark_star_job_handle_dependencies');
 export const $readers = Symbol('dark_star_job_readers');

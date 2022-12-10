@@ -1,6 +1,6 @@
 import { Disposable } from '@dark-star/core';
 
-import { ComponentType } from '../component';
+import { ComponentType } from '../component/component';
 import { Entity } from '../entity';
 import { ComponentTypes, ComponentInstancesFromTypes } from '../query';
 
@@ -9,7 +9,7 @@ export type WorldUpdateVersion = number;
 
 /**
  * Worlds maintain entities and execute systems.
- * 
+ *
  * @remarks
  * Worlds cannot be initialized directly. Use {@link WorldBuilder} to construct and initialize worlds.
  * @see {@link WorldBuilder}

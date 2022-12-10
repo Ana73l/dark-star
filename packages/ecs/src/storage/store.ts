@@ -1,11 +1,12 @@
 import { $definition, $id, $size, assert, createUIDGenerator, UINT32_MAX } from '@dark-star/core';
 
 import { Entity } from '../entity';
-import { ComponentType, ComponentTypeId } from '../component';
+import { ComponentType, ComponentTypeId } from '../component/component';
 import { QueryRecord, ComponentInstancesFromTypes, ComponentTypes } from '../query';
 
 import { $componentsTable, $entitiesArray } from './archetype/__internals__';
 import { Archetype, EntityType } from './archetype/archetype';
+import { $cleanupComponent } from '../component/__internals__';
 
 export const matchEntityTypes = (toMatch: Set<ComponentType>, entityType: EntityType): boolean => {
 	if (toMatch.size !== entityType.size) {
@@ -145,9 +146,8 @@ export class EntityStore {
 
 				const componentType = toRemoveInstance.constructor;
 				const fields = componentType[$definition]!;
-
+				const isLookup = componentType[$cleanupComponent];
 				// copy values of last element in place of removed entity to avoid gaps
-				// tslint:disable-next-line: forin
 				for (const fieldName in fields) {
 					toRemoveInstance[fieldName] = lastInstance[fieldName];
 				}
@@ -347,22 +347,24 @@ export class EntityStore {
 				newChunk[$entitiesArray][newIndex] = entity;
 
 				for (const componentType of oldArchetypeSchemas) {
-					const oldComponentArray = oldChunk.getComponentArray(componentType)!;
-					const newComponentArray = newChunk.getComponentArray(componentType);
+					if(componentType[$size]) {
+						const oldComponentArray = oldChunk.getComponentArray(componentType)!;
+						const newComponentArray = newChunk.getComponentArray(componentType);
 
-					const toMoveInstance = oldComponentArray[oldIndex];
-					const lastInstanceInOldArray = oldComponentArray[oldChunkLastElementIndex];
-					const newInstance = newComponentArray?.[newIndex];
-					const fieldNames = Object.keys(componentType[$definition]!);
+						const toMoveInstance = oldComponentArray[oldIndex];
+						const lastInstanceInOldArray = oldComponentArray[oldChunkLastElementIndex];
+						const newInstance = newComponentArray?.[newIndex];
+						const fieldNames = Object.keys(componentType[$definition]!);
 
-					for (const fieldName of fieldNames) {
-						// if component type exists in new archetype - copy fields
-						if (newInstance) {
-							newInstance[fieldName] = toMoveInstance[fieldName];
-						}
-						// if entity wasn't last in previous chunk - copy data of last entity to prevent gaps
-						if (oldIndex !== oldChunkLastElementIndex) {
-							toMoveInstance[fieldName] = lastInstanceInOldArray[fieldName];
+						for (const fieldName of fieldNames) {
+							// if component type exists in new archetype - copy fields
+							if (newInstance) {
+								newInstance[fieldName] = toMoveInstance[fieldName];
+							}
+							// if entity wasn't last in previous chunk - copy data of last entity to prevent gaps
+							if (oldIndex !== oldChunkLastElementIndex) {
+								toMoveInstance[fieldName] = lastInstanceInOldArray[fieldName];
+							}
 						}
 					}
 				}

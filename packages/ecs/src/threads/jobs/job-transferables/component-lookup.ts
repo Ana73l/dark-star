@@ -1,5 +1,5 @@
 import { Entity } from '../../../entity';
-import { ComponentType } from '../../../component';
+import { ComponentType } from '../../../component/component';
 import { ComponentAccessFlags, QueryRecord } from '../../../query';
 
 export const $query = Symbol('dark_star_ecs_query');

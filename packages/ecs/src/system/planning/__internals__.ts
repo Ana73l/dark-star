@@ -1,4 +1,4 @@
-import { ComponentType } from '../../component';
+import { ComponentType } from '../../component/component';
 import { JobHandle } from '../../threads';
 import { JobScheduler } from '../../threads/job-scheduler';
 import { ComponentLookup } from '../../threads/jobs/job-transferables/component-lookup';

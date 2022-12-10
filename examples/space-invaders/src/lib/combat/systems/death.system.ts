@@ -7,6 +7,10 @@ import { Health } from '../components/health.data';
 export class DeathSystem extends System {
 	private entities!: SystemQuery<[typeof Health]>;
 
+	constructor(private world: World) {
+		super();
+	}
+
 	public override async init() {
 		this.entities = this.query([Health]);
 	}
@@ -16,10 +20,9 @@ export class DeathSystem extends System {
 			.withEntities()
 			.each([read(Health)], (entity, [health]) => {
 				if (health.currentHealth <= 0) {
-					// @ts-ignore
-					(world as World).destroy(entity);
+					this.world.destroy(entity);
 				}
 			})
-			.schedule();
+			.run();
 	}
 }

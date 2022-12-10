@@ -1,6 +1,6 @@
 import { InArray } from '@dark-star/core';
 
-import { ComponentType, ComponentTypeId } from './component';
+import { ComponentType, ComponentTypeId } from './component/component';
 import { Archetype } from './storage/archetype/archetype';
 
 export enum ComponentAccessFlags {

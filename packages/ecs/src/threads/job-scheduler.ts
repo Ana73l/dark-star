@@ -1,6 +1,6 @@
 import { Disposable, createUIDGenerator, $id } from '@dark-star/core';
 
-import { ComponentTypeId } from '../component';
+import { ComponentTypeId } from '../component/component';
 import { ComponentAccessFlags, ComponentQueryDescriptor } from '../query';
 import { ECSTaskRunner } from './ecs-task-runner';
 

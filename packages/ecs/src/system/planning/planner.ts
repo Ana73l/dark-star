@@ -7,7 +7,7 @@ import { Planner as IPlanner } from './__internals__';
 import { RootSystem } from './root-system';
 import { SystemQuery } from '../query-factories/system-query';
 import { ComponentLookup } from '../../threads/jobs/job-transferables/component-lookup';
-import { ComponentType } from '../../component';
+import { ComponentType } from '../../component/component';
 
 export class Planner implements IPlanner, Disposable {
 	private queries: Map<System, [ComponentQueryDescriptor[]]> = new Map();

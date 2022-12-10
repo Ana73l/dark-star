@@ -1,6 +1,6 @@
 import { $id, $size } from '@dark-star/core';
 
-import { ComponentTypeId, ComponentType } from '../../component';
+import { ComponentTypeId, ComponentType } from '../../component/component';
 
 import { ArchetypeChunk } from './archetype-chunk';
 
@@ -11,25 +11,27 @@ export class Archetype {
 	public readonly chunkCapacity: number;
 	public readonly chunks: ArchetypeChunk[] = [];
 	public readonly schemas: ReadonlyArray<ComponentType>;
+	private readonly nonTagSchemas: ReadonlyArray<ComponentType>;
 
 	constructor(componentTypes: Set<ComponentType>, public readonly id: number) {
 		const entityType = new Set<ComponentTypeId>();
 		const schemas = [];
-		const layout = [];
+		const nonTagSchemas = [];
 		let entitySize = 0;
 
 		for (const componentType of componentTypes) {
 			entityType.add(componentType[$id]!);
+			schemas.push(componentType);
 			// not a tag
 			if (componentType[$size]) {
-				schemas.push(componentType);
-				layout.push(componentType[$id]!);
+				nonTagSchemas.push(componentType);
 				entitySize += componentType[$size];
 			}
 		}
 
 		this.entityType = entityType;
 		this.schemas = schemas;
+		this.nonTagSchemas = nonTagSchemas;
 		this.chunkCapacity = entitySize > 0 ? Math.floor(16000 / entitySize) : Math.floor(16000 / Uint32Array.BYTES_PER_ELEMENT);
 		this.findOrCreateAvailableChunk();
 	}
@@ -54,7 +56,7 @@ export class Archetype {
 			}
 		}
 
-		const newChunk = new ArchetypeChunk(this.schemas, this.chunkCapacity, this.chunks.length);
+		const newChunk = new ArchetypeChunk(this.nonTagSchemas, this.chunkCapacity, this.chunks.length);
 		this.chunks.push(newChunk);
 
 		return newChunk;

@@ -1,5 +1,5 @@
 import { assert } from '@dark-star/core';
-import { ComponentType } from '../component';
+import { ComponentType } from '../component/component';
 
 import { ComponentQueryDescriptor, ComponentTypes } from '../query';
 import { Job, JobHandle } from '../threads';
