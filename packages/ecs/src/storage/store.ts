@@ -146,7 +146,7 @@ export class EntityStore {
 
 				const componentType = toRemoveInstance.constructor;
 				const fields = componentType[$definition]!;
-				const isLookup = componentType[$cleanupComponent];
+
 				// copy values of last element in place of removed entity to avoid gaps
 				for (const fieldName in fields) {
 					toRemoveInstance[fieldName] = lastInstance[fieldName];
@@ -155,10 +155,10 @@ export class EntityStore {
 
 			// update swapped entity's record
 			this.entities.get(lastElementEntity)!.indexInChunk = toRemoveIndex;
-			this.reusableEntities.push(entity);
 		}
 
 		this.entities.delete(entity);
+		this.reusableEntities.push(entity);
 
 		chunk[$size]--;
 	}
