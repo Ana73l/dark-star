@@ -27,7 +27,6 @@ export class EnemyMovement extends System {
 
             for(let i = 0; i < 30; i++) {
                 world.spawn([Position, Movement, Sprite, Enemy, Velocity], (_, [position, movement, sprite, enemy]) => {
-                    console.log(_);
                     const modelType = getRandomInt(1, 5);
                     const color = getRandomInt(0, 3);
 

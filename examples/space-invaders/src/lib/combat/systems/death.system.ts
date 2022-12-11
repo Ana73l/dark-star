@@ -4,7 +4,7 @@ import { System, SystemQuery, read, World } from '@dark-star/ecs';
 import { Health } from '../components/health.data';
 
 @injectable()
-export class DeathSystem extends System {
+export class Death extends System {
 	private entities!: SystemQuery<[typeof Health]>;
 
 	constructor(private world: World) {

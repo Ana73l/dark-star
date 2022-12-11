@@ -6,7 +6,7 @@ import { createKeyboard, Keyboard } from './input/providers/keyboard';
 import { ClearVelocity } from './movement/systems/clear-velocity.system';
 import { PrepareMovement } from './movement/systems/prepare-movement.system';
 import { ApplyMovement } from './movement/systems/apply-movement.system';
-import { DeathSystem } from './combat/systems/death.system';
+import { Death } from './combat/systems/death.system';
 import { createAssetLoader } from './asset-loader';
 import { AssetStore } from './asset-store';
 import { RenderGroup } from './rendering/systems/render-group.system';
@@ -75,7 +75,7 @@ export const bootstrap = async (canvas: HTMLCanvasElement) => {
 		.registerSystem(ApplyMovement)
 		.registerSystem(PrepareMovement)
 		// .registerSystem(RemoveHealthFromEntityOne)
-		.registerSystem(DeathSystem)
+		.registerSystem(Death)
 		.registerSystem(RenderGroup)
 		.registerSystem(EnemyMovement)
 		.build();
