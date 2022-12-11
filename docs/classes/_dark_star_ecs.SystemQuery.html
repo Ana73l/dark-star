@@ -17,7 +17,14 @@
 <li><a href="_dark_star_ecs.SystemQuery.html">SystemQuery</a></li></ul>
 <h1>Class SystemQuery&lt;TAll, TSome, TNone&gt;</h1></div>
 <section class="tsd-panel tsd-comment">
-<div class="tsd-comment tsd-typography"><p>Provides a mechanism for iterating and invoking a lambda expression on each <a href="../types/_dark_star_ecs.Entity.html">Entity</a> selected by a System.query query.</p>
+<div class="tsd-comment tsd-typography"><p>Provides a mechanism for iterating and invoking a lambda expression on the <a href="../functions/_dark_star_ecs.component.html">components</a> of <a href="../types/_dark_star_ecs.Entity.html">entities</a> selected by a System.query query.</p>
+
+<h3>Remarks</h3><p>The iterator callbacks are only passed the <a href="../functions/_dark_star_ecs.component.html">component</a> instances. If <a href="../types/_dark_star_ecs.Entity.html">entities</a> are also required, use the <a href="_dark_star_ecs.SystemQuery.html#withEntities">withEntities</a> method.</p>
+
+<h3>See</h3><p><a href="_dark_star_ecs.SystemQueryWithEntities.html">SystemQueryWithEntities</a></p>
+
+<h3>Example</h3><pre><code class="language-ts"><span class="hl-1">@</span><span class="hl-6">injectable</span><span class="hl-1">()</span><br/><span class="hl-0">class</span><span class="hl-1"> </span><span class="hl-3">ApplyDamage</span><span class="hl-1"> </span><span class="hl-0">extends</span><span class="hl-1"> </span><span class="hl-3">System</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-5">// ...</span><br/><br/><span class="hl-1">    </span><span class="hl-0">public</span><span class="hl-1"> </span><span class="hl-0">override</span><span class="hl-1"> </span><span class="hl-0">async</span><span class="hl-1"> </span><span class="hl-6">update</span><span class="hl-1">() {</span><br/><span class="hl-1">        </span><span class="hl-0">this</span><span class="hl-1">.</span><span class="hl-8">damageables</span><br/><span class="hl-1">            .</span><span class="hl-6">each</span><span class="hl-1">([</span><span class="hl-6">write</span><span class="hl-1">(</span><span class="hl-8">Health</span><span class="hl-1">), </span><span class="hl-6">read</span><span class="hl-1">(</span><span class="hl-8">IncomingDamage</span><span class="hl-1">)], ([</span><span class="hl-8">health</span><span class="hl-1">, </span><span class="hl-8">damage</span><span class="hl-1">]) </span><span class="hl-0">=&gt;</span><span class="hl-1"> {</span><br/><span class="hl-1">                </span><span class="hl-8">health</span><span class="hl-1">.</span><span class="hl-8">currentHealth</span><span class="hl-1"> -= </span><span class="hl-8">damage</span><span class="hl-1">.</span><span class="hl-8">value</span><span class="hl-1">;</span><br/><span class="hl-1">            })</span><br/><span class="hl-1">            .</span><span class="hl-6">scheduleParallel</span><span class="hl-1">();</span><br/><span class="hl-1">    }</span><br/><span class="hl-1">}</span><br/><br/><span class="hl-1">@</span><span class="hl-6">injectable</span><span class="hl-1">()</span><br/><span class="hl-0">class</span><span class="hl-1"> </span><span class="hl-3">ApplyVelocity</span><span class="hl-1"> </span><span class="hl-0">extends</span><span class="hl-1"> </span><span class="hl-3">System</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-5">// ...</span><br/><br/><span class="hl-1">    </span><span class="hl-0">public</span><span class="hl-1"> </span><span class="hl-0">override</span><span class="hl-1"> </span><span class="hl-0">async</span><span class="hl-1"> </span><span class="hl-6">update</span><span class="hl-1">() {</span><br/><span class="hl-1">        </span><span class="hl-5">// optionally parameters can also be passed</span><br/><span class="hl-1">        </span><span class="hl-0">this</span><span class="hl-1">.</span><span class="hl-8">moveables</span><br/><span class="hl-1">            .</span><span class="hl-6">each</span><span class="hl-1">([</span><span class="hl-6">write</span><span class="hl-1">(</span><span class="hl-8">Position</span><span class="hl-1">), </span><span class="hl-6">read</span><span class="hl-1">(</span><span class="hl-8">Velocity</span><span class="hl-1">)], [</span><span class="hl-0">this</span><span class="hl-1">.</span><span class="hl-8">deltaT</span><span class="hl-1">.</span><span class="hl-8">value</span><span class="hl-1">], ([</span><span class="hl-8">position</span><span class="hl-1">, </span><span class="hl-8">velocity</span><span class="hl-1">], [</span><span class="hl-8">deltaT</span><span class="hl-1">]) </span><span class="hl-0">=&gt;</span><span class="hl-1"> {</span><br/><span class="hl-1">                </span><span class="hl-8">position</span><span class="hl-1">.</span><span class="hl-8">x</span><span class="hl-1"> += </span><span class="hl-8">velocity</span><span class="hl-1">.</span><span class="hl-8">x</span><span class="hl-1"> * </span><span class="hl-8">deltaT</span><span class="hl-1">;</span><br/><span class="hl-1">                </span><span class="hl-8">position</span><span class="hl-1">.</span><span class="hl-8">y</span><span class="hl-1"> += </span><span class="hl-8">velocity</span><span class="hl-1">.</span><span class="hl-8">y</span><span class="hl-1"> * </span><span class="hl-8">deltaT</span><span class="hl-1">;</span><br/><span class="hl-1">                </span><span class="hl-8">position</span><span class="hl-1">.</span><span class="hl-8">z</span><span class="hl-1"> += </span><span class="hl-8">velocity</span><span class="hl-1">.</span><span class="hl-8">z</span><span class="hl-1"> * </span><span class="hl-8">deltaT</span><span class="hl-1">;</span><br/><span class="hl-1">            })</span><br/><span class="hl-1">            .</span><span class="hl-6">scheduleParallel</span><span class="hl-1">();</span><br/><span class="hl-1">    }</span><br/><span class="hl-1">}</span>
+</code></pre>
 </div></section> 
 <section class="tsd-panel tsd-type-parameters">
 <h4>Type Parameters</h4>
@@ -35,7 +42,7 @@
 <ul class="tsd-hierarchy">
 <li><span class="target">SystemQuery</span></li></ul></li></ul></section><aside class="tsd-sources">
 <ul>
-<li>Defined in ecs/src/system/query-factories/system-query.ts:13</li></ul></aside>
+<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/323a481/packages/ecs/src/system/query-factories/system-query.ts#L51">ecs/src/system/query-factories/system-query.ts:51</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
@@ -62,7 +69,7 @@
 </div><aside class="tsd-sources">
 <p>Inherited from SystemQueryBase.query</p>
 <ul>
-<li>Defined in ecs/src/system/query-factories/system-query-base.ts:26</li></ul></aside></section>
+<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/323a481/packages/ecs/src/system/query-factories/system-query-base.ts#L26">ecs/src/system/query-factories/system-query-base.ts:26</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-protected tsd-is-inherited"><a id="system" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>system</span><a href="#system" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">system<span class="tsd-signature-symbol">:</span> <a href="_dark_star_ecs.System.html" class="tsd-signature-type" data-tsd-kind="Class">System</a></div>
@@ -70,7 +77,7 @@
 </div><aside class="tsd-sources">
 <p>Inherited from SystemQueryBase.system</p>
 <ul>
-<li>Defined in ecs/src/system/query-factories/system-query-base.ts:26</li></ul></aside></section>
+<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/323a481/packages/ecs/src/system/query-factories/system-query-base.ts#L26">ecs/src/system/query-factories/system-query-base.ts:26</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-protected tsd-is-inherited"><a id="withChanges" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>with<wbr/>Changes</span><a href="#withChanges" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">with<wbr/>Changes<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = false</span></div>
@@ -78,7 +85,7 @@
 </div><aside class="tsd-sources">
 <p>Inherited from SystemQueryBase.withChanges</p>
 <ul>
-<li>Defined in ecs/src/system/query-factories/system-query-base.ts:26</li></ul></aside></section></section>
+<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/323a481/packages/ecs/src/system/query-factories/system-query-base.ts#L26">ecs/src/system/query-factories/system-query-base.ts:26</a></li></ul></aside></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Methods</h2>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="each" class="tsd-anchor"></a>
@@ -89,7 +96,7 @@
 <div class="tsd-comment tsd-typography"><p>Allows iteration on the results of a SystemQuery on the main thread or background threads.</p>
 
 <h3>Remarks</h3><p>Creates a <a href="../interfaces/_dark_star_ecs.Job.html">job</a> that iterates SystemQuery results on the main thread or background threads.
-Iteration is performed via callback, similar to an array.forEach</p>
+Iteration is performed via callback, similar to an array.forEach.</p>
 <p>Component access is declared as first parameter and is used to determine the <a href="../interfaces/_dark_star_ecs.Job.html">Job</a> dependencies and prevent <a href="https://en.wikipedia.org/wiki/Race_condition">race conditions</a>.
 <a href="../interfaces/_dark_star_ecs.Job.html">Jobs</a> can <a href="../functions/_dark_star_ecs.read.html">read</a> the same data in parallel, but cannot <a href="../functions/_dark_star_ecs.write.html">write</a>/ read-write in parallel. Whenever possible <a href="../functions/_dark_star_ecs.read.html">read</a> access should be used.</p>
 <p>Work <a href="../interfaces/_dark_star_ecs.Job.html#schedule">scheduled</a> to be done in background threads does not have access to main thread APIs or providers.
@@ -120,14 +127,14 @@ If access to main thread APIs or providers is required, the <a href="../interfac
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="../interfaces/_dark_star_ecs.ParallelJob.html" class="tsd-signature-type" data-tsd-kind="Interface">ParallelJob</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in ecs/src/system/query-factories/system-query.ts:83</li></ul></aside></li>
+<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/323a481/packages/ecs/src/system/query-factories/system-query.ts#L121">ecs/src/system/query-factories/system-query.ts:121</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="each.each-2">each<span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">P</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">(</span>componentAccessDescriptors<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span>, params<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">P</span>, lambda<span class="tsd-signature-symbol">: </span><a href="../types/_dark_star_ecs.EntityEachLambda.html" class="tsd-signature-type" data-tsd-kind="Type alias">EntityEachLambda</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">TAll</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">TSome</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">TNone</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">P</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/_dark_star_ecs.ParallelJob.html" class="tsd-signature-type" data-tsd-kind="Interface">ParallelJob</a><a href="#each.each-2" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Allows iteration on the results of a SystemQuery on the main thread or background threads.
 Accepts a list of arguments that will also be passed to the callback function.</p>
 
 <h3>Remarks</h3><p>Creates a <a href="../interfaces/_dark_star_ecs.Job.html">job</a> that iterates SystemQuery results on the main thread or background threads.
-Iteration is performed via callback, similar to an array.forEach</p>
+Iteration is performed via callback, similar to an array.forEach.</p>
 <p>Component access is declared as first parameter and is used to determine the <a href="../interfaces/_dark_star_ecs.Job.html">Job</a> dependencies and prevent <a href="https://en.wikipedia.org/wiki/Race_condition">race conditions</a>.
 <a href="../interfaces/_dark_star_ecs.Job.html">Jobs</a> can <a href="../functions/_dark_star_ecs.read.html">read</a> the same data in parallel, but cannot <a href="../functions/_dark_star_ecs.write.html">write</a>/ read-write in parallel. Whenever possible <a href="../functions/_dark_star_ecs.read.html">read</a> access should be used.</p>
 <p>Work <a href="../interfaces/_dark_star_ecs.Job.html#schedule">scheduled</a> to be done in background threads does not have access to main thread APIs or providers.
@@ -146,7 +153,7 @@ If access to main thread APIs or providers is required, the <a href="../interfac
 <li>
 <h4>T<span class="tsd-signature-symbol"> extends </span><a href="../types/_dark_star_ecs.ComponentTypesQuery.html" class="tsd-signature-type" data-tsd-kind="Type alias">ComponentTypesQuery</a></h4></li>
 <li>
-<h4>P<span class="tsd-signature-symbol"> extends </span><span class="tsd-signature-type">JobArgs</span></h4></li></ul></section>
+<h4>P<span class="tsd-signature-symbol"> extends </span><a href="../types/_dark_star_ecs.JobArgs.html" class="tsd-signature-type" data-tsd-kind="Type alias">JobArgs</a></h4></li></ul></section>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
@@ -164,7 +171,7 @@ If access to main thread APIs or providers is required, the <a href="../interfac
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="../interfaces/_dark_star_ecs.ParallelJob.html" class="tsd-signature-type" data-tsd-kind="Interface">ParallelJob</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in ecs/src/system/query-factories/system-query.ts:136</li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/323a481/packages/ecs/src/system/query-factories/system-query.ts#L174">ecs/src/system/query-factories/system-query.ts:174</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a id="withChangedFilter" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>with<wbr/>Changed<wbr/>Filter</span><a href="#withChangedFilter" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
@@ -177,7 +184,7 @@ If access to main thread APIs or providers is required, the <a href="../interfac
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">SystemQueryBase</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">TAll</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">TSome</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">TNone</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Inherited from SystemQueryBase.withChangedFilter</p>
 <ul>
-<li>Defined in ecs/src/system/query-factories/system-query-base.ts:33</li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/323a481/packages/ecs/src/system/query-factories/system-query-base.ts#L33">ecs/src/system/query-factories/system-query-base.ts:33</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="withEntities" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>with<wbr/>Entities</span><a href="#withEntities" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -187,7 +194,7 @@ If access to main thread APIs or providers is required, the <a href="../interfac
 <h3>Returns</h3></div>
 <h4 class="tsd-returns-title">Returns <a href="_dark_star_ecs.SystemQueryWithEntities.html" class="tsd-signature-type" data-tsd-kind="Class">SystemQueryWithEntities</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">TAll</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">TSome</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">TNone</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in ecs/src/system/query-factories/system-query.ts:22</li></ul></aside></li></ul></section></section></div>
+<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/323a481/packages/ecs/src/system/query-factories/system-query.ts#L60">ecs/src/system/query-factories/system-query.ts:60</a></li></ul></aside></li></ul></section></section></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 <div class="tsd-navigation settings">
 <details class="tsd-index-accordion"><summary class="tsd-accordion-summary">

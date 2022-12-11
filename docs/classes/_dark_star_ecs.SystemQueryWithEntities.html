@@ -15,7 +15,17 @@
 <li><a href="../modules.html">Documentation</a></li>
 <li><a href="../modules/_dark_star_ecs.html">@dark-star/ecs</a></li>
 <li><a href="_dark_star_ecs.SystemQueryWithEntities.html">SystemQueryWithEntities</a></li></ul>
-<h1>Class SystemQueryWithEntities&lt;TAll, TSome, TNone&gt;</h1></div> 
+<h1>Class SystemQueryWithEntities&lt;TAll, TSome, TNone&gt;</h1></div>
+<section class="tsd-panel tsd-comment">
+<div class="tsd-comment tsd-typography"><p>Provides a mechanism for iterating and invoking a lambda expression on the <a href="../functions/_dark_star_ecs.component.html">components</a> and <a href="../types/_dark_star_ecs.Entity.html">entities</a> selected by a System.query query.</p>
+
+<h3>Remarks</h3><p>The iterator callbacks are passed an <a href="../types/_dark_star_ecs.Entity.html">Entity</a> and their <a href="../functions/_dark_star_ecs.component.html">component</a> instances. If <a href="../types/_dark_star_ecs.Entity.html">Entity</a> is not needed - use <a href="_dark_star_ecs.SystemQuery.html">SystemQuery</a> instead.</p>
+
+<h3>See</h3><p><a href="_dark_star_ecs.SystemQuery.html">SystemQuery</a></p>
+
+<h3>Example</h3><pre><code class="language-ts"><span class="hl-1">@</span><span class="hl-6">injectable</span><span class="hl-1">()</span><br/><span class="hl-0">class</span><span class="hl-1"> </span><span class="hl-3">DestroyDamageables</span><span class="hl-1"> </span><span class="hl-0">extends</span><span class="hl-1"> </span><span class="hl-3">System</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-5">// ...</span><br/><br/><span class="hl-1">    </span><span class="hl-0">public</span><span class="hl-1"> </span><span class="hl-0">override</span><span class="hl-1"> </span><span class="hl-0">async</span><span class="hl-1"> </span><span class="hl-6">update</span><span class="hl-1">() {</span><br/><span class="hl-1">        </span><span class="hl-10">await</span><span class="hl-1"> </span><span class="hl-0">this</span><span class="hl-1">.</span><span class="hl-8">damageables</span><br/><span class="hl-1">            .</span><span class="hl-6">withEntities</span><span class="hl-1">()</span><br/><span class="hl-1">            .</span><span class="hl-6">each</span><span class="hl-1">([</span><span class="hl-6">read</span><span class="hl-1">(</span><span class="hl-8">Health</span><span class="hl-1">)], (</span><span class="hl-8">entity</span><span class="hl-1">, [</span><span class="hl-8">health</span><span class="hl-1">]) </span><span class="hl-0">=&gt;</span><span class="hl-1"> {</span><br/><span class="hl-1">                </span><span class="hl-10">if</span><span class="hl-1">(</span><span class="hl-8">health</span><span class="hl-1">.</span><span class="hl-8">currentHealth</span><span class="hl-1"> &lt;= </span><span class="hl-4">0</span><span class="hl-1">) {</span><br/><span class="hl-1">                    </span><span class="hl-0">this</span><span class="hl-1">.</span><span class="hl-8">world</span><span class="hl-1">.</span><span class="hl-6">destroy</span><span class="hl-1">(</span><span class="hl-8">entity</span><span class="hl-1">);</span><br/><span class="hl-1">                }</span><br/><span class="hl-1">            })</span><br/><span class="hl-1">            .</span><span class="hl-6">run</span><span class="hl-1">();</span><br/><span class="hl-1">    }</span><br/><span class="hl-1">}</span>
+</code></pre>
+</div></section> 
 <section class="tsd-panel tsd-type-parameters">
 <h4>Type Parameters</h4>
 <ul class="tsd-type-parameters">
@@ -32,7 +42,7 @@
 <ul class="tsd-hierarchy">
 <li><span class="target">SystemQueryWithEntities</span></li></ul></li></ul></section><aside class="tsd-sources">
 <ul>
-<li>Defined in ecs/src/system/query-factories/system-query-with-entities.ts:8</li></ul></aside>
+<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/323a481/packages/ecs/src/system/query-factories/system-query-with-entities.ts#L36">ecs/src/system/query-factories/system-query-with-entities.ts:36</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
@@ -58,7 +68,7 @@
 </div><aside class="tsd-sources">
 <p>Inherited from SystemQueryBase.query</p>
 <ul>
-<li>Defined in ecs/src/system/query-factories/system-query-base.ts:26</li></ul></aside></section>
+<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/323a481/packages/ecs/src/system/query-factories/system-query-base.ts#L26">ecs/src/system/query-factories/system-query-base.ts:26</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-protected tsd-is-inherited"><a id="system" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>system</span><a href="#system" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">system<span class="tsd-signature-symbol">:</span> <a href="_dark_star_ecs.System.html" class="tsd-signature-type" data-tsd-kind="Class">System</a></div>
@@ -66,7 +76,7 @@
 </div><aside class="tsd-sources">
 <p>Inherited from SystemQueryBase.system</p>
 <ul>
-<li>Defined in ecs/src/system/query-factories/system-query-base.ts:26</li></ul></aside></section>
+<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/323a481/packages/ecs/src/system/query-factories/system-query-base.ts#L26">ecs/src/system/query-factories/system-query-base.ts:26</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-protected tsd-is-inherited"><a id="withChanges" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>with<wbr/>Changes</span><a href="#withChanges" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">with<wbr/>Changes<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = false</span></div>
@@ -74,7 +84,7 @@
 </div><aside class="tsd-sources">
 <p>Inherited from SystemQueryBase.withChanges</p>
 <ul>
-<li>Defined in ecs/src/system/query-factories/system-query-base.ts:26</li></ul></aside></section></section>
+<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/323a481/packages/ecs/src/system/query-factories/system-query-base.ts#L26">ecs/src/system/query-factories/system-query-base.ts:26</a></li></ul></aside></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Methods</h2>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="each" class="tsd-anchor"></a>
@@ -82,6 +92,20 @@
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
 <li class="tsd-signature tsd-anchor-link" id="each.each-1">each<span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">(</span>componentAccessDescriptors<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span>, lambda<span class="tsd-signature-symbol">: </span><a href="../types/_dark_star_ecs.EntityEachLambdaWithEntities.html" class="tsd-signature-type" data-tsd-kind="Type alias">EntityEachLambdaWithEntities</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">TAll</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">TSome</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">TNone</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/_dark_star_ecs.ParallelJob.html" class="tsd-signature-type" data-tsd-kind="Interface">ParallelJob</a><a href="#each.each-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Allows iteration on the results of a SystemQuery on the main thread or background threads.</p>
+
+<h3>Remarks</h3><p>Creates a <a href="../interfaces/_dark_star_ecs.Job.html">job</a> that iterates SystemQuery results on the main thread or background threads.
+Iteration is performed via callback, similar to an array.forEach.</p>
+<p>Component access is declared as first parameter and is used to determine the <a href="../interfaces/_dark_star_ecs.Job.html">Job</a> dependencies and prevent <a href="https://en.wikipedia.org/wiki/Race_condition">race conditions</a>.
+<a href="../interfaces/_dark_star_ecs.Job.html">Jobs</a> can <a href="../functions/_dark_star_ecs.read.html">read</a> the same data in parallel, but cannot <a href="../functions/_dark_star_ecs.write.html">write</a>/ read-write in parallel. Whenever possible <a href="../functions/_dark_star_ecs.read.html">read</a> access should be used.</p>
+<p>Work <a href="../interfaces/_dark_star_ecs.Job.html#schedule">scheduled</a> to be done in background threads does not have access to main thread APIs or providers.
+If access to main thread APIs or providers is required, the <a href="../interfaces/_dark_star_ecs.Job.html">job</a> should be <a href="../interfaces/_dark_star_ecs.Job.html#run">ran</a> rather than <a href="../interfaces/_dark_star_ecs.Job.html#schedule">scheduled</a>.</p>
+
+<h3>See</h3><p>System.query<br><a href="../functions/_dark_star_ecs.entities.html">entities</a><br><a href="../interfaces/_dark_star_ecs.Job.html">Job</a></p>
+
+<h3>Example</h3><pre><code class="language-ts"><span class="hl-1">@</span><span class="hl-6">injectable</span><span class="hl-1">()</span><br/><span class="hl-0">class</span><span class="hl-1"> </span><span class="hl-3">DestroyDamageables</span><span class="hl-1"> </span><span class="hl-0">extends</span><span class="hl-1"> </span><span class="hl-3">System</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-5">// ...</span><br/><br/><span class="hl-1">    </span><span class="hl-0">public</span><span class="hl-1"> </span><span class="hl-0">override</span><span class="hl-1"> </span><span class="hl-0">async</span><span class="hl-1"> </span><span class="hl-6">update</span><span class="hl-1">() {</span><br/><span class="hl-1">        </span><span class="hl-5">// run on main thread since we are accessing main thread APIs (this.world.destroy)</span><br/><span class="hl-1">        </span><span class="hl-10">await</span><span class="hl-1"> </span><span class="hl-0">this</span><span class="hl-1">.</span><span class="hl-8">damageables</span><br/><span class="hl-1">            .</span><span class="hl-6">withEntities</span><span class="hl-1">()</span><br/><span class="hl-1">            .</span><span class="hl-6">each</span><span class="hl-1">([</span><span class="hl-6">read</span><span class="hl-1">(</span><span class="hl-8">Health</span><span class="hl-1">)], (</span><span class="hl-8">entity</span><span class="hl-1">, [</span><span class="hl-8">health</span><span class="hl-1">]) </span><span class="hl-0">=&gt;</span><span class="hl-1"> {</span><br/><span class="hl-1">                </span><span class="hl-10">if</span><span class="hl-1">(</span><span class="hl-8">health</span><span class="hl-1">.</span><span class="hl-8">currentHealth</span><span class="hl-1"> &lt;= </span><span class="hl-4">0</span><span class="hl-1">) {</span><br/><span class="hl-1">                    </span><span class="hl-0">this</span><span class="hl-1">.</span><span class="hl-8">world</span><span class="hl-1">.</span><span class="hl-6">destroy</span><span class="hl-1">(</span><span class="hl-8">entity</span><span class="hl-1">);</span><br/><span class="hl-1">                }</span><br/><span class="hl-1">            })</span><br/><span class="hl-1">            .</span><span class="hl-6">run</span><span class="hl-1">();</span><br/><span class="hl-1">    }</span><br/><span class="hl-1">}</span>
+</code></pre>
+</div>
 <section class="tsd-panel tsd-type-parameters">
 <h4>Type Parameters</h4>
 <ul class="tsd-type-parameters">
@@ -91,33 +115,60 @@
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5>componentAccessDescriptors: <span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span></h5></li>
+<h5>componentAccessDescriptors: <span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span></h5>
+<div class="tsd-comment tsd-typography"><p>List of read/ write <a href="../functions/_dark_star_ecs.component.html">component</a> access descriptors. The descriptors will be used to determine <a href="../interfaces/_dark_star_ecs.Job.html">job</a> dependencies.</p>
+</div></li>
 <li>
-<h5>lambda: <a href="../types/_dark_star_ecs.EntityEachLambdaWithEntities.html" class="tsd-signature-type" data-tsd-kind="Type alias">EntityEachLambdaWithEntities</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">TAll</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">TSome</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">TNone</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol">&gt;</span></h5></li></ul></div>
+<h5>lambda: <a href="../types/_dark_star_ecs.EntityEachLambdaWithEntities.html" class="tsd-signature-type" data-tsd-kind="Type alias">EntityEachLambdaWithEntities</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">TAll</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">TSome</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">TNone</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol">&gt;</span></h5>
+<div class="tsd-comment tsd-typography"><p>Callback to be called on each <a href="../types/_dark_star_ecs.Entity.html">Entity</a> and its <a href="../functions/_dark_star_ecs.component.html">component</a> instances</p>
+</div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="../interfaces/_dark_star_ecs.ParallelJob.html" class="tsd-signature-type" data-tsd-kind="Interface">ParallelJob</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in ecs/src/system/query-factories/system-query-with-entities.ts:13</li></ul></aside></li>
+<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/323a481/packages/ecs/src/system/query-factories/system-query-with-entities.ts#L82">ecs/src/system/query-factories/system-query-with-entities.ts:82</a></li></ul></aside></li>
 <li class="tsd-signature tsd-anchor-link" id="each.each-2">each<span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">P</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">(</span>componentAccessDescriptors<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span>, params<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">P</span>, lambda<span class="tsd-signature-symbol">: </span><a href="../types/_dark_star_ecs.EntityEachLambdaWithEntities.html" class="tsd-signature-type" data-tsd-kind="Type alias">EntityEachLambdaWithEntities</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">TAll</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">TSome</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">TNone</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">P</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/_dark_star_ecs.ParallelJob.html" class="tsd-signature-type" data-tsd-kind="Interface">ParallelJob</a><a href="#each.each-2" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Allows iteration on the results of a SystemQuery on the main thread or background threads.
+Accepts a list of arguments that will also be passed to the callback function.</p>
+
+<h3>Remarks</h3><p>Creates a <a href="../interfaces/_dark_star_ecs.Job.html">job</a> that iterates SystemQuery results on the main thread or background threads.
+Iteration is performed via callback, similar to an array.forEach.</p>
+<p>Component access is declared as first parameter and is used to determine the <a href="../interfaces/_dark_star_ecs.Job.html">Job</a> dependencies and prevent <a href="https://en.wikipedia.org/wiki/Race_condition">race conditions</a>.
+<a href="../interfaces/_dark_star_ecs.Job.html">Jobs</a> can <a href="../functions/_dark_star_ecs.read.html">read</a> the same data in parallel, but cannot <a href="../functions/_dark_star_ecs.write.html">write</a>/ read-write in parallel. Whenever possible <a href="../functions/_dark_star_ecs.read.html">read</a> access should be used.</p>
+<p>Work <a href="../interfaces/_dark_star_ecs.Job.html#schedule">scheduled</a> to be done in background threads does not have access to main thread APIs or providers.
+If access to main thread APIs or providers is required, the <a href="../interfaces/_dark_star_ecs.Job.html">job</a> should be <a href="../interfaces/_dark_star_ecs.Job.html#run">ran</a> rather than <a href="../interfaces/_dark_star_ecs.Job.html#schedule">scheduled</a>.</p>
+
+<h3>See</h3><p>System.query<br><a href="../functions/_dark_star_ecs.entities.html">entities</a><br><a href="../interfaces/_dark_star_ecs.Job.html">Job</a></p>
+
+<h3>Returns</h3><p>A <a href="../interfaces/_dark_star_ecs.Job.html">Job</a> that can be <a href="../interfaces/_dark_star_ecs.Job.html#run">ran</a> on main thread or <a href="../interfaces/_dark_star_ecs.Job.html#schedule">scheduled</a> for execution on background thread(s)</p>
+
+<h3>Example</h3><pre><code class="language-ts"><span class="hl-1">@</span><span class="hl-6">injectable</span><span class="hl-1">()</span><br/><span class="hl-0">class</span><span class="hl-1"> </span><span class="hl-3">DestroyDamageables</span><span class="hl-1"> </span><span class="hl-0">extends</span><span class="hl-1"> </span><span class="hl-3">System</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-5">// ...</span><br/><br/><span class="hl-1">    </span><span class="hl-0">public</span><span class="hl-1"> </span><span class="hl-0">override</span><span class="hl-1"> </span><span class="hl-0">async</span><span class="hl-1"> </span><span class="hl-6">update</span><span class="hl-1">() {</span><br/><span class="hl-1">        </span><span class="hl-5">// schedule on parallel threads since world is passed as parameter to background threads</span><br/><span class="hl-1">        </span><span class="hl-0">this</span><span class="hl-1">.</span><span class="hl-8">damageables</span><br/><span class="hl-1">            .</span><span class="hl-6">withEntities</span><span class="hl-1">()</span><br/><span class="hl-1">            .</span><span class="hl-6">each</span><span class="hl-1">([</span><span class="hl-6">read</span><span class="hl-1">(</span><span class="hl-8">Health</span><span class="hl-1">)], [</span><span class="hl-0">this</span><span class="hl-1">.</span><span class="hl-8">world</span><span class="hl-1">], (</span><span class="hl-8">entity</span><span class="hl-1">, [</span><span class="hl-8">health</span><span class="hl-1">], [</span><span class="hl-8">world</span><span class="hl-1">]) </span><span class="hl-0">=&gt;</span><span class="hl-1"> {</span><br/><span class="hl-1">                </span><span class="hl-10">if</span><span class="hl-1">(</span><span class="hl-8">health</span><span class="hl-1">.</span><span class="hl-8">currentHealth</span><span class="hl-1"> &lt;= </span><span class="hl-4">0</span><span class="hl-1">) {</span><br/><span class="hl-1">                    </span><span class="hl-8">world</span><span class="hl-1">.</span><span class="hl-6">destroy</span><span class="hl-1">(</span><span class="hl-8">entity</span><span class="hl-1">);</span><br/><span class="hl-1">                }</span><br/><span class="hl-1">            })</span><br/><span class="hl-1">            .</span><span class="hl-6">scheduleParallel</span><span class="hl-1">();</span><br/><span class="hl-1">    }</span><br/><span class="hl-1">}</span>
+</code></pre>
+</div>
 <section class="tsd-panel tsd-type-parameters">
 <h4>Type Parameters</h4>
 <ul class="tsd-type-parameters">
 <li>
 <h4>T<span class="tsd-signature-symbol"> extends </span><a href="../types/_dark_star_ecs.ComponentTypesQuery.html" class="tsd-signature-type" data-tsd-kind="Type alias">ComponentTypesQuery</a></h4></li>
 <li>
-<h4>P<span class="tsd-signature-symbol"> extends </span><span class="tsd-signature-type">JobArgs</span></h4></li></ul></section>
+<h4>P<span class="tsd-signature-symbol"> extends </span><a href="../types/_dark_star_ecs.JobArgs.html" class="tsd-signature-type" data-tsd-kind="Type alias">JobArgs</a></h4></li></ul></section>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5>componentAccessDescriptors: <span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span></h5></li>
+<h5>componentAccessDescriptors: <span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span></h5>
+<div class="tsd-comment tsd-typography"><p>List of read/ write <a href="../functions/_dark_star_ecs.component.html">component</a> access descriptors. The descriptors will be used to determine <a href="../interfaces/_dark_star_ecs.Job.html">job</a> dependencies.</p>
+</div></li>
 <li>
-<h5>params: <span class="tsd-signature-type" data-tsd-kind="Type parameter">P</span></h5></li>
+<h5>params: <span class="tsd-signature-type" data-tsd-kind="Type parameter">P</span></h5>
+<div class="tsd-comment tsd-typography"><p>A list of arguments that will be also passed to the callback (and background threads if <a href="../interfaces/_dark_star_ecs.Job.html#schedule">scheduled</a>)</p>
+</div></li>
 <li>
-<h5>lambda: <a href="../types/_dark_star_ecs.EntityEachLambdaWithEntities.html" class="tsd-signature-type" data-tsd-kind="Type alias">EntityEachLambdaWithEntities</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">TAll</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">TSome</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">TNone</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">P</span><span class="tsd-signature-symbol">&gt;</span></h5></li></ul></div>
+<h5>lambda: <a href="../types/_dark_star_ecs.EntityEachLambdaWithEntities.html" class="tsd-signature-type" data-tsd-kind="Type alias">EntityEachLambdaWithEntities</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">TAll</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">TSome</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">TNone</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">P</span><span class="tsd-signature-symbol">&gt;</span></h5>
+<div class="tsd-comment tsd-typography"><p>Callback to be called on each set of <a href="../functions/_dark_star_ecs.component.html">component</a> instances</p>
+</div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="../interfaces/_dark_star_ecs.ParallelJob.html" class="tsd-signature-type" data-tsd-kind="Interface">ParallelJob</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in ecs/src/system/query-factories/system-query-with-entities.ts:17</li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/323a481/packages/ecs/src/system/query-factories/system-query-with-entities.ts#L130">ecs/src/system/query-factories/system-query-with-entities.ts:130</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a id="withChangedFilter" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>with<wbr/>Changed<wbr/>Filter</span><a href="#withChangedFilter" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
@@ -130,7 +181,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">SystemQueryBase</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">TAll</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">TSome</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">TNone</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Inherited from SystemQueryBase.withChangedFilter</p>
 <ul>
-<li>Defined in ecs/src/system/query-factories/system-query-base.ts:33</li></ul></aside></li></ul></section></section></div>
+<li>Defined in <a href="https://github.com/Ana73l/dark-star/blob/323a481/packages/ecs/src/system/query-factories/system-query-base.ts#L33">ecs/src/system/query-factories/system-query-base.ts:33</a></li></ul></aside></li></ul></section></section></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 <div class="tsd-navigation settings">
 <details class="tsd-index-accordion"><summary class="tsd-accordion-summary">
