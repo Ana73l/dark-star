@@ -25,6 +25,6 @@ export class PrepareMovement extends System {
 					velocity.x += movement.speed;
 				}
 			})
-			.schedule();
+			.scheduleParallel();
 	}
 }

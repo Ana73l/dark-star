@@ -8,7 +8,45 @@ import { SystemQueryWithEntities } from './system-query-with-entities';
 import { SystemQueryBase } from './system-query-base';
 
 /**
- * Provides a mechanism for iterating and invoking a lambda expression on each {@link Entity} selected by a {@link System.query query}.
+ * Provides a mechanism for iterating and invoking a lambda expression on the {@link component components} of {@link Entity entities} selected by a {@link System.query query}.
+ *
+ * @remarks
+ * The iterator callbacks are only passed the {@link component} instances. If {@link Entity entities} are also required, use the {@link SystemQuery.withEntities} method.
+ *
+ * @see
+ * {@link SystemQueryWithEntities}
+ *
+ * @example
+ * ```ts
+ * @injectable()
+ * class ApplyDamage extends System {
+ * 	// ...
+ *
+ * 	public override async update() {
+ * 		this.damageables
+ * 			.each([write(Health), read(IncomingDamage)], ([health, damage]) => {
+ * 				health.currentHealth -= damage.value;
+ * 			})
+ * 			.scheduleParallel();
+ * 	}
+ * }
+ *
+ * @injectable()
+ * class ApplyVelocity extends System {
+ * 	// ...
+ *
+ * 	public override async update() {
+ * 		// optionally parameters can also be passed
+ * 		this.moveables
+ * 			.each([write(Position), read(Velocity)], [this.deltaT.value], ([position, velocity], [deltaT]) => {
+ * 				position.x += velocity.x * deltaT;
+ * 				position.y += velocity.y * deltaT;
+ * 				position.z += velocity.z * deltaT;
+ * 			})
+ * 			.scheduleParallel();
+ * 	}
+ * }
+ * ```
  */
 export class SystemQuery<
 	TAll extends ComponentTypes,
@@ -28,7 +66,7 @@ export class SystemQuery<
 	 *
 	 * @remarks
 	 * Creates a {@link Job job} that iterates SystemQuery results on the main thread or background threads.
-	 * Iteration is performed via callback, similar to an array.forEach
+	 * Iteration is performed via callback, similar to an array.forEach.
 	 *
 	 * Component access is declared as first parameter and is used to determine the {@link Job} dependencies and prevent [race conditions](https://en.wikipedia.org/wiki/Race_condition).
 	 * {@link Job Jobs} can {@link read} the same data in parallel, but cannot {@link write}/ read-write in parallel. Whenever possible {@link read} access should be used.
@@ -90,7 +128,7 @@ export class SystemQuery<
 	 *
 	 * @remarks
 	 * Creates a {@link Job job} that iterates SystemQuery results on the main thread or background threads.
-	 * Iteration is performed via callback, similar to an array.forEach
+	 * Iteration is performed via callback, similar to an array.forEach.
 	 *
 	 * Component access is declared as first parameter and is used to determine the {@link Job} dependencies and prevent [race conditions](https://en.wikipedia.org/wiki/Race_condition).
 	 * {@link Job Jobs} can {@link read} the same data in parallel, but cannot {@link write}/ read-write in parallel. Whenever possible {@link read} access should be used.

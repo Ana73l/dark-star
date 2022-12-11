@@ -1,6 +1,7 @@
 import { Definition } from '@dark-star/core';
 import { TaskRunner, WorkerPool } from '@dark-star/worker-pool';
 
+import { WorkerWorldLambdaResponse } from './jobs/helpers';
 import {
 	EntityEachLambdaWorkerParams,
 	EntityEachWithEntitiesLambdaWorkerParams,
@@ -8,10 +9,10 @@ import {
 	WorkerWorld,
 } from './worker-global-scope/worker-world';
 
-type EntityEachRunner = TaskRunner<EntityEachLambdaWorkerParams, void>;
-type EntityEachWithEntitiesRunner = TaskRunner<EntityEachWithEntitiesLambdaWorkerParams, void>;
+type EntityEachRunner = TaskRunner<EntityEachLambdaWorkerParams, WorkerWorldLambdaResponse>;
+type EntityEachWithEntitiesRunner = TaskRunner<EntityEachWithEntitiesLambdaWorkerParams, WorkerWorldLambdaResponse>;
 type RegisterSchemasRunner = TaskRunner<[string, Definition | undefined][], void>;
-type JobWithCodeRunner = TaskRunner<JobWithCodeLambdaWorkerParams, void>;
+type JobWithCodeRunner = TaskRunner<JobWithCodeLambdaWorkerParams, WorkerWorldLambdaResponse>;
 
 export class ECSTaskRunner {
 	private eachRunner: EntityEachRunner;
@@ -41,15 +42,15 @@ export class ECSTaskRunner {
 		});
 	}
 
-	public each(data: EntityEachLambdaWorkerParams): Promise<void> {
+	public each(data: EntityEachLambdaWorkerParams): Promise<WorkerWorldLambdaResponse> {
 		return this.eachRunner.run(data);
 	}
 
-	public eachWithEntities(data: EntityEachWithEntitiesLambdaWorkerParams): Promise<void> {
+	public eachWithEntities(data: EntityEachWithEntitiesLambdaWorkerParams): Promise<WorkerWorldLambdaResponse> {
 		return this.eachWithEntitiesRunner.run(data);
 	}
 
-	public jobWithCode(data: JobWithCodeLambdaWorkerParams): Promise<void> {
+	public jobWithCode(data: JobWithCodeLambdaWorkerParams): Promise<WorkerWorldLambdaResponse> {
 		return this.jobWithCodeRunner.run(data);
 	}
 

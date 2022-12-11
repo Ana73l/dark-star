@@ -1,8 +1,7 @@
 import { ComponentTypeId } from '../../component/component';
+import { World } from '../../world';
 
-export const $dependencies = Symbol('dark_star_job_handle_dependencies');
-export const $readers = Symbol('dark_star_job_readers');
-export const $writers = Symbol('dark_star_job_writers');
+import { $dependencies, $readers, $writers } from './__internals__';
 
 /**
  * Utility type representing a unique {@link Job job} identifier.
@@ -33,7 +32,7 @@ export type JobArgs = [any] | any[];
 export type JobCallbackMappedArgs<T> = T extends undefined
 	? never
 	: {
-			[P in keyof T]: T[P];
+			[P in keyof T]: T[P] extends World ? Pick<World, 'spawn' | 'attach' | 'detach' | 'destroy'> : T[P];
 	  };
 
 /**

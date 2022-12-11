@@ -21,7 +21,9 @@ import { Sprite } from './rendering/components/sprite.data';
 import { DeltaTime } from './delta-time';
 import { CORES_COUNT } from '@dark-star/worker-pool';
 import { Health } from './combat/components/health.data';
+import { EnemyMovement } from './enemy/systems/enemy-movement.system';
 import { RemoveHealthFromEntityOne } from './removeHealthFromEntityOne';
+import { Enemy } from './enemy/components/enemy.data';
 
 export const bootstrap = async (canvas: HTMLCanvasElement) => {
 	const assetStore = await createAssetLoader()
@@ -72,31 +74,21 @@ export const bootstrap = async (canvas: HTMLCanvasElement) => {
 		.registerSystem(RenderSprites)
 		.registerSystem(ApplyMovement)
 		.registerSystem(PrepareMovement)
-		.registerSystem(RemoveHealthFromEntityOne)
-		// .registerSystem(DeathSystem)
+		// .registerSystem(RemoveHealthFromEntityOne)
+		.registerSystem(DeathSystem)
 		.registerSystem(RenderGroup)
+		.registerSystem(EnemyMovement)
 		.build();
 
-	world.spawn([Position, Sprite, Movement, Velocity, Player, Health], (_, [position, sprite, movement]) => {
-		position.x = 5;
-		position.y = 500;
-
-		sprite.image = 'enemyBlack1';
-		sprite.width = 70;
-		sprite.height = 50;
-
-		movement.speed = 2;
-	});
-
 	world.spawn([Position, Sprite, Movement, Velocity, Player], (_, [position, sprite, movement]) => {
-		position.x = 100;
-		position.y = 300;
+		position.x = 500;
+		position.y = 500;
 
 		sprite.image = 'playerShip1';
 		sprite.width = 70;
 		sprite.height = 50;
 
-		movement.speed = 2;
+		movement.speed = 600 / 1000;
 	});
 
 	let prevTime = 0.0;

@@ -4,7 +4,14 @@ import { $scheduler } from '../../system/planning/__internals__';
 
 import { JobHandle, createNullHandle } from './job';
 import { ECSQueryJob } from './ecs-query-job';
-import { addHandleToSystemDependency, JobParamPayload, mapJobParamsForMainThread, serializeJobParams } from './helpers';
+import {
+	addHandleToSystemDependency,
+	applyWorkerWorldCommands,
+	JobParamPayload,
+	mapJobParamsForMainThread,
+	serializeJobParams,
+	WorkerWorldLambdaResponse,
+} from './helpers';
 
 export class ECSEachJob<
 	T extends ComponentTypesQuery,
@@ -28,7 +35,7 @@ export class ECSEachJob<
 
 			const jobHandle = scheduler.scheduleJob(
 				this.accessDescriptors,
-				async function (taskRunner) {
+				async function (taskRunner, deferredCommands) {
 					const layout = self.layout;
 					const lambdaString = self.lambda.toString();
 
@@ -47,6 +54,8 @@ export class ECSEachJob<
 					});
 
 					const commands = await taskRunner.each([layout, buffers, lambdaString, serializedParams]);
+
+					applyWorkerWorldCommands(deferredCommands, commands);
 				},
 				dependencies
 			);
@@ -77,11 +86,11 @@ export class ECSEachJob<
 
 			const jobHandle = scheduler.scheduleJob(
 				this.accessDescriptors,
-				async function (taskRunner) {
+				async function (taskRunner, deferredCommands) {
 					const layout = self.layout;
 					const lambdaString = self.lambda.toString();
 
-					const tasks: Promise<any>[] = [];
+					const tasks: Promise<WorkerWorldLambdaResponse>[] = [];
 
 					self.iterateChunks((chunk) => {
 						const componentArrayBuffers: (SharedArrayBuffer | undefined)[] = [];
@@ -96,6 +105,10 @@ export class ECSEachJob<
 					});
 
 					const responses = await Promise.all(tasks);
+
+					for (const commands of responses) {
+						applyWorkerWorldCommands(deferredCommands, commands);
+					}
 				},
 				dependencies
 			);

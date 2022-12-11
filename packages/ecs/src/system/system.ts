@@ -352,6 +352,8 @@ export abstract class System implements ISystem {
 	 * {@link World.get} cannot be used inside {@link Job jobs} scheduled on background threads, but a {@link ComponentLookup} can be passed as a parameter to jobs.
 	 *
 	 * The {@link ComponentLookup} should only be passed as a parameter to a {@link Job job} in a {@link WorldBuilder.useThreads multithreaded} {@link World world}.
+	 * {@link ComponentLookup} does not have entries outside of a {@link Job job} callback and thus should not be used outside a {@link Job job}.
+	 *
 	 * In a singlethreaded world {@link World.get} should be used instead as {@link ComponentLookup} is recreated in each {@link Job job} instance which introduces overhead.
 	 * {@link ComponentLookup} is recreated in {@link Job jobs} {@link Job.schedule scheduled} in a singlethreaded world or {@link Job.run ran} on the main thread for compatibility purposes.
 	 *
@@ -466,7 +468,7 @@ export abstract class System implements ISystem {
 	 * }
 	 * ```
 	 */
-	protected jobWithCode<T extends JobArgs>(params: T, callback: (args: T) => void): Job;
+	protected jobWithCode<T extends JobArgs>(params: T, callback: (args: JobCallbackMappedArgs<T>) => void): Job;
 	protected jobWithCode<T extends JobArgs>(params: T | (() => void), callback?: (args: JobCallbackMappedArgs<T>) => void): Job {
 		if (typeof callback === 'function') {
 			return new ECSJobWithCode(this, callback, params as T, this[$scheduler]);

@@ -11,8 +11,16 @@ export type WorldUpdateVersion = number;
  * Worlds maintain entities and execute systems.
  *
  * @remarks
+ * Worlds (when used on the main thread) can {@link World.spawn spawn} {@link Entity entities}, be queried whether they {@link World.exists},
+ * {@link World.attach attach}, {@link World.detach} {@link component components} to entities, check whether entities {@link World.has have} component types attached to them,
+ * {@link World.get retrieve} the component instances attached to an entity and {@link World.destroy destroy} entities.
+ *
+ * On background threads, only {@link World.spawn}, {@link World.attach}, {@link World.detach} and {@link World.destroy} can be used.
+ *
  * Worlds cannot be initialized directly. Use {@link WorldBuilder} to construct and initialize worlds.
- * @see {@link WorldBuilder}
+ *
+ * @see
+ * {@link WorldBuilder}
  */
 export abstract class World implements Disposable {
 	/** Current world version. Incremented each time {@link World.step} is called. */
@@ -47,6 +55,9 @@ export abstract class World implements Disposable {
 	 *
 	 * @param componentTypes - List of component types to be attached
 	 * @param init - Callback used to initialize component values. New entity id is passed as first parameter
+	 *
+	 * @remarks
+	 * When called from a background thread - entity parameter of callback is always -1
 	 *
 	 * @example
 	 * ```ts

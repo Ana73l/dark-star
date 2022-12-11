@@ -18,11 +18,11 @@ export class DeathSystem extends System {
 	public override async update() {
 		this.entities
 			.withEntities()
-			.each([read(Health)], (entity, [health]) => {
+			.each([read(Health)], [this.world], (entity, [health], [world]) => {
 				if (health.currentHealth <= 0) {
-					this.world.destroy(entity);
+					world.destroy(entity);
 				}
 			})
-			.run();
+			.schedule();
 	}
 }

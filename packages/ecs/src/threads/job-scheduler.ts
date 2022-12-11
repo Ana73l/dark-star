@@ -2,9 +2,11 @@ import { Disposable, createUIDGenerator, $id } from '@dark-star/core';
 
 import { ComponentTypeId } from '../component/component';
 import { ComponentAccessFlags, ComponentQueryDescriptor } from '../query';
-import { ECSTaskRunner } from './ecs-task-runner';
+import { DeferredCommandsProcessor } from '../storage/deferred-commands-processor';
 
-import { $dependencies, JobId, JobHandle, $readers, $writers } from './jobs/job';
+import { ECSTaskRunner } from './ecs-task-runner';
+import { JobId, JobHandle } from './jobs/job';
+import { $dependencies, $readers, $writers } from './jobs/__internals__';
 
 export class JobScheduler implements Disposable {
 	private readers: Map<ComponentTypeId, Set<JobId>> = new Map();
@@ -16,11 +18,11 @@ export class JobScheduler implements Disposable {
 	private uid: () => number | null = createUIDGenerator();
 	private disposed: boolean = false;
 
-	constructor(private taskRunner: ECSTaskRunner) {}
+	constructor(private taskRunner: ECSTaskRunner, private deferredCommands: DeferredCommandsProcessor) {}
 
 	public scheduleJob(
 		accessDescriptors: ComponentQueryDescriptor[],
-		complete: (taskRunner: ECSTaskRunner) => Promise<void>,
+		complete: (taskRunner: ECSTaskRunner, deferredCommands: DeferredCommandsProcessor) => Promise<void>,
 		deps?: JobHandle[]
 	): JobHandle {
 		const id = this.uid()!;
@@ -101,7 +103,7 @@ export class JobScheduler implements Disposable {
 				promise = new Promise(async function (resolve) {
 					await self.completeJobs(dependencies);
 
-					await complete(self.taskRunner);
+					await complete(self.taskRunner, self.deferredCommands);
 
 					isComplete = true;
 

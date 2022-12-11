@@ -1,13 +1,16 @@
-import { $id, $view, schemas } from '@dark-star/core';
+import { $id, $offset, $view, schemas } from '@dark-star/core';
 import { createSharedObjectArray } from '@dark-star/shared-object';
 
 import { Entity } from '../../entity';
-import { ComponentQueryDescriptor } from '../../query';
-import { $accessFlag, $componentType, $query, ComponentLookup } from './job-transferables/component-lookup';
+import { ComponentQueryDescriptor, ComponentTypes } from '../../query';
+
+import { $dependencies, $accessFlag, $componentType, $query } from './__internals__';
+import { ComponentLookup } from './job-transferables/component-lookup';
 import { $scheduler, System } from '../../system/planning/__internals__';
 
-import { $dependencies, JobId } from './job';
+import { JobId } from './job';
 import { World } from '../../world/world';
+import { DeferredCommandsProcessor } from '../../storage/deferred-commands-processor';
 
 /**
  * @internal
@@ -73,6 +76,13 @@ export type JobParamPayload = [type: JobParamsTypes, value?: any, componentTypeI
  * {@link ComponentLookup}
  */
 export type ComponentLookupPayload = [size: number, entities: SharedArrayBuffer, components: SharedArrayBuffer][];
+
+export type WorkerWorldLambdaResponse = [
+	spawn: [SharedArrayBuffer | undefined, (SharedArrayBuffer | undefined)[] | undefined][],
+	attach: [SharedArrayBuffer, (SharedArrayBuffer | undefined)[] | undefined][],
+	detach: SharedArrayBuffer[],
+	destroy: SharedArrayBuffer
+];
 
 /**
  * @internal
@@ -269,7 +279,7 @@ export function mapJobParamsForMainThread(params: readonly any[]): any[] {
  * @param system - {@link System} from which the {@link Job} handle has been scheduled
  * @param handleId - {@link JobHandle} unique identifier
  */
-export const addHandleToSystemDependency = (system: System, handleId: JobId): void => {
+export function addHandleToSystemDependency(system: System, handleId: JobId): void {
 	const scheduler = system[$scheduler];
 	// only combine dependencies in a threaded environment
 	if (scheduler) {
@@ -306,4 +316,103 @@ export const addHandleToSystemDependency = (system: System, handleId: JobId): vo
 			};
 		}
 	}
-};
+}
+
+export function applyWorkerWorldCommands(deferredCommands: DeferredCommandsProcessor, workerResponse: WorkerWorldLambdaResponse): void {
+	let currentCommandIndex;
+
+	// spawn
+	const spawnCommands = workerResponse[0];
+	const spawnCommandsCount = spawnCommands.length;
+	for (currentCommandIndex = 0; currentCommandIndex < spawnCommandsCount; currentCommandIndex++) {
+		const currentCommand = spawnCommands[currentCommandIndex];
+		const componentTypeIdsBuffer = currentCommand[0];
+
+		if (componentTypeIdsBuffer) {
+			const componentTypes = getComponentTypesFromIds(componentTypeIdsBuffer);
+			const componentInstancesBuffers = currentCommand[1];
+
+			if (componentInstancesBuffers) {
+				deferredCommands.create(componentTypes, (_, components) => {
+					applyRemoteInstanceBuffers(componentInstancesBuffers, components);
+				});
+			} else {
+				deferredCommands.create(componentTypes);
+			}
+		} else {
+			deferredCommands.create();
+		}
+	}
+
+	// attach
+	const attachCommands = workerResponse[1];
+	const attachCommandsCount = attachCommands.length;
+	for (currentCommandIndex = 0; currentCommandIndex < attachCommandsCount; currentCommandIndex++) {
+		const currentCommand = attachCommands[currentCommandIndex];
+		const componentTypeIdsBuffer = currentCommand[0];
+		const entity = new Uint32Array(componentTypeIdsBuffer)[0];
+		const componentTypes = getComponentTypesFromIds(componentTypeIdsBuffer, 1);
+		const componentInstancesBuffers = currentCommand[1];
+
+		if (componentInstancesBuffers) {
+			deferredCommands.attach(entity, componentTypes, (components) => {
+				applyRemoteInstanceBuffers(componentInstancesBuffers, components);
+			});
+		} else {
+			deferredCommands.attach(entity, componentTypes);
+		}
+	}
+
+	// detach
+	const detachCommands = workerResponse[2];
+	const detachCommandsCount = detachCommands.length;
+	for (currentCommandIndex = 0; currentCommandIndex < detachCommandsCount; currentCommandIndex++) {
+		const currentCommand = detachCommands[currentCommandIndex];
+		const componentTypes = getComponentTypesFromIds(currentCommand, 1);
+		const entity = new Uint32Array(currentCommand)[0];
+
+		deferredCommands.detach(entity, componentTypes);
+	}
+
+	// destroy
+	const destroyCommands = workerResponse[3];
+	const entitiesToDestroy = new Uint32Array(destroyCommands);
+	const entitiesToDestroyCount = entitiesToDestroy.length;
+	for (currentCommandIndex = 0; currentCommandIndex < entitiesToDestroyCount; currentCommandIndex++) {
+		deferredCommands.destroy(entitiesToDestroy[currentCommandIndex]);
+	}
+}
+
+function getComponentTypesFromIds(componentTypeIdsBuffer: SharedArrayBuffer, offset: number = 0): ComponentTypes {
+	const componentTypeIds = new Uint32Array(componentTypeIdsBuffer);
+	const componentTypesCount = componentTypeIds.length;
+	const componentTypes = new Array(componentTypesCount);
+	let currentTypeIndex;
+
+	for (currentTypeIndex = offset; currentTypeIndex < componentTypesCount; currentTypeIndex++) {
+		componentTypes[currentTypeIndex] = schemas[componentTypeIds[currentTypeIndex] - 1];
+	}
+
+	return componentTypes;
+}
+
+function applyRemoteInstanceBuffers(componentInstancesBuffers: (SharedArrayBuffer | undefined)[], components: any[]): void {
+	const componentsCount = componentInstancesBuffers.length;
+	let currentComponentIndex;
+
+	for (currentComponentIndex = 0; currentComponentIndex < componentsCount; currentComponentIndex++) {
+		const instanceBuffer = componentInstancesBuffers[currentComponentIndex];
+		const localComponent = components[currentComponentIndex];
+
+		if (instanceBuffer && localComponent) {
+			const remoteView = new Uint8Array(instanceBuffer);
+			const localView = new Uint8Array(localComponent[$view].buffer, localComponent[$offset]);
+			const viewSize = remoteView.byteLength;
+			let i;
+
+			for (i = 0; i < viewSize; i++) {
+				localView[i] = remoteView[i];
+			}
+		}
+	}
+}

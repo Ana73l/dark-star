@@ -56,20 +56,6 @@ export class ECSWorld implements World {
 		const planner = new Planner(world.store, systemInstances);
 		const initSystemPromises = [];
 
-		for (const system of systemInstances) {
-			system[$planner] = planner;
-
-			// add queries marked by decorator to instance
-			System.injectQueryInSystemInstance(system);
-
-			initSystemPromises.push(system.init());
-
-			// remove planner from system to enforce query creation during init phase
-			system[$planner] = undefined;
-		}
-
-		await Promise.all(initSystemPromises);
-
 		// if threaded
 		if (threads > 1) {
 			threads = threads - 1;
@@ -90,13 +76,27 @@ export class ECSWorld implements World {
 
 			await Promise.all(registerSchemasTasks);
 
-			world.jobScheduler = new JobScheduler(ecsTaskRunner);
+			world.jobScheduler = new JobScheduler(ecsTaskRunner, world.deferredCommands);
 
 			// add scheduler to systems
 			for (const system of systemInstances) {
 				system[$scheduler] = world.jobScheduler;
 			}
 		}
+
+		for (const system of systemInstances) {
+			system[$planner] = planner;
+
+			// add queries marked by decorator to instance
+			System.injectQueryInSystemInstance(system);
+
+			initSystemPromises.push(system.init());
+
+			// remove planner from system to enforce query creation during init phase
+			system[$planner] = undefined;
+		}
+
+		await Promise.all(initSystemPromises);
 
 		world.systemProcessor = new SystemProcessor(planner.createSystemRoot());
 

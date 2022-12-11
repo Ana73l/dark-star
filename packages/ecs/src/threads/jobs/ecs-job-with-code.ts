@@ -3,27 +3,33 @@ import { System } from '../../system';
 import { JobScheduler } from '../job-scheduler';
 
 import { createNullHandle, Job, JobHandle } from './job';
-import { addHandleToSystemDependency, JobParamPayload, mapJobParamsForMainThread, serializeJobParams } from './helpers';
+import {
+	addHandleToSystemDependency,
+	applyWorkerWorldCommands,
+	JobParamPayload,
+	mapJobParamsForMainThread,
+	serializeJobParams,
+} from './helpers';
 
 export class ECSJobWithCode implements Job {
-    private accessDescriptors: ComponentQueryDescriptor[];
+	private accessDescriptors: ComponentQueryDescriptor[];
 
-    constructor(
-        private system: System, 
-        private lambda: (...args: any[]) => any,
-        private params?: any[], 
-        private scheduler?: JobScheduler,
-        access?: ComponentTypesQuery
-    ) {
-        this.accessDescriptors = access ? convertQueryToDescriptors(access) : [];
-    }
+	constructor(
+		private system: System,
+		private lambda: (...args: any[]) => any,
+		private params?: any[],
+		private scheduler?: JobScheduler,
+		access?: ComponentTypesQuery
+	) {
+		this.accessDescriptors = access ? convertQueryToDescriptors(access) : [];
+	}
 
 	public schedule(...dependencies: JobHandle[]): JobHandle {
 		if (this.scheduler) {
 			const self = this;
 			let serializedParams: JobParamPayload | undefined;
 
-			if(self.params) {
+			if (self.params) {
 				const paramsData = serializeJobParams(self.params);
 				serializedParams = paramsData[0];
 
@@ -32,8 +38,10 @@ export class ECSJobWithCode implements Job {
 
 			const jobHandle = this.scheduler.scheduleJob(
 				self.accessDescriptors,
-				async function (taskRunner) {
-					await taskRunner.jobWithCode([self.lambda.toString(), serializedParams]);
+				async function (taskRunner, deferredCommands) {
+					const commands = await taskRunner.jobWithCode([self.lambda.toString(), serializedParams]);
+
+					applyWorkerWorldCommands(deferredCommands, commands);
 				},
 				dependencies
 			);
@@ -58,7 +66,7 @@ export class ECSJobWithCode implements Job {
 
 	private execute(): void {
 		const mappedParams = this.params ? mapJobParamsForMainThread(this.params) : undefined;
-		
-        this.lambda.call(null, mappedParams);
+
+		this.lambda.call(null, mappedParams);
 	}
 }
