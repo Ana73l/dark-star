@@ -29,20 +29,20 @@ export class WorldBuilder {
 	}
 
 	/**
-	 * Registers an {@link injectable} transient provider that can be injected in other providers or systems in the world.
-	 * @see {@link ContainerBuilder.registerTransient}.
+	 * Registers an {@link  @dark-star/di!injectable} transient provider that can be injected in other providers or systems in the world.
+	 * @see {@link @dark-star/di!ContainerBuilder.registerTransient}.
 	 * 
-	 * @param constructor - Concrete class constructor serving both as {@link injectable} identifier and transient initializer
+	 * @param constructor - Concrete class constructor serving both as {@link  @dark-star/di!injectable} identifier and transient initializer
 	 * @returns The {@link WorldBuilder} instance
 	 */
 	 public registerTransient<T>(
 		constructor: ClassType<T>
 	): WorldBuilder;
 	/**
-	 * Registers an {@link injectable} transient provider that can be injected in other providers or systems in the world.
-	 * @see {@link ContainerBuilder.registerTransient}.
+	 * Registers an {@link  @dark-star/di!injectable} transient provider that can be injected in other providers or systems in the world.
+	 * @see {@link  @dark-star/di!ContainerBuilder.registerTransient}.
 	 * 
-	 * @param identifier - Abstract or concrete class serving as {@link injectable} identifier
+	 * @param identifier - Abstract or concrete class serving as {@link  @dark-star/di!injectable} identifier
 	 * @param constructor - Concrete class constructor
 	 * @returns The {@link WorldBuilder} instance
 	 */
@@ -51,11 +51,11 @@ export class WorldBuilder {
 		constructor: ClassType<T>
 	): WorldBuilder;
 	/**
-	 * Registers an {@link injectable} transient provider that can be injected in other providers or systems in the world.
-	 * @see {@link ContainerBuilder.registerTransient}.
+	 * Registers an {@link  @dark-star/di!injectable} transient provider that can be injected in other providers or systems in the world.
+	 * @see {@link  @dark-star/di!ContainerBuilder.registerTransient}.
 	 * 
-	 * @param identifier - Abstract or concrete class serving as {@link injectable} identifier
-	 * @param factory - Function with no parameters which returns an object that implements {@link identifier}
+	 * @param identifier - Abstract or concrete class serving as {@link  @dark-star/di!injectable} identifier
+	 * @param factory - Function with no parameters which returns an object that implements the identifier parameter
 	 * @returns The {@link WorldBuilder} instance
 	 */
 	 public registerTransient<T>(
@@ -72,20 +72,20 @@ export class WorldBuilder {
 	}
 
 	/**
-	 * Registers an {@link injectable} singleton provider that can be injected in other providers or systems in the world.
-	 * @see {@link ContainerBuilder.registerSingleton}.
+	 * Registers an {@link  @dark-star/di!injectable} singleton provider that can be injected in other providers or systems in the world.
+	 * @see {@link  @dark-star/di!ContainerBuilder.registerSingleton}.
 	 * 
-	 * @param constructor - Concrete class constructor serving both as {@link injectable} identifier and singleton initializer
+	 * @param constructor - Concrete class constructor serving both as {@link  @dark-star/di!injectable} identifier and singleton initializer
 	 * @returns The {@link WorldBuilder} instance
 	 */
 	 public registerSingleton<T>(
 		constructor: ClassType<T>
 	): WorldBuilder;
 	/**
-	 * Registers an {@link injectable} singleton provider that can be injected in other providers or systems in the world.
-	 * @see {@link ContainerBuilder.registerSingleton}.
+	 * Registers an {@link  @dark-star/di!injectable} singleton provider that can be injected in other providers or systems in the world.
+	 * @see {@link  @dark-star/di!ContainerBuilder.registerSingleton}.
 	 * 
-	 * @param identifier - Abstract or concrete class serving as {@link injectable} identifier
+	 * @param identifier - Abstract or concrete class serving as {@link  @dark-star/di!injectable} identifier
 	 * @param constructor - Concrete class constructor
 	 * @returns The {@link WorldBuilder} instance
 	 */
@@ -94,11 +94,11 @@ export class WorldBuilder {
 		constructor: ClassType<T>
 	): WorldBuilder;
 	/**
-	 * Registers an {@link injectable} singleton provider that can be injected in other providers or systems in the world.
-	 * @see {@link ContainerBuilder.registerSingleton}.
+	 * Registers an {@link  @dark-star/di!injectable} singleton provider that can be injected in other providers or systems in the world.
+	 * @see {@link  @dark-star/di!ContainerBuilder.registerSingleton}.
 	 * 
-	 * @param identifier - Abstract or concrete class serving as {@link injectable} identifier
-	 * @param factory - Function with no parameters which returns an object that implements {@link identifier}
+	 * @param identifier - Abstract or concrete class serving as {@link  @dark-star/di!injectable} identifier
+	 * @param factory - Function with no parameters which returns an object that implements the identifier parameter
 	 * @returns The {@link WorldBuilder} instance
 	 */
 	 public registerSingleton<T>(
@@ -106,10 +106,10 @@ export class WorldBuilder {
 		factory: Factory<T>
 	): WorldBuilder;
 	/**
-	 * Registers an {@link injectable} singleton provider that can be injected in other providers or systems in the world.
-	 * @see {@link ContainerBuilder.registerSingleton}.
+	 * Registers an {@link  @dark-star/di!injectable} singleton provider that can be injected in other providers or systems in the world.
+	 * @see {@link  @dark-star/di!ContainerBuilder.registerSingleton}.
 	 * 
-	 * @param identifier - Abstract or concrete class serving as {@link injectable} identifier
+	 * @param identifier - Abstract or concrete class serving as {@link  @dark-star/di!injectable} identifier
 	 * @param instance - Object that implements {@link identifier}
 	 * @returns The {@link WorldBuilder} instance
 	 */
@@ -127,7 +127,7 @@ export class WorldBuilder {
 	}
 
 	/**
-	 * Registers an {@link injectable} {@link System system} that can be injected in other systems or providers in the world.
+	 * Registers an {@link  @dark-star/di!injectable} {@link System system} that can be injected in other systems or providers in the world.
 	 * 
 	 * @param systemType - {@link System} constructor
 	 * @returns The {@link WorldBuilder} instance

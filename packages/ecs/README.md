@@ -7,7 +7,7 @@
 A multithreaded TypeScript [Entity-Component-System](https://en.wikipedia.org/wiki/Entity_component_system) framework for NodeJS and browsers.
 
 -   Simple and intuitive
--	Rendering framework agnostic
+-   Rendering framework agnostic
 -   Built-in [dependency injection container](https://en.wikipedia.org/wiki/Dependency_injection)
 -   Multithreaded with build-in mechanisms to prevent [race conditions](https://en.wikipedia.org/wiki/Race_condition)
 
