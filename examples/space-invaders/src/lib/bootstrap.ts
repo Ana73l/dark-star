@@ -1,7 +1,7 @@
 import { WorldBuilder } from '@dark-star/ecs';
 import { createSharedObject } from '@dark-star/shared-object';
 
-import { createKeyboard, Keyboard } from './input/providers/keyboard';
+import { createKeyboard, Keyboard } from './input/providers/keyboard.provider';
 
 import { ClearVelocity } from './movement/systems/clear-velocity.system';
 import { PrepareMovement } from './movement/systems/prepare-movement.system';
@@ -13,8 +13,8 @@ import { RenderGroup } from './rendering/systems/render-group.system';
 import { Position } from './movement/components/position.data';
 import { Velocity } from './movement/components/velocity.data';
 import { Movement } from './movement/components/movement.data';
-import { Player } from './tags/player';
-import { PlayerInput } from './input/systems/player-input.system';
+import { Player } from './tags/player.tag';
+import { PlayerMovementInput } from './input/systems/player-movement-input.system';
 import { ClearContext } from './rendering/systems/clear-context.system';
 import { RenderSprites } from './rendering/systems/render-sprites.system';
 import { Sprite } from './rendering/components/sprite.data';
@@ -22,8 +22,10 @@ import { DeltaTime } from './delta-time';
 import { CORES_COUNT } from '@dark-star/worker-pool';
 import { Health } from './combat/components/health.data';
 import { EnemyMovement } from './enemy/systems/enemy-movement.system';
-import { RemoveHealthFromEntityOne } from './removeHealthFromEntityOne';
-import { Enemy } from './enemy/components/enemy.data';
+import { Weapon } from './combat/components/weapon.data';
+import { PlayerWeaponInput } from './input/systems/player-weapon-input';
+import { FireWeapon } from './combat/systems/fire-weapon.system';
+import { EnemyCombatSystem } from './enemy/systems/enemy-combat.system';
 
 export const bootstrap = async (canvas: HTMLCanvasElement) => {
 	const assetStore = await createAssetLoader()
@@ -53,6 +55,7 @@ export const bootstrap = async (canvas: HTMLCanvasElement) => {
 		.addSprite('enemyRed5', 'assets/spaceships/enemy/enemyRed5.png')
 		.addSprite('laserGreen01', 'assets/lasers/laserGreen01.png')
 		.addSprite('laserGreen06', 'assets/lasers/laserGreen06.png')
+		.addSprite('laserRed06', 'assets/lasers/laserRed06.png')
 		.addSprite('meteor1', 'assets/meteors/meteorBrown_big1.png')
 		.addSprite('blackBackground', 'assets/backgrounds/black.png')
 		.addSound('laser1', 'assets/sounds/sfx_laser1.ogg')
@@ -68,19 +71,22 @@ export const bootstrap = async (canvas: HTMLCanvasElement) => {
 		.registerSingleton(Keyboard, createKeyboard().attach(window as any))
 		.registerSingleton(AssetStore, assetStore)
 		.registerSingleton(DeltaTime, deltaT)
-		.registerSystem(PlayerInput)
+		.registerSystem(PlayerMovementInput)
+		.registerSystem(PlayerWeaponInput)
 		.registerSystem(ClearVelocity)
 		.registerSystem(ClearContext)
 		.registerSystem(RenderSprites)
 		.registerSystem(ApplyMovement)
 		.registerSystem(PrepareMovement)
-		// .registerSystem(RemoveHealthFromEntityOne)
 		.registerSystem(Death)
 		.registerSystem(RenderGroup)
 		.registerSystem(EnemyMovement)
+		.registerSystem(EnemyCombatSystem)
+		.registerSystem(FireWeapon)
 		.build();
 
-	world.spawn([Position, Sprite, Movement, Velocity, Player], (_, [position, sprite, movement]) => {
+	// player
+	world.spawn([Position, Sprite, Movement, Health, Weapon, Velocity, Player], (_, [position, sprite, movement, health, weapon]) => {
 		position.x = 500;
 		position.y = 500;
 
@@ -88,7 +94,17 @@ export const bootstrap = async (canvas: HTMLCanvasElement) => {
 		sprite.width = 70;
 		sprite.height = 50;
 
-		movement.speed = 600 / 1000;
+		movement.speedX = 600 / 1000;
+
+		weapon.damage = 10;
+		weapon.fireThrottle = 0.5;
+		weapon.projectileSpeed = 1;
+		weapon.projectileSprite = 'laserGreen06';
+		weapon.direction = -1;
+		weapon.offsetX = sprite.width / 2;
+
+		health.maxHealth = 100;
+		health.currentHealth = health.maxHealth;
 	});
 
 	let prevTime = 0.0;

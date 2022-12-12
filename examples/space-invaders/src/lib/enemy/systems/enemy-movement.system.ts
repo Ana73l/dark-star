@@ -9,6 +9,10 @@ import { ClearVelocity } from '../../movement/systems/clear-velocity.system';
 import { PrepareMovement } from '../../movement/systems/prepare-movement.system';
 import { Sprite } from '../../rendering/components/sprite.data';
 import { Velocity } from '../../movement/components/velocity.data';
+import { Weapon } from '../../combat/components/weapon.data';
+import { Health } from '../../combat/components/health.data';
+
+import { getRandomInt } from '../../utils/misc';
 
 @injectable()
 @updateAfter(ClearVelocity)
@@ -20,13 +24,15 @@ export class EnemyMovement extends System {
     constructor(private world: World) { super(); }
 
     public override async init() {
-        await this.jobWithCode([this.world, Position, Sprite, Movement, Enemy, Velocity], ([world, Position, Sprite, Movement, Enemy, Velocity]) => {
+        await this.jobWithCode([this.world, getRandomInt.toString(), Position, Sprite, Movement, Enemy, Weapon, Health, Velocity], ([world, getRandomIntString, Position, Sprite, Movement, Enemy, Weapon, Health, Velocity]) => {
+            const getRandomInt = eval(getRandomIntString);
+            
             const enemyColors = ['Black', 'Blue', 'Green', 'Red'];
             let row = 0;
             let column = 0;
 
             for(let i = 0; i < 30; i++) {
-                world.spawn([Position, Movement, Sprite, Enemy, Velocity], (_, [position, movement, sprite, enemy]) => {
+                world.spawn([Position, Movement, Sprite, Enemy, Weapon, Health, Velocity], (_, [position, movement, sprite, enemy, weapon, health]) => {
                     const modelType = getRandomInt(1, 5);
                     const color = getRandomInt(0, 3);
 
@@ -34,13 +40,24 @@ export class EnemyMovement extends System {
                     sprite.width = 70;
                     sprite.height = 50;
 
-                    movement.speed = 100 / 1000;
+                    movement.speedX = 100 / 1000;
+                    movement.speedY = 500 / 1000;
                     
                     enemy.row = row;
                     enemy.column = column;
 
                     position.x = column * 90 + sprite.width / 2;
-                    position.y = 50 + row * 100;
+                    position.y = -120 + row * 100;
+
+                    weapon.damage = 10;
+                    weapon.fireThrottle = 0.5;
+                    weapon.projectileSpeed = 1;
+                    weapon.projectileSprite = 'laserRed06';
+                    weapon.direction = 1;
+                    weapon.offsetX = sprite.width / 2;
+
+                    health.maxHealth = 1;
+                    health.currentHealth = 1;
 
                     column++;
 
@@ -50,14 +67,6 @@ export class EnemyMovement extends System {
                     }
                 })
             }
-
-            function getRandomInt(start = 0, finish = 100): number {
-                const s = Math.ceil(start);
-                const f = Math.floor(finish);
-            
-                return Math.floor(Math.random() * (f - s + 1)) + s;
-            };
-            
         })
         .schedule()
         .complete();

@@ -13,16 +13,16 @@ export class PrepareMovement extends System {
 		this.entities
 			.each([write(Velocity), read(Movement)], ([velocity, movement]) => {
 				if (movement.up) {
-					velocity.y -= movement.speed;
+					velocity.y -= movement.speedY;
 				}
 				if (movement.down) {
-					velocity.y += movement.speed;
+					velocity.y += movement.speedY;
 				}
 				if (movement.left) {
-					velocity.x -= movement.speed;
+					velocity.x -= movement.speedX;
 				}
 				if (movement.right) {
-					velocity.x += movement.speed;
+					velocity.x += movement.speedX;
 				}
 			})
 			.scheduleParallel();

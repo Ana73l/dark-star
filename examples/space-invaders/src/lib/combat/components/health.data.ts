@@ -1,11 +1,11 @@
 import { component } from '@dark-star/ecs';
-import { uint8 } from '@dark-star/shared-object';
+import { int16 } from '@dark-star/shared-object';
 
 @component()
 export class Health {
-	@uint8()
+	@int16()
 	maxHealth: number = 0;
 
-	@uint8()
+	@int16()
 	currentHealth: number = 0;
 }

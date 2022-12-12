@@ -16,5 +16,8 @@ export class Movement {
 	right: boolean = false;
 
 	@float64()
-	speed: number = 0;
+	speedX: number = 0;
+
+	@float64()
+	speedY: number = 0;
 }

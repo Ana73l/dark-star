@@ -1,13 +1,13 @@
 import { System, SystemQuery, write, entities } from '@dark-star/ecs';
 import { injectable } from '@dark-star/di';
 
-import { Keyboard, Keys } from '../providers/keyboard';
+import { Keyboard, Keys } from '../providers/keyboard.provider';
 
 import { Movement } from '../../movement/components/movement.data';
-import { Player } from '../../tags/player';
+import { Player } from '../../tags/player.tag';
 
 @injectable()
-export class PlayerInput extends System {
+export class PlayerMovementInput extends System {
 	@entities([Player, Movement])
 	public entities!: SystemQuery<[typeof Player, typeof Movement]>;
 
