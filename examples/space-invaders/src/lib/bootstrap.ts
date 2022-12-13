@@ -23,13 +23,13 @@ import { CORES_COUNT } from '@dark-star/worker-pool';
 import { Health } from './components/health.data';
 import { EnemyMovement } from './systems/enemy-movement.system';
 import { Weapon } from './components/weapon.data';
-import { PlayerWeaponInput } from './systems/player-weapon-input';
+import { PlayerWeaponInput } from './systems/player-weapon-input.system';
 import { FireWeapon } from './systems/fire-weapon.system';
 import { EnemyCombatSystem } from './systems/enemy-combat.system';
 import { Collider } from './components/collider.data';
 import { DetectCollisions } from './systems/detect-collisions.system';
 import { ApplyProjectileCollision } from './systems/apply-projectile-collision.system';
-import { ClearColisions } from './systems/clear-collisions';
+import { ClearColisions } from './systems/clear-collisions.system';
 import { InputGroup } from './systems/input-group.system';
 import { SimulationGroup } from './systems/simulation-group.system';
 
@@ -79,6 +79,7 @@ export const bootstrap = async (canvas: HTMLCanvasElement) => {
 		.registerSingleton(DeltaTime, deltaT)
 		.registerSystem(InputGroup)
 		.registerSystem(SimulationGroup)
+		.registerSystem(RenderGroup)
 		.registerSystem(PlayerMovementInput)
 		.registerSystem(PlayerWeaponInput)
 		.registerSystem(ClearVelocity)
@@ -87,7 +88,6 @@ export const bootstrap = async (canvas: HTMLCanvasElement) => {
 		.registerSystem(ApplyMovement)
 		.registerSystem(PrepareMovement)
 		.registerSystem(Death)
-		.registerSystem(RenderGroup)
 		.registerSystem(EnemyMovement)
 		.registerSystem(EnemyCombatSystem)
 		.registerSystem(FireWeapon)

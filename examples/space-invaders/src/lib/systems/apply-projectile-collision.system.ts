@@ -2,7 +2,7 @@ import { injectable } from '@dark-star/di';
 import { ComponentLookup, entities, read, System, SystemQuery, updateAfter, updateBefore, World, group } from '@dark-star/ecs';
 
 import { Collider } from '../components/collider.data';
-import { ClearColisions } from './clear-collisions';
+import { ClearColisions } from './clear-collisions.system';
 import { DetectCollisions } from './detect-collisions.system';
 
 import { Damage } from '../components/damage.data';

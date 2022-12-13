@@ -1,12 +1,14 @@
-import { System, SystemQuery, write, entities } from '@dark-star/ecs';
+import { System, SystemQuery, write, entities, group } from '@dark-star/ecs';
 import { injectable } from '@dark-star/di';
 
 import { Keyboard, Keys } from '../providers/keyboard.provider';
 
 import { Player } from '../components/player.tag';
 import { Weapon } from '../components/weapon.data';
+import { InputGroup } from './input-group.system';
 
 @injectable()
+@group(InputGroup)
 export class PlayerWeaponInput extends System {
 	@entities([Player, Weapon])
 	public entities!: SystemQuery<[typeof Player, typeof Weapon]>;

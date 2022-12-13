@@ -17,8 +17,6 @@ import { Collider } from '../components/collider.data';
 
 @injectable()
 @group(InputGroup)
-@updateAfter(ClearVelocity)
-@updateBefore(PrepareMovement)
 export class EnemyMovement extends System {
 	@entities([Position, Movement, Enemy])
 	public enemies!: SystemQuery<[typeof Position, typeof Movement, typeof Enemy]>;
