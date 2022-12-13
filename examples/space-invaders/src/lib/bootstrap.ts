@@ -1,31 +1,37 @@
 import { WorldBuilder } from '@dark-star/ecs';
 import { createSharedObject } from '@dark-star/shared-object';
 
-import { createKeyboard, Keyboard } from './input/providers/keyboard.provider';
+import { createKeyboard, Keyboard } from './providers/keyboard.provider';
 
-import { ClearVelocity } from './movement/systems/clear-velocity.system';
-import { PrepareMovement } from './movement/systems/prepare-movement.system';
-import { ApplyMovement } from './movement/systems/apply-movement.system';
-import { Death } from './combat/systems/death.system';
+import { ClearVelocity } from './systems/clear-velocity.system';
+import { PrepareMovement } from './systems/prepare-movement.system';
+import { ApplyMovement } from './systems/apply-movement.system';
+import { Death } from './systems/death.system';
 import { createAssetLoader } from './asset-loader';
 import { AssetStore } from './asset-store';
-import { RenderGroup } from './rendering/systems/render-group.system';
-import { Position } from './movement/components/position.data';
-import { Velocity } from './movement/components/velocity.data';
-import { Movement } from './movement/components/movement.data';
-import { Player } from './tags/player.tag';
-import { PlayerMovementInput } from './input/systems/player-movement-input.system';
-import { ClearContext } from './rendering/systems/clear-context.system';
-import { RenderSprites } from './rendering/systems/render-sprites.system';
-import { Sprite } from './rendering/components/sprite.data';
-import { DeltaTime } from './delta-time';
+import { RenderGroup } from './systems/render-group.system';
+import { Position } from './components/position.data';
+import { Velocity } from './components/velocity.data';
+import { Movement } from './components/movement.data';
+import { Player } from './components/player.tag';
+import { PlayerMovementInput } from './systems/player-movement-input.system';
+import { ClearContext } from './systems/clear-context.system';
+import { RenderSprites } from './systems/render-sprites.system';
+import { Sprite } from './components/sprite.data';
+import { DeltaTime } from './providers/delta-time.provider';
 import { CORES_COUNT } from '@dark-star/worker-pool';
-import { Health } from './combat/components/health.data';
-import { EnemyMovement } from './enemy/systems/enemy-movement.system';
-import { Weapon } from './combat/components/weapon.data';
-import { PlayerWeaponInput } from './input/systems/player-weapon-input';
-import { FireWeapon } from './combat/systems/fire-weapon.system';
-import { EnemyCombatSystem } from './enemy/systems/enemy-combat.system';
+import { Health } from './components/health.data';
+import { EnemyMovement } from './systems/enemy-movement.system';
+import { Weapon } from './components/weapon.data';
+import { PlayerWeaponInput } from './systems/player-weapon-input';
+import { FireWeapon } from './systems/fire-weapon.system';
+import { EnemyCombatSystem } from './systems/enemy-combat.system';
+import { Collider } from './components/collider.data';
+import { DetectCollisions } from './systems/detect-collisions.system';
+import { ApplyProjectileCollision } from './systems/apply-projectile-collision.system';
+import { ClearColisions } from './systems/clear-collisions';
+import { InputGroup } from './systems/input-group.system';
+import { SimulationGroup } from './systems/simulation-group.system';
 
 export const bootstrap = async (canvas: HTMLCanvasElement) => {
 	const assetStore = await createAssetLoader()
@@ -71,6 +77,8 @@ export const bootstrap = async (canvas: HTMLCanvasElement) => {
 		.registerSingleton(Keyboard, createKeyboard().attach(window as any))
 		.registerSingleton(AssetStore, assetStore)
 		.registerSingleton(DeltaTime, deltaT)
+		.registerSystem(InputGroup)
+		.registerSystem(SimulationGroup)
 		.registerSystem(PlayerMovementInput)
 		.registerSystem(PlayerWeaponInput)
 		.registerSystem(ClearVelocity)
@@ -83,29 +91,38 @@ export const bootstrap = async (canvas: HTMLCanvasElement) => {
 		.registerSystem(EnemyMovement)
 		.registerSystem(EnemyCombatSystem)
 		.registerSystem(FireWeapon)
+		.registerSystem(DetectCollisions)
+		.registerSystem(ApplyProjectileCollision)
+		.registerSystem(ClearColisions)
 		.build();
 
 	// player
-	world.spawn([Position, Sprite, Movement, Health, Weapon, Velocity, Player], (_, [position, sprite, movement, health, weapon]) => {
-		position.x = 500;
-		position.y = 500;
+	world.spawn(
+		[Position, Sprite, Movement, Health, Weapon, Collider, Velocity, Player],
+		(_, [position, sprite, movement, health, weapon, collider]) => {
+			position.x = 500;
+			position.y = 500;
 
-		sprite.image = 'playerShip1';
-		sprite.width = 70;
-		sprite.height = 50;
+			sprite.image = 'playerShip1';
+			sprite.width = 70;
+			sprite.height = 50;
 
-		movement.speedX = 600 / 1000;
+			collider.width = sprite.width;
+			collider.height = sprite.height;
 
-		weapon.damage = 10;
-		weapon.fireThrottle = 0.5;
-		weapon.projectileSpeed = 1;
-		weapon.projectileSprite = 'laserGreen06';
-		weapon.direction = -1;
-		weapon.offsetX = sprite.width / 2;
+			movement.speedX = 600 / 1000;
 
-		health.maxHealth = 100;
-		health.currentHealth = health.maxHealth;
-	});
+			weapon.damage = 10;
+			weapon.fireThrottle = 0.5;
+			weapon.projectileSpeed = 1;
+			weapon.projectileSprite = 'laserGreen06';
+			weapon.direction = -1;
+			weapon.offsetX = sprite.width / 2;
+
+			health.maxHealth = 100;
+			health.currentHealth = health.maxHealth;
+		}
+	);
 
 	let prevTime = 0.0;
 

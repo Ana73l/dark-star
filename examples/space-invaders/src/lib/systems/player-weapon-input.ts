@@ -3,8 +3,8 @@ import { injectable } from '@dark-star/di';
 
 import { Keyboard, Keys } from '../providers/keyboard.provider';
 
-import { Player } from '../../tags/player.tag';
-import { Weapon } from '../../combat/components/weapon.data';
+import { Player } from '../components/player.tag';
+import { Weapon } from '../components/weapon.data';
 
 @injectable()
 export class PlayerWeaponInput extends System {
@@ -20,11 +20,11 @@ export class PlayerWeaponInput extends System {
 		/**
 		 * Run this action on the main thread since we are accessing main thread APIs
 		 */
-        const isFiring = keyboard.pressed(Keys.SPACE);
+		const isFiring = keyboard.pressed(Keys.SPACE);
 
 		await this.entities
 			.each([write(Weapon)], ([weapon]) => {
-                weapon.isFiring = isFiring;
+				weapon.isFiring = isFiring;
 			})
 			.run();
 	}

@@ -1,10 +1,13 @@
-import { System, SystemQuery, entities, write, read } from '@dark-star/ecs';
+import { System, SystemQuery, entities, write, read, group } from '@dark-star/ecs';
 import { injectable } from '@dark-star/di';
 
 import { Velocity } from '../components/velocity.data';
 import { Movement } from '../components/movement.data';
 
+import { SimulationGroup } from './simulation-group.system';
+
 @injectable()
+@group(SimulationGroup)
 export class PrepareMovement extends System {
 	@entities([Velocity, Movement])
 	public entities!: SystemQuery<[typeof Velocity, typeof Movement]>;

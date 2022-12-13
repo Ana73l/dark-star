@@ -4,13 +4,16 @@ import { createSharedObjectArray } from '@dark-star/shared-object';
 import { Entity } from '../../entity';
 import { ComponentQueryDescriptor, ComponentTypes } from '../../query';
 
-import { $dependencies, $accessFlag, $componentType, $query } from './__internals__';
+import { $dependencies, $componentAccessDescriptor, $query } from './__internals__';
 import { ComponentLookup } from './job-transferables/component-lookup';
+import { ComponentChunksArray } from './job-transferables/component-chunks-array';
+import { EntityChunksArray } from './job-transferables/entity-chunks-array';
 import { $scheduler, System } from '../../system/planning/__internals__';
 
 import { JobId } from './job';
 import { World } from '../../world/world';
 import { DeferredCommandsProcessor } from '../../storage/deferred-commands-processor';
+import { ComponentType } from '../../component';
 
 /**
  * @internal
@@ -40,6 +43,32 @@ export enum JobParamsTypes {
 	 * {@link ComponentLookup}
 	 */
 	ComponentLookup,
+	/**
+	 * {@link ComponentChunksArray Component arrays} of a {@link ComponentType} returned by a query.
+	 *
+	 * @remarks
+	 * Used to iterate all of the component instances of a type returned by a query.
+	 *
+	 * @see
+	 * {@link ComponentChunksArray}
+	 */
+	ComponentChunksArray,
+	/**
+	 * {@link EntityChunksArray Entity arrays} returned by a query
+	 *
+	 * @see
+	 * {@link EntityChunkArrays}
+	 */
+	EntityChunksArray,
+	/**
+	 * {@link World} used to expose {@link Entity} commands on background threads.
+	 *
+	 * @remarks
+	 * {@link WorkerWorld} supports {@link WorkerWorld.spawn spawn}, {@link WorkerWorld.attach attach}, {@link WorkerWorld.detach detach} and {@link WorkerWorld.destroy destroy}.
+	 *
+	 * @see
+	 * {@link WorkerWorld}
+	 */
 	World,
 	/**
 	 * Types that will not be encoded/ decoded between main and background threads.
@@ -50,7 +79,7 @@ export enum JobParamsTypes {
 	 * unless passing [transferable objects](https://developer.mozilla.org/en-US/docs/Glossary/Transferable_objects)
 	 * or [shared array buffers](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/SharedArrayBuffer).
 	 */
-	Any,
+	Any
 }
 
 /**
@@ -76,6 +105,17 @@ export type JobParamPayload = [type: JobParamsTypes, value?: any, componentTypeI
  * {@link ComponentLookup}
  */
 export type ComponentLookupPayload = [size: number, entities: SharedArrayBuffer, components: SharedArrayBuffer][];
+/**
+ * @internal
+ * {@link ComponentChunksArray} {@link serializeJobParams serialized} payload.
+ *
+ * @remarks
+ * Used internally to recreate the {@link ComponentChunksArray} object on a background thread.
+ *
+ * @see
+ * {@link ComponentChunksArray}
+ */
+export type ComponentChunkArraysPayload = [size: number, components: SharedArrayBuffer][];
 
 export type WorkerWorldLambdaResponse = [
 	spawn: [SharedArrayBuffer | undefined, (SharedArrayBuffer | undefined)[] | undefined][],
@@ -105,14 +145,11 @@ export function serializeJobParams(params: readonly any[]): [JobParamPayload, Co
 
 		if (param instanceof ComponentLookup) {
 			// ComponentLookup
-			// add component type access descriptor
-			componentAccessDescriptors.push({
-				type: param[$componentType],
-				flag: param[$accessFlag],
-			});
+			// add component type access descriptors
+			componentAccessDescriptors.push(param[$componentAccessDescriptor]);
 
 			const payload: ComponentLookupPayload = [];
-			const componentTypeId = param[$componentType][$id];
+			const componentTypeId = param[$componentAccessDescriptor].type[$id]!;
 			const query = param[$query];
 			const archetypes = query[1];
 			const archetypesLength = archetypes.length;
@@ -131,13 +168,65 @@ export function serializeJobParams(params: readonly any[]): [JobParamPayload, Co
 						payload.push([
 							chunkSize,
 							chunk.getEntitiesArray().buffer as SharedArrayBuffer,
-							chunk.getComponentArray(componentTypeId)![$view].buffer as SharedArrayBuffer,
+							chunk.getComponentArray(componentTypeId)![$view].buffer as SharedArrayBuffer
 						]);
 					}
 				}
 			}
 
 			serializedParams[currentParamIndex] = [JobParamsTypes.ComponentLookup, payload, componentTypeId];
+		} else if (param instanceof ComponentChunksArray) {
+			// ComponentChunksArray
+			// add component type access descriptors
+			componentAccessDescriptors.push(param[$componentAccessDescriptor]);
+
+			const payload: ComponentChunkArraysPayload = [];
+			const componentTypeId = param[$componentAccessDescriptor].type[$id]!;
+			const query = param[$query];
+			const archetypes = query[1];
+			const archetypesLength = archetypes.length;
+			let archetypeIndex;
+
+			for (archetypeIndex = 0; archetypeIndex < archetypesLength; archetypeIndex++) {
+				const chunks = archetypes[archetypeIndex].chunks;
+				const chunksCount = chunks.length;
+				let chunkIndex;
+
+				for (chunkIndex = 0; chunkIndex < chunksCount; chunkIndex++) {
+					const chunk = chunks[chunkIndex];
+					const chunkSize = chunk.size;
+
+					if (chunkSize > 0) {
+						payload.push([chunkSize, chunk.getComponentArray(componentTypeId)![$view].buffer as SharedArrayBuffer]);
+					}
+				}
+			}
+
+			serializedParams[currentParamIndex] = [JobParamsTypes.ComponentChunksArray, payload, componentTypeId];
+		} else if (param instanceof EntityChunksArray) {
+			// EntityChunksArray
+			const payload: ComponentChunkArraysPayload = [];
+			const query = param[$query];
+			const archetypes = query[1];
+			const archetypesLength = archetypes.length;
+			let archetypeIndex;
+
+			for (archetypeIndex = 0; archetypeIndex < archetypesLength; archetypeIndex++) {
+				const chunks = archetypes[archetypeIndex].chunks;
+				const chunksCount = chunks.length;
+				let chunkIndex;
+
+				for (chunkIndex = 0; chunkIndex < chunksCount; chunkIndex++) {
+					const chunk = chunks[chunkIndex];
+					const chunkSize = chunk.size;
+
+					if (chunkSize > 0) {
+						payload.push([chunkSize, chunk.getEntitiesArray()!.buffer as SharedArrayBuffer]);
+					}
+				}
+			}
+
+			serializedParams[currentParamIndex] = [JobParamsTypes.EntityChunksArray, payload];
 		} else if (param && param[$id]) {
 			// ComponentType
 			serializedParams[currentParamIndex] = [JobParamsTypes.ComponentType, param[$id]];
@@ -171,15 +260,19 @@ export function deserializeJobParams(params: JobParamPayload): any[] {
 	for (currentParamIndex = 0; currentParamIndex < paramsLength; currentParamIndex++) {
 		const currentParam = params[currentParamIndex];
 		const type = currentParam[0];
+		let componentTypeId;
+		let componentType: ComponentType;
+		let chunks;
+		let chunksCount;
+		let currentChunkIndex;
 
 		switch (type) {
 			case JobParamsTypes.ComponentLookup:
-				const componentTypeId = currentParam[2]!;
-				const componentType = schemas[componentTypeId - 1];
-				const componentLookup: Record<Entity, typeof componentType> = {};
-				const chunks = currentParam[1] as [size: number, entities: SharedArrayBuffer, components: SharedArrayBuffer][];
-				const chunksCount = chunks.length;
-				let currentChunkIndex;
+				componentTypeId = currentParam[2]!;
+				componentType = schemas[componentTypeId - 1];
+				const componentLookup: Record<Entity, InstanceType<typeof componentType>> = {};
+				chunks = currentParam[1] as ComponentLookupPayload;
+				chunksCount = chunks.length;
 
 				for (currentChunkIndex = 0; currentChunkIndex < chunksCount; currentChunkIndex++) {
 					const chunk = chunks[currentChunkIndex];
@@ -194,6 +287,34 @@ export function deserializeJobParams(params: JobParamPayload): any[] {
 				}
 
 				deserializedParams[currentParamIndex] = componentLookup;
+				break;
+			case JobParamsTypes.ComponentChunksArray:
+				componentTypeId = currentParam[2]!;
+				componentType = schemas[componentTypeId - 1];
+				const componentChunksArray = new Array(currentParam[1].length);
+				chunks = currentParam[1] as ComponentChunkArraysPayload;
+				chunksCount = chunks.length;
+
+				for (currentChunkIndex = 0; currentChunkIndex < chunksCount; currentChunkIndex++) {
+					const chunk = chunks[currentChunkIndex];
+					const size = chunk[0];
+					componentChunksArray[currentChunkIndex] = createSharedObjectArray(componentType, chunk[1], { length: size });
+				}
+
+				deserializedParams[currentParamIndex] = componentChunksArray;
+				break;
+			case JobParamsTypes.EntityChunksArray:
+				const entityChunksArray = new Array(currentParam[1].length);
+				chunks = currentParam[1] as ComponentChunkArraysPayload;
+				chunksCount = chunks.length;
+
+				for (currentChunkIndex = 0; currentChunkIndex < chunksCount; currentChunkIndex++) {
+					const chunk = chunks[currentChunkIndex];
+					const size = chunk[0];
+					entityChunksArray[currentChunkIndex] = Object.assign(new Uint32Array(chunk[1], 0, size), { size });
+				}
+
+				deserializedParams[currentParamIndex] = entityChunksArray;
 				break;
 			case JobParamsTypes.ComponentType:
 				deserializedParams[currentParamIndex] = schemas[currentParam[1] - 1];
@@ -233,7 +354,7 @@ export function mapJobParamsForMainThread(params: readonly any[]): any[] {
 		if (param instanceof ComponentLookup) {
 			const componentLookup: Record<Entity, any> = {};
 			const query = param[$query];
-			const componentTypeId = param[$componentType][$id];
+			const componentTypeId = param[$componentAccessDescriptor].type[$id]!;
 			const archetypes = query[1];
 			const archetypesLength = archetypes.length;
 			let archetypeIndex;
@@ -260,6 +381,51 @@ export function mapJobParamsForMainThread(params: readonly any[]): any[] {
 			}
 
 			mappedParams[currentParamIndex] = componentLookup;
+		} else if (param instanceof ComponentChunksArray) {
+			const componentChunksArray: any[] = [];
+			const query = param[$query];
+			const componentTypeId = param[$componentAccessDescriptor].type[$id]!;
+			const archetypes = query[1];
+			const archetypesLength = archetypes.length;
+			let archetypeIndex;
+
+			for (archetypeIndex = 0; archetypeIndex < archetypesLength; archetypeIndex++) {
+				const chunks = archetypes[archetypeIndex].chunks;
+				const chunksCount = chunks.length;
+				let chunkIndex;
+
+				for (chunkIndex = 0; chunkIndex < chunksCount; chunkIndex++) {
+					const chunk = chunks[chunkIndex];
+
+					if (chunk.size > 0) {
+						componentChunksArray.push(chunk.getComponentArray(componentTypeId)!);
+					}
+				}
+			}
+
+			mappedParams[currentParamIndex] = componentChunksArray;
+		} else if (param instanceof EntityChunksArray) {
+			const entityChunksArray = [];
+			const query = param[$query];
+			const archetypes = query[1];
+			const archetypesLength = archetypes.length;
+			let archetypeIndex;
+
+			for (archetypeIndex = 0; archetypeIndex < archetypesLength; archetypeIndex++) {
+				const chunks = archetypes[archetypeIndex].chunks;
+				const chunksCount = chunks.length;
+				let chunkIndex;
+
+				for (chunkIndex = 0; chunkIndex < chunksCount; chunkIndex++) {
+					const chunk = chunks[chunkIndex];
+
+					if (chunk.size > 0) {
+						entityChunksArray.push(chunk.getEntitiesArray());
+					}
+				}
+			}
+
+			mappedParams[currentParamIndex] = entityChunksArray;
 		} else {
 			mappedParams[currentParamIndex] = param;
 		}
@@ -312,12 +478,22 @@ export function addHandleToSystemDependency(system: System, handleId: JobId): vo
 
 					return promise;
 				},
-				[$dependencies]: new Set([handleId]),
+				[$dependencies]: new Set([handleId])
 			};
 		}
 	}
 }
 
+/**
+ * @internal
+ * Applies {@link Entity} commands ({@link World.spawn}, {@link World.attach}, {@link World.detach}, {@link World.destroy}) enqueued from a background thread.
+ *
+ * @see
+ * {@link WorkerWorld}
+ *
+ * @param deferredCommands - Deferred commands processor to which to add the enqueued commands
+ * @param workerResponse - Data passed by the background thread
+ */
 export function applyWorkerWorldCommands(deferredCommands: DeferredCommandsProcessor, workerResponse: WorkerWorldLambdaResponse): void {
 	let currentCommandIndex;
 

@@ -3,8 +3,8 @@ import { injectable } from '@dark-star/di';
 
 import { Keyboard, Keys } from '../providers/keyboard.provider';
 
-import { Movement } from '../../movement/components/movement.data';
-import { Player } from '../../tags/player.tag';
+import { Movement } from '../components/movement.data';
+import { Player } from '../components/player.tag';
 
 @injectable()
 export class PlayerMovementInput extends System {

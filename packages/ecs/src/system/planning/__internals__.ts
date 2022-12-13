@@ -1,7 +1,9 @@
 import { ComponentType } from '../../component/component';
-import { JobHandle } from '../../threads';
+import { ComponentQueryDescriptor } from '../../query';
+import { JobHandle } from '../../threads/jobs/job';
 import { JobScheduler } from '../../threads/job-scheduler';
 import { ComponentLookup } from '../../threads/jobs/job-transferables/component-lookup';
+import { ComponentChunksArray } from '../../threads/jobs/job-transferables/component-chunks-array';
 import { SystemQuery } from '../query-factories/system-query';
 
 export const $planner = Symbol('dark_star_ecs_planner');
@@ -15,11 +17,6 @@ export interface Planner {
 		some?: TSome,
 		none?: TNone
 	) => SystemQuery<TAll, TSome, TNone>;
-
-	getComponentLookup<T extends ComponentType = ComponentType, R extends boolean = false>(
-		componentType: T,
-		readonly?: R
-	): ComponentLookup<T, R>;
 }
 
 export interface System {

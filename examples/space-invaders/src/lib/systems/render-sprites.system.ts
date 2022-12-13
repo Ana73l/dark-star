@@ -1,9 +1,9 @@
 import { System, group, SystemQuery, read, updateAfter, entities, World } from '@dark-star/ecs';
 import { injectable } from '@dark-star/di';
 
-import { Position } from '../../movement/components/position.data';
+import { Position } from '../components/position.data';
 import { Sprite } from '../components/sprite.data';
-import { AssetStore } from '../../asset-store';
+import { AssetStore } from '../asset-store';
 
 import { RenderGroup } from './render-group.system';
 import { ClearContext } from './clear-context.system';

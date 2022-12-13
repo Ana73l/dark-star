@@ -5,7 +5,7 @@ import { Archetype } from './storage/archetype/archetype';
 
 export enum ComponentAccessFlags {
 	Read,
-	Write,
+	Write
 }
 
 export type ReadComponentAccess<T extends ComponentType = ComponentType> = {
@@ -79,12 +79,12 @@ export type QueryRecord = [layout: QueryRecordLayout, archetypes: Archetype[]];
 
 export const read = <T extends ComponentType>(componentType: T): ReadComponentAccess<T> => ({
 	type: componentType,
-	flag: ComponentAccessFlags.Read,
+	flag: ComponentAccessFlags.Read
 });
 
 export const write = <T extends ComponentType>(componentType: T): WriteComponentAccess<T> => ({
 	type: componentType,
-	flag: ComponentAccessFlags.Write,
+	flag: ComponentAccessFlags.Write
 });
 
 /**

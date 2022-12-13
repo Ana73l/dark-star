@@ -61,7 +61,7 @@ export class ECSWorld implements World {
 			threads = threads - 1;
 			world.workerPool = WorkerPool.create({
 				threads: threads,
-				workerFactory: () => new ECSWorker(),
+				workerFactory: () => new ECSWorker()
 			});
 
 			const ecsTaskRunner = new ECSTaskRunner(world.workerPool);
@@ -177,6 +177,10 @@ export class ECSWorld implements World {
 		const self = this;
 		this.runPromise = new Promise<void>(async function (resolve) {
 			self.store.currentWorldVersion = self._version;
+
+			// complete all scheduled jobs
+			await self.jobScheduler?.completeJobs();
+
 			self.deferredCommands.process();
 			await self.systemProcessor.execute(self._version);
 

@@ -116,7 +116,7 @@ export class JobScheduler implements Disposable {
 			},
 			[$dependencies]: dependencies,
 			[$readers]: jobReaders,
-			[$writers]: jobWriters,
+			[$writers]: jobWriters
 		};
 
 		this.jobHandles.set(id, jobHandle);
@@ -128,8 +128,8 @@ export class JobScheduler implements Disposable {
 		return this.disposed;
 	}
 
-	public async completeJobs(jobIds: Set<JobId>): Promise<void> {
-		if (jobIds.size > 0) {
+	public async completeJobs(jobIds?: Set<JobId>): Promise<void> {
+		if (jobIds && jobIds.size > 0) {
 			const jobHandles = this.jobHandles;
 			const jobs = [];
 
@@ -144,6 +144,10 @@ export class JobScheduler implements Disposable {
 			}
 
 			await Promise.all(jobs);
+		} else if (!jobIds) {
+			const scheduledJobs = new Set(this.jobHandles.keys());
+
+			await this.completeJobs(scheduledJobs);
 		}
 	}
 

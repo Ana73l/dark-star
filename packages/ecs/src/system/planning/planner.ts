@@ -1,13 +1,16 @@
 import { Disposable, Instance, assert } from '@dark-star/core';
+
+import { ComponentType } from '../../component/component';
 import { ComponentAccessFlags, ComponentQueryDescriptor, ComponentTypes, convertQueryToDescriptors } from '../../query';
 import { EntityStore } from '../../storage/store';
+import { ComponentLookup } from '../../threads/jobs/job-transferables/component-lookup';
+import { ComponentChunksArray } from '../../threads/jobs/job-transferables/component-chunks-array';
 
 import { System, SystemGroup, SystemType } from '../system';
+import { SystemQuery } from '../query-factories/system-query';
+
 import { Planner as IPlanner } from './__internals__';
 import { RootSystem } from './root-system';
-import { SystemQuery } from '../query-factories/system-query';
-import { ComponentLookup } from '../../threads/jobs/job-transferables/component-lookup';
-import { ComponentType } from '../../component/component';
 
 export class Planner implements IPlanner, Disposable {
 	private queries: Map<System, [ComponentQueryDescriptor[]]> = new Map();
@@ -37,15 +40,6 @@ export class Planner implements IPlanner, Disposable {
 
 			return new SystemQuery<TAll, TSome, TNone>(system, record);
 		};
-	}
-
-	public getComponentLookup<T extends ComponentType = ComponentType, R extends boolean = false>(
-		componentType: T,
-		readonly?: R
-	): ComponentLookup<T, R> {
-		const query = this.store.registerQuery([componentType]);
-
-		return new ComponentLookup(componentType, query, readonly);
 	}
 
 	public createSystemRoot(): Instance<RootSystem> {

@@ -2,8 +2,8 @@ import { System, entities, SystemQuery, write } from '@dark-star/ecs';
 import { injectable } from '@dark-star/di';
 
 import { Enemy } from '../components/enemy.data';
-import { Weapon } from '../../combat/components/weapon.data';
-import { getRandomInt } from '../../utils/misc';
+import { Weapon } from '../components/weapon.data';
+import { getRandomInt } from '../utils/misc';
 
 @injectable()
 export class EnemyCombatSystem extends System {
@@ -14,7 +14,7 @@ export class EnemyCombatSystem extends System {
 		this.entities
 			.each([write(Weapon)], [getRandomInt.toString()], ([weapon], [getRandomIntString]) => {
 				const getRandomInt = eval(getRandomIntString);
-				
+
 				weapon.isFiring = getRandomInt(1, 50000) >= 49950;
 			})
 			.schedule();

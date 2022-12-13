@@ -9,7 +9,7 @@ import {
 	$offset,
 	assignViewToInstance,
 	registerSchema,
-	$id,
+	$id
 } from '@dark-star/core';
 
 export type TypedFieldDecorator<T extends any> = <K extends string, V extends Schema & Record<K, T>>(
@@ -29,7 +29,7 @@ export const int8 = (): TypedFieldDecorator<number> => (target, property) => {
 	const fields = (ctor[$definition] = ctor[$definition] || {});
 
 	fields[property] = {
-		type: PrimitiveTypes.Int8,
+		type: PrimitiveTypes.Int8
 	};
 
 	const offset = ctor[$size] || 0;
@@ -49,7 +49,7 @@ export const int8 = (): TypedFieldDecorator<number> => (target, property) => {
 			} else {
 				this[$values] = { [property]: value };
 			}
-		},
+		}
 	});
 
 	ctor[$size] = Int8Array.BYTES_PER_ELEMENT + offset;
@@ -67,7 +67,7 @@ export const uint8 = (): TypedFieldDecorator<number> => (target, property) => {
 	const fields = (ctor[$definition] = ctor[$definition] || {});
 
 	fields[property] = {
-		type: PrimitiveTypes.Uint8,
+		type: PrimitiveTypes.Uint8
 	};
 
 	const offset = ctor[$size] || 0;
@@ -87,7 +87,7 @@ export const uint8 = (): TypedFieldDecorator<number> => (target, property) => {
 			} else {
 				this[$values] = { [property]: value };
 			}
-		},
+		}
 	});
 
 	ctor[$size] = Uint8Array.BYTES_PER_ELEMENT + offset;
@@ -109,7 +109,7 @@ export const int16 =
 
 		fields[property] = {
 			type: PrimitiveTypes.Int16,
-			args: [littleEndian],
+			args: [littleEndian]
 		};
 
 		const offset = ctor[$size] || 0;
@@ -131,7 +131,7 @@ export const int16 =
 				} else {
 					this[$values] = { [property]: value };
 				}
-			},
+			}
 		});
 
 		ctor[$size] = Int16Array.BYTES_PER_ELEMENT + offset;
@@ -153,7 +153,7 @@ export const uint16 =
 
 		fields[property] = {
 			type: PrimitiveTypes.Uint16,
-			args: [littleEndian],
+			args: [littleEndian]
 		};
 
 		const offset = ctor[$size] || 0;
@@ -175,7 +175,7 @@ export const uint16 =
 				} else {
 					this[$values] = { [property]: value };
 				}
-			},
+			}
 		});
 
 		ctor[$size] = Uint16Array.BYTES_PER_ELEMENT + offset;
@@ -197,7 +197,7 @@ export const int32 =
 
 		fields[property] = {
 			type: PrimitiveTypes.Int32,
-			args: [littleEndian],
+			args: [littleEndian]
 		};
 
 		const offset = ctor[$size] || 0;
@@ -219,7 +219,7 @@ export const int32 =
 				} else {
 					this[$values] = { [property]: value };
 				}
-			},
+			}
 		});
 
 		ctor[$size] = Int32Array.BYTES_PER_ELEMENT + offset;
@@ -241,7 +241,7 @@ export const uint32 =
 
 		fields[property] = {
 			type: PrimitiveTypes.Uint32,
-			args: [littleEndian],
+			args: [littleEndian]
 		};
 
 		const offset = ctor[$size] || 0;
@@ -250,12 +250,12 @@ export const uint32 =
 			enumerable: true,
 			get() {
 				return this[$view]
-					? this[$view].setUint32(this[$offset] + offset, littleEndian)
+					? this[$view].getUint32(this[$offset] + offset, littleEndian)
 					: (this[$values] && this[$values][property]) || 0;
 			},
 			set(value: number) {
 				if (this[$view]) {
-					this[$view].getUint32(this[$offset] + offset, value, littleEndian);
+					this[$view].setUint32(this[$offset] + offset, value, littleEndian);
 				}
 
 				if (this[$values]) {
@@ -263,7 +263,7 @@ export const uint32 =
 				} else {
 					this[$values] = { [property]: value };
 				}
-			},
+			}
 		});
 
 		ctor[$size] = Uint32Array.BYTES_PER_ELEMENT + offset;
@@ -285,7 +285,7 @@ export const float32 =
 
 		fields[property] = {
 			type: PrimitiveTypes.Float32,
-			args: [littleEndian],
+			args: [littleEndian]
 		};
 
 		const offset = ctor[$size] || 0;
@@ -307,7 +307,7 @@ export const float32 =
 				} else {
 					this[$values] = { [property]: value };
 				}
-			},
+			}
 		});
 
 		ctor[$size] = Float32Array.BYTES_PER_ELEMENT + offset;
@@ -329,7 +329,7 @@ export const float64 =
 
 		fields[property] = {
 			type: PrimitiveTypes.Float64,
-			args: [littleEndian],
+			args: [littleEndian]
 		};
 
 		const offset = ctor[$size] || 0;
@@ -351,7 +351,7 @@ export const float64 =
 				} else {
 					this[$values] = { [property]: value };
 				}
-			},
+			}
 		});
 
 		ctor[$size] = Float64Array.BYTES_PER_ELEMENT + offset;
@@ -373,7 +373,7 @@ export const bigInt64 =
 
 		fields[property] = {
 			type: PrimitiveTypes.BigInt64,
-			args: [littleEndian],
+			args: [littleEndian]
 		};
 
 		const offset = ctor[$size] || 0;
@@ -395,7 +395,7 @@ export const bigInt64 =
 				} else {
 					this[$values] = { [property]: value };
 				}
-			},
+			}
 		});
 
 		ctor[$size] = BigInt64Array.BYTES_PER_ELEMENT + offset;
@@ -417,7 +417,7 @@ export const bigUint64 =
 
 		fields[property] = {
 			type: PrimitiveTypes.BigUint64,
-			args: [littleEndian],
+			args: [littleEndian]
 		};
 
 		const offset = ctor[$size] || 0;
@@ -439,7 +439,7 @@ export const bigUint64 =
 				} else {
 					this[$values] = { [property]: value };
 				}
-			},
+			}
 		});
 
 		ctor[$size] = BigUint64Array.BYTES_PER_ELEMENT + offset;
@@ -457,7 +457,7 @@ export const bool = (): TypedFieldDecorator<boolean> => (target, property) => {
 	const fields = (ctor[$definition] = ctor[$definition] || {});
 
 	fields[property] = {
-		type: PrimitiveTypes.Boolean,
+		type: PrimitiveTypes.Boolean
 	};
 
 	const offset = ctor[$size] || 0;
@@ -477,7 +477,7 @@ export const bool = (): TypedFieldDecorator<boolean> => (target, property) => {
 			} else {
 				this[$values] = { [property]: value };
 			}
-		},
+		}
 	});
 
 	ctor[$size] = Uint8Array.BYTES_PER_ELEMENT + offset;
@@ -536,8 +536,13 @@ export const string8 =
 					const size = value.length;
 					let i;
 
-					for (i = 0; i < size; i++) {
-						this[$view].setUint8(stride, value[i].charCodeAt(0));
+					for (i = 0; i < maxLength; i++) {
+						if (i < size) {
+							this[$view].setUint8(stride, value[i].charCodeAt(0));
+						} else {
+							this[$view].setUint8(stride, 0);
+						}
+
 						stride++;
 					}
 				}
@@ -547,7 +552,7 @@ export const string8 =
 				} else {
 					this[$values] = { [property]: value };
 				}
-			},
+			}
 		});
 
 		ctor[$size] = Uint8Array.BYTES_PER_ELEMENT * maxLength + offset;
@@ -607,8 +612,12 @@ export const string16 =
 					const size = value.length;
 					let i;
 
-					for (i = 0; i < size; i++) {
-						this[$view].setUint16(stride, value[i].charCodeAt(0));
+					for (i = 0; i < maxLength; i++) {
+						if (i < size) {
+							this[$view].setUint16(stride, value[i].charCodeAt(0));
+						} else {
+							this[$view].setUint16(stride, 0);
+						}
 						stride += byteLength;
 					}
 				}
@@ -618,7 +627,7 @@ export const string16 =
 				} else {
 					this[$values] = { [property]: value };
 				}
-			},
+			}
 		});
 
 		ctor[$size] = Uint16Array.BYTES_PER_ELEMENT * maxLength + offset;
@@ -644,7 +653,7 @@ export const schema =
 
 		fields[property] = {
 			type: PrimitiveTypes.Schema,
-			args: [schemaType[$id]],
+			args: [schemaType[$id]]
 		};
 
 		Object.defineProperty(target, property, {
@@ -670,7 +679,7 @@ export const schema =
 				const newValue = Object.assign(this[property], value);
 
 				this[$values][property] = newValue;
-			},
+			}
 		});
 
 		ctor[$size] = offset + schemaType[$size]!;

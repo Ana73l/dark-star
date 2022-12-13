@@ -1,16 +1,16 @@
 import { assert } from '@dark-star/core';
-import { ComponentType } from '../component/component';
 
+import { ComponentType } from '../component/component';
 import { ComponentQueryDescriptor, ComponentTypes } from '../query';
-import { Job, JobHandle } from '../threads';
+import { WorldUpdateVersion } from '../world';
+import { Job, JobHandle, JobArgs, JobCallbackMappedArgs } from '../threads/jobs/job';
 import { JobScheduler } from '../threads/job-scheduler';
 import { ECSJobWithCode } from '../threads/jobs/ecs-job-with-code';
-import { WorldUpdateVersion } from '../world';
 import { ComponentLookup } from '../threads/jobs/job-transferables/component-lookup';
+import { ComponentChunksArray } from '../threads/jobs/job-transferables/component-chunks-array';
 
 import { $planner, $scheduler, Planner, System as ISystem } from './planning/__internals__';
 import { SystemQuery } from './query-factories/system-query';
-import { JobArgs, JobCallbackMappedArgs } from '../threads/jobs/job';
 
 /**
  * Utility type representing possible {@link System system} static properties.
@@ -371,15 +371,15 @@ export abstract class System implements ISystem {
 	 * ```ts
 	 * @injectable()
 	 * class FollowEntity extends System {
-	 * 	private following!: SystemQuery<[typeof Position, typeof Follow, typeof Translation]>;
+	 * 	@entities([Position, Follow, Translation])
+	 * 	public following!: SystemQuery<[typeof Position, typeof Follow, typeof Translation]>;
 	 *
 	 * 	// all entities with Position component and the corresponding component instances
-	 * 	private positions!: ComponentLookup<Position, true>;
+	 * 	private positions!: ComponentLookup<ReadComponentAccess<typeof Position>>;
 	 *
 	 * 	public override async init() {
-	 * 		this.following = this.query([Position, Follow, Translation]);
-	 * 		// Position of target entity will not be written to so readonly access is assigned via second parameter
-	 * 		this.positions = this.getComponentLookup(Position, true);
+	 * 		// Position of target entity will not be written to so readonly access is assigned
+	 * 		this.positions = this.getComponentLookup(read(Position));
 	 * 	}
 	 *
 	 * 	public override async update() {
@@ -398,16 +398,93 @@ export abstract class System implements ISystem {
 	 * }
 	 * ```
 	 */
-	protected getComponentLookup<T extends ComponentType, R extends boolean = false>(
-		componentType: T,
-		readonly?: R
-	): ComponentLookup<T, R> {
+	protected getComponentLookup<T extends ComponentType | ComponentQueryDescriptor>(componentAccessDescriptor: T): ComponentLookup<T> {
 		assert(
 			this[$planner] !== undefined,
 			`Error registering ComponentLookup in system ${this.constructor.name}: Cannot register ComponentLookup before or after system initialization`
 		);
 
-		return this[$planner]!.getComponentLookup(componentType, readonly);
+		const componentType =
+			typeof componentAccessDescriptor === 'function' ? (componentAccessDescriptor as ComponentType) : componentAccessDescriptor.type;
+
+		return this[$planner].registerSystemQuery(this)([componentType]).getComponentLookup(componentAccessDescriptor);
+	}
+
+	/**
+	 * Registers a persistent {@link ComponentChunksArray} with {@link component component instances} filtered by the query.
+	 *
+	 * @remarks
+	 * {@link Job Jobs} cannot call or be nested in other jobs, which prevents N^2 iteration of {@link component components}, but a ComponentChunksArray can be passed as a parameter to jobs.
+	 *
+	 * The ComponentChunksArray should only be passed as a parameter to a {@link Job job}.
+	 * ComponentChunksArray does not have entries outside of a {@link Job job} callback and thus should not be used outside a {@link Job job}.
+	 *
+	 * If a ComponentChunksArray has to be written to, {@link Job jobs} should be scheduled on a single thread to avoid [race conditions](https://en.wikipedia.org/wiki/Race_condition).
+	 * If there is no overlap between the specific entity data that is being read or written to directly in the job, then the job can be {@link ParallelJob.scheduleParallel scheduled parallel}.
+	 *
+	 * @see
+	 * {@link ComponentChunksArray}\
+	 * {@link SystemQuery.getComponentChunksArray}
+	 *
+	 * @param componentAccessDescriptor - Type of component arrays that will be retrieved and their access flag
+	 * @returns The {@link ComponentChunksArray}
+	 *
+	 * @example
+	 * ```ts
+	 * @injectable()
+	 * class CheckCollisions extends System {
+	 * 	@entities([Position, Collider])
+	 * 	public collidables!: SystemQuery<[typeof Position, typeof Collider]>
+	 *
+	 * 	private positions!: ComponentChunksArray<ReadComponentAccess<typeof Position>>;
+	 * 	private colliders!: ComponentChunksArray<typeof Collider>;
+	 *
+	 * 	public override async init() {
+	 * 		this.positions = this.collidables.getComponentChunksArray(read(Position));
+	 * 		this.colliders = this.collidables.getComponentChunksArray(Collider);
+	 * 	}
+	 *
+	 * 	public override async update() {
+	 * 		this.jobWithCode([this.positions, this.colliders], ([positions, colliders]) => {
+	 * 			const chunksCount = positions.length; // always same as colliders.length if part of same query
+	 *
+	 * 			for(let outerI = 0; outerI < chunksCount; outerI++) {
+	 * 				const currentOuterComponentArraySize = positions[outerI].size; // always same as colliders[outerI].size if part of same query
+	 *
+	 * 				for(let outerJ = 0; outerJ < currentOuterComponentArraySize; outerJ++) {
+	 * 					const positionA = positions[outerI][outerJ];
+	 * 					const colliderA = colliders[outerI][outerJ];
+	 *
+	 * 					for(let innerI = 0; innerI < chunksCount; innerI++) {
+	 * 						const currentInnerComponentArraySize = positions[innerI].size;
+	 *
+	 * 						for(let innerJ = 0; innerJ < currentInnerComponentArraySize; innerJ++) {
+	 * 							const positionB = positions[innerI][innerJ];
+	 * 							const colliderB = colliders[innerI][innerJ];
+	 *
+	 * 							// apply collision detection logic using positionA, colliderA, positionB, colliderB
+	 * 							// ...
+	 * 						}
+	 * 					}
+	 * 				}
+	 * 			}
+	 * 		}).schedule();
+	 * 	}
+	 * }
+	 * ```
+	 */
+	protected getComponentChunksArray<T extends ComponentType | ComponentQueryDescriptor>(
+		componentAccessDescriptor: T
+	): ComponentChunksArray<T> {
+		assert(
+			this[$planner] !== undefined,
+			`Error registering ComponentChunksArray in system ${this.constructor.name}: Cannot register ComponentChunksArray before or after system initialization`
+		);
+
+		const componentType =
+			typeof componentAccessDescriptor === 'function' ? (componentAccessDescriptor as ComponentType) : componentAccessDescriptor.type;
+
+		return this[$planner].registerSystemQuery(this)([componentType]).getComponentChunksArray(componentAccessDescriptor);
 	}
 
 	/**
