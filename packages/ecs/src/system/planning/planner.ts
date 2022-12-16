@@ -101,15 +101,14 @@ export class Planner implements IPlanner, Disposable {
 				}
 			}
 
-			const added = new Set<SystemType>();
+			const addedSystems = new Set<System>();
 
 			for (const system of currentSystemsInGroup) {
-				addSystemToGroup(system, systemToPrerequisiteSystem, systemInstances, added, systemGroup.systems);
+				addSystemToGroup(system, systemToPrerequisiteSystem, systemInstances, addedSystems, systemGroup.systems);
 			}
 
-			console.log(systemGroupType.name, systemGroup.systems);
-
 			systemToPrerequisiteSystem.clear();
+			addedSystems.clear();
 		}
 
 		systemInstances.clear();
@@ -132,7 +131,7 @@ function addSystemToGroup(
 	system: System,
 	prerequisites: Map<SystemType, Set<SystemType>>,
 	systemInstances: Map<SystemType, InstanceType<SystemType>>,
-	added: Set<SystemType>,
+	addedSystems: Set<System>,
 	result: System[] = []
 ): void {
 	const systemType = system.constructor as SystemType;
@@ -140,12 +139,12 @@ function addSystemToGroup(
 	if (prerequisites.has(systemType)) {
 		const priorSystemTypes = prerequisites.get(systemType)!;
 		for (const priorSystemType of priorSystemTypes) {
-			addSystemToGroup(systemInstances.get(priorSystemType)!, prerequisites, systemInstances, added, result);
+			addSystemToGroup(systemInstances.get(priorSystemType)!, prerequisites, systemInstances, addedSystems, result);
 		}
 	}
 
-	if (!added.has(systemType)) {
-		added.add(systemType);
+	if (!addedSystems.has(system)) {
+		addedSystems.add(system);
 
 		result.push(system);
 	}

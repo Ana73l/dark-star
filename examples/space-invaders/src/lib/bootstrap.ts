@@ -66,12 +66,12 @@ export const bootstrap = async (canvas: HTMLCanvasElement) => {
 		.addSound('laser1', 'assets/sounds/sfx_laser1.ogg')
 		.loadAssets();
 
-	// intialize shared object singleton
+	// initialize shared object singleton
 	const deltaT = new DeltaTime();
 
 	// order of adding systems does not matter as long as they have their @updateBefore @updateAfter @group tags set
 	const world = await new WorldBuilder()
-		.useThreads(1)
+		.useThreads(CORES_COUNT)
 		.registerSingleton(CanvasRenderingContext2D, canvas.getContext('2d'))
 		.registerSingleton(Keyboard, createKeyboard().attach(window as any))
 		.registerSingleton(AssetStore, assetStore)
