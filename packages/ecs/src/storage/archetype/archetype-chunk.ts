@@ -24,19 +24,25 @@ export class ArchetypeChunk<T extends ComponentType[] = ComponentType[]> {
 
 			const buffer = new SharedArrayBuffer(bufferSize);
 
-			const sharedObjectArray = createSharedObjectArray(componentType, buffer, { length: capacity });
+			const sharedObjectArray = Object.assign({}, createSharedObjectArray(componentType, buffer, { length: capacity }));
+
+			Object.defineProperty(sharedObjectArray, 'size', {
+				enumerable: true,
+				configurable: false,
+				get: () => this[$size]
+			});
 
 			table.push(sharedObjectArray);
 			layout.push(componentType[$id]!);
 		}
 
-		const entitiesBuffer = new SharedArrayBuffer(capacity * Int32Array.BYTES_PER_ELEMENT);
+		const entitiesBuffer = new SharedArrayBuffer(capacity * Uint32Array.BYTES_PER_ELEMENT);
 		const entitiesArray = new Uint32Array(entitiesBuffer, 0, capacity).fill(0);
 
 		Object.defineProperty(entitiesArray, 'size', {
 			enumerable: true,
 			configurable: false,
-			get: () => this[$size],
+			get: () => this[$size]
 		});
 
 		this[$entitiesArray] = entitiesArray as EntitiesArray;

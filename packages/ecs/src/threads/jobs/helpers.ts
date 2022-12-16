@@ -3,17 +3,16 @@ import { createSharedObjectArray } from '@dark-star/shared-object';
 
 import { Entity } from '../../entity';
 import { ComponentQueryDescriptor, ComponentTypes } from '../../query';
+import { ComponentType } from '../../component';
+import { $scheduler, System } from '../../system/planning/__internals__';
+import { World } from '../../world/world';
+import { DeferredCommandsProcessor } from '../../storage/deferred-commands-processor';
 
+import { JobId } from './job';
 import { $dependencies, $componentAccessDescriptor, $query } from './__internals__';
 import { ComponentLookup } from './job-transferables/component-lookup';
 import { ComponentChunksArray } from './job-transferables/component-chunks-array';
 import { EntityChunksArray } from './job-transferables/entity-chunks-array';
-import { $scheduler, System } from '../../system/planning/__internals__';
-
-import { JobId } from './job';
-import { World } from '../../world/world';
-import { DeferredCommandsProcessor } from '../../storage/deferred-commands-processor';
-import { ComponentType } from '../../component';
 
 /**
  * @internal
@@ -344,8 +343,8 @@ export function deserializeJobParams(params: JobParamPayload): any[] {
  * Special parameters (e.g. {@link ComponentLookup}) need to be initialized by {@link Job jobs} to support same codebase regardless of number of threads used by the {@link World}.
  */
 export function mapJobParamsForMainThread(params: readonly any[]): any[] {
-	const mappedParams: any[] = [];
 	const paramsLength = params.length;
+	const mappedParams: any[] = new Array(paramsLength);
 	let currentParamIndex;
 
 	for (currentParamIndex = 0; currentParamIndex < paramsLength; currentParamIndex++) {

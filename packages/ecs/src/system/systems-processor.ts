@@ -19,10 +19,10 @@ export class SystemProcessor implements Disposable {
 	public dispose(): void {
 		const systems = this.flattenedSystems;
 
-		while(systems.length > 0) {
+		while (systems.length > 0) {
 			systems.pop();
 		}
-		
+
 		this.disposed = true;
 	}
 

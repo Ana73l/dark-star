@@ -44,7 +44,7 @@ import { $componentAccessDescriptor, $query } from '../__internals__';
  * 			const chunksCount = entities.length; // always same as colliders.length if part of same query
  *
  * 			for(let currentEntityRow = 0; currentEntityRow < chunksCount; currentEntityRow++) {
- * 				const currentOuterComponentArraySize = entities[currentEntityRow].size; // always same as colliders[outerI].size if part of same query
+ * 				const currentOuterComponentArraySize = entities[currentEntityRow].size; // always same as positions, colliders[currentEntityRow].size if part of same query
  *
  * 				for(let currentEntityIndex = 0; currentEntityIndex < currentOuterComponentArraySize; currentEntityIndex++) {
  * 					const entityA = entities[currentEntityRow][currentEntityIndex];

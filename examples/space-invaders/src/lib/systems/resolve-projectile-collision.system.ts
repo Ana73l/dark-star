@@ -12,9 +12,9 @@ import { SimulationGroup } from './simulation-group.system';
 
 @injectable()
 @group(SimulationGroup)
-@updateAfter(DetectCollisions)
 @updateBefore(ClearColisions)
-export class ApplyProjectileCollision extends System {
+@updateAfter(DetectCollisions)
+export class ResolveProjectileCollision extends System {
 	@entities([Projectile, Collider, Damage])
 	public projectiles!: SystemQuery<[typeof Projectile, typeof Collider, typeof Damage]>;
 

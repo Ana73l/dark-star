@@ -1,5 +1,5 @@
 import { WorldBuilder } from '@dark-star/ecs';
-import { createSharedObject } from '@dark-star/shared-object';
+import { CORES_COUNT } from '@dark-star/worker-pool';
 
 import { createKeyboard, Keyboard } from './providers/keyboard.provider';
 
@@ -19,7 +19,6 @@ import { ClearContext } from './systems/clear-context.system';
 import { RenderSprites } from './systems/render-sprites.system';
 import { Sprite } from './components/sprite.data';
 import { DeltaTime } from './providers/delta-time.provider';
-import { CORES_COUNT } from '@dark-star/worker-pool';
 import { Health } from './components/health.data';
 import { EnemyMovement } from './systems/enemy-movement.system';
 import { Weapon } from './components/weapon.data';
@@ -28,7 +27,7 @@ import { FireWeapon } from './systems/fire-weapon.system';
 import { EnemyCombatSystem } from './systems/enemy-combat.system';
 import { Collider } from './components/collider.data';
 import { DetectCollisions } from './systems/detect-collisions.system';
-import { ApplyProjectileCollision } from './systems/apply-projectile-collision.system';
+import { ResolveProjectileCollision } from './systems/resolve-projectile-collision.system';
 import { ClearColisions } from './systems/clear-collisions.system';
 import { InputGroup } from './systems/input-group.system';
 import { SimulationGroup } from './systems/simulation-group.system';
@@ -68,11 +67,11 @@ export const bootstrap = async (canvas: HTMLCanvasElement) => {
 		.loadAssets();
 
 	// intialize shared object singleton
-	const deltaT = createSharedObject(DeltaTime);
+	const deltaT = new DeltaTime();
 
 	// order of adding systems does not matter as long as they have their @updateBefore @updateAfter @group tags set
 	const world = await new WorldBuilder()
-		.useThreads(CORES_COUNT)
+		.useThreads(1)
 		.registerSingleton(CanvasRenderingContext2D, canvas.getContext('2d'))
 		.registerSingleton(Keyboard, createKeyboard().attach(window as any))
 		.registerSingleton(AssetStore, assetStore)
@@ -83,16 +82,16 @@ export const bootstrap = async (canvas: HTMLCanvasElement) => {
 		.registerSystem(PlayerMovementInput)
 		.registerSystem(PlayerWeaponInput)
 		.registerSystem(ClearVelocity)
-		.registerSystem(ClearContext)
 		.registerSystem(RenderSprites)
+		.registerSystem(ClearContext)
 		.registerSystem(ApplyMovement)
 		.registerSystem(PrepareMovement)
 		.registerSystem(Death)
 		.registerSystem(EnemyMovement)
+		.registerSystem(ResolveProjectileCollision)
 		.registerSystem(EnemyCombatSystem)
 		.registerSystem(FireWeapon)
 		.registerSystem(DetectCollisions)
-		.registerSystem(ApplyProjectileCollision)
 		.registerSystem(ClearColisions)
 		.build();
 

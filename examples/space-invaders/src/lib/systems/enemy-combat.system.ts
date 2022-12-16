@@ -1,9 +1,10 @@
 import { System, entities, SystemQuery, write, group } from '@dark-star/ecs';
 import { injectable } from '@dark-star/di';
 
+import { getRandomInt } from '../utils/misc';
 import { Enemy } from '../components/enemy.data';
 import { Weapon } from '../components/weapon.data';
-import { getRandomInt } from '../utils/misc';
+
 import { InputGroup } from './input-group.system';
 
 @injectable()

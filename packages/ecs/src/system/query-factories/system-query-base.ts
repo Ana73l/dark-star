@@ -145,10 +145,10 @@ export abstract class SystemQueryBase<TAll extends ComponentTypes, TSome extends
 	 *
 	 * 	public override async update() {
 	 * 		this.jobWithCode([this.collidableEntities, this.positions, this.colliders], ([entities, positions, colliders]) => {
-	 * 			const chunksCount = entities.length; // always same as colliders.length if part of same query
+	 * 			const chunksCount = entities.length; // always same as positions, colliders.length if part of same query
 	 *
 	 * 			for(let currentEntityRow = 0; currentEntityRow < chunksCount; currentEntityRow++) {
-	 * 				const currentOuterComponentArraySize = entities[currentEntityRow].size; // always same as colliders[outerI].size if part of same query
+	 * 				const currentOuterComponentArraySize = entities[currentEntityRow].size; // always same as positions, colliders[currentEntityRow].size if part of same query
 	 *
 	 * 				for(let currentEntityIndex = 0; currentEntityIndex < currentOuterComponentArraySize; currentEntityIndex++) {
 	 * 					const entityA = entities[currentEntityRow][currentEntityIndex];

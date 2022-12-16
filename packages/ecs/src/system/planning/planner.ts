@@ -1,10 +1,7 @@
 import { Disposable, Instance, assert } from '@dark-star/core';
 
-import { ComponentType } from '../../component/component';
 import { ComponentAccessFlags, ComponentQueryDescriptor, ComponentTypes, convertQueryToDescriptors } from '../../query';
 import { EntityStore } from '../../storage/store';
-import { ComponentLookup } from '../../threads/jobs/job-transferables/component-lookup';
-import { ComponentChunksArray } from '../../threads/jobs/job-transferables/component-chunks-array';
 
 import { System, SystemGroup, SystemType } from '../system';
 import { SystemQuery } from '../query-factories/system-query';
@@ -60,16 +57,7 @@ export class Planner implements IPlanner, Disposable {
 
 			systemInstances.set(systemType, system);
 
-			let group = systemType?.updateInGroup;
-
-			// if group is not found - assign a group
-			if (!group) {
-				if ((system as any).systems) {
-					group = RootSystem;
-				} else {
-					group = RootSystem;
-				}
-			}
+			let group = systemType?.updateInGroup || RootSystem;
 
 			if (systemsInGroup.has(group)) {
 				systemsInGroup.get(group)!.push(system);
@@ -85,18 +73,43 @@ export class Planner implements IPlanner, Disposable {
 			assert(systemInstances.has(systemGroupType), `System group ${systemGroupType.name} not registered in world.`);
 
 			const systemGroup = systemInstances.get(systemGroupType) as SystemGroup;
-			const currentSystemsInGroup = systemsInGroup.get(systemGroupType)!;
+			const currentSystemsInGroup = systemsInGroup.get(systemGroupType) || [];
+			// used for ordering update order of systems based on their updateBefore and updateAfter attributes
+			const systemToPrerequisiteSystem = new Map<SystemType, Set<SystemType>>();
 
-			// add systems to group
+			// set prerequisite systems
 			for (const system of currentSystemsInGroup) {
-				systemGroup.systems.push(system);
+				// set prerequisites
+				const systemType = system.constructor as SystemType;
+				const updateAfterSystemType = systemType.updateAfter;
+				const updateBeforeSystemType = systemType.updateBefore;
+
+				if (!systemToPrerequisiteSystem.has(systemType)) {
+					systemToPrerequisiteSystem.set(systemType, new Set());
+				}
+
+				if (updateAfterSystemType && systemType.updateInGroup === updateAfterSystemType.updateInGroup) {
+					systemToPrerequisiteSystem.get(systemType)!.add(updateAfterSystemType);
+				}
+
+				if (updateBeforeSystemType && systemType.updateInGroup === updateBeforeSystemType.updateInGroup) {
+					if (systemToPrerequisiteSystem.has(updateBeforeSystemType)) {
+						systemToPrerequisiteSystem.get(updateBeforeSystemType)!.add(systemType);
+					} else {
+						systemToPrerequisiteSystem.set(updateBeforeSystemType, new Set([systemType]));
+					}
+				}
 			}
 
-			// sort systems in group
-			systemGroup.systems.sort(
-				(systemA, systemB) =>
-					calculateOrderByAttributes(systemA, systemB) || calculateOrderByComponentQueries(queries, systemA, systemB)
-			);
+			const added = new Set<SystemType>();
+
+			for (const system of currentSystemsInGroup) {
+				addSystemToGroup(system, systemToPrerequisiteSystem, systemInstances, added, systemGroup.systems);
+			}
+
+			console.log(systemGroupType.name, systemGroup.systems);
+
+			systemToPrerequisiteSystem.clear();
 		}
 
 		systemInstances.clear();
@@ -115,57 +128,25 @@ export class Planner implements IPlanner, Disposable {
 	}
 }
 
-export function calculateOrderByAttributes(systemA: System, systemB: System): number {
-	const aSystemType = systemA.constructor as SystemType;
-	const bSystemType = systemB.constructor as SystemType;
+function addSystemToGroup(
+	system: System,
+	prerequisites: Map<SystemType, Set<SystemType>>,
+	systemInstances: Map<SystemType, InstanceType<SystemType>>,
+	added: Set<SystemType>,
+	result: System[] = []
+): void {
+	const systemType = system.constructor as SystemType;
 
-	if (aSystemType?.updateBefore === bSystemType) {
-		return -1;
-	} else if (aSystemType?.updateAfter === bSystemType) {
-		return 1;
-	} else if (bSystemType?.updateBefore === aSystemType) {
-		return 1;
-	} else if (bSystemType?.updateAfter === aSystemType) {
-		return -1;
-	}
-
-	return 0;
-}
-
-export function calculateOrderByComponentQueries(
-	queries: Map<System, [ComponentQueryDescriptor[]]>,
-	systemA: System,
-	systemB: System
-): number {
-	const firstQueryDescriptors = queries.get(systemA);
-	const otherQueryDescriptors = queries.get(systemB);
-
-	if (!firstQueryDescriptors || !otherQueryDescriptors) {
-		return 0;
-	}
-
-	let result = 0;
-
-	for (const components of firstQueryDescriptors) {
-		for (const otherComponents of otherQueryDescriptors) {
-			for (const current of components) {
-				for (const other of otherComponents) {
-					if (current.type === other.type) {
-						// if system reads data that later system writes
-						// or writes data that later system reads - 2nd is dependent on first
-						// if both systems write - they're equal, but still dependent
-						if (current.flag === ComponentAccessFlags.Read && other.flag === ComponentAccessFlags.Write) {
-							result += -1;
-						} else if (current.flag === ComponentAccessFlags.Write && other.flag === ComponentAccessFlags.Read) {
-							result += 1;
-						} else if (current.flag === ComponentAccessFlags.Write && other.flag === ComponentAccessFlags.Write) {
-							result += 1;
-						}
-					}
-				}
-			}
+	if (prerequisites.has(systemType)) {
+		const priorSystemTypes = prerequisites.get(systemType)!;
+		for (const priorSystemType of priorSystemTypes) {
+			addSystemToGroup(systemInstances.get(priorSystemType)!, prerequisites, systemInstances, added, result);
 		}
 	}
 
-	return result;
+	if (!added.has(systemType)) {
+		added.add(systemType);
+
+		result.push(system);
+	}
 }

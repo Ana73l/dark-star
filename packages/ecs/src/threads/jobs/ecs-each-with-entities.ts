@@ -10,7 +10,7 @@ import {
 	JobParamPayload,
 	mapJobParamsForMainThread,
 	serializeJobParams,
-	WorkerWorldLambdaResponse,
+	WorkerWorldLambdaResponse
 } from './helpers';
 
 export class ECSEachWithEntitiesJob<
@@ -24,22 +24,21 @@ export class ECSEachWithEntitiesJob<
 
 		if (scheduler) {
 			const self = this;
-			let serializedParams: JobParamPayload | undefined;
-
-			if (self.params) {
-				const paramsData = serializeJobParams(self.params);
-				serializedParams = paramsData[0];
-
-				self.accessDescriptors = self.accessDescriptors.concat(paramsData[1]);
-			}
 
 			const jobHandle = scheduler.scheduleJob(
 				this.accessDescriptors,
 				async function (taskRunner, deferredCommands) {
 					const layout = new Uint32Array(convertDescriptorsToQuery(self.accessDescriptors).map((type) => type[$id]!));
 					const lambdaString = self.lambda.toString();
-
 					const buffers: [size: number, entities: SharedArrayBuffer, buffers: (SharedArrayBuffer | undefined)[]][] = [];
+					let serializedParams: JobParamPayload | undefined;
+
+					if (self.params) {
+						const paramsData = serializeJobParams(self.params);
+						serializedParams = paramsData[0];
+
+						self.accessDescriptors = self.accessDescriptors.concat(paramsData[1]);
+					}
 
 					self.iterateChunks((chunk) => {
 						const componentArrayBuffers: (SharedArrayBuffer | undefined)[] = [];
@@ -75,22 +74,21 @@ export class ECSEachWithEntitiesJob<
 
 		if (scheduler) {
 			const self = this;
-			let serializedParams: JobParamPayload | undefined;
-
-			if (self.params) {
-				const paramsData = serializeJobParams(self.params);
-				serializedParams = paramsData[0];
-
-				self.accessDescriptors = self.accessDescriptors.concat(paramsData[1]);
-			}
 
 			const jobHandle = scheduler.scheduleJob(
 				this.accessDescriptors,
 				async function (taskRunner, deferredCommands) {
 					const layout = new Uint32Array(convertDescriptorsToQuery(self.accessDescriptors).map((type) => type[$id]!));
 					const lambdaString = self.lambda.toString();
-
 					const tasks: Promise<WorkerWorldLambdaResponse>[] = [];
+					let serializedParams: JobParamPayload | undefined;
+
+					if (self.params) {
+						const paramsData = serializeJobParams(self.params);
+						serializedParams = paramsData[0];
+
+						self.accessDescriptors = self.accessDescriptors.concat(paramsData[1]);
+					}
 
 					self.iterateChunks((chunk) => {
 						const componentArrayBuffers: (SharedArrayBuffer | undefined)[] = [];
@@ -106,7 +104,7 @@ export class ECSEachWithEntitiesJob<
 								layout,
 								[[chunk.size, chunk.getEntitiesArray().buffer as SharedArrayBuffer, componentArrayBuffers]],
 								lambdaString,
-								serializedParams,
+								serializedParams
 							])
 						);
 					});
