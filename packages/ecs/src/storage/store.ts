@@ -7,6 +7,7 @@ import { QueryRecord, ComponentInstancesFromTypes, ComponentTypes } from '../que
 import { $componentsTable, $entitiesArray, componentDefaults } from './archetype/__internals__';
 import { Archetype, EntityType } from './archetype/archetype';
 import { $cleanupComponent } from '../component/__internals__';
+import { CleanupComponentType } from '../component';
 
 export type EntityRecord = {
 	archetype: Archetype;
@@ -19,6 +20,7 @@ export class EntityStore {
 	public readonly entities: Map<Entity, EntityRecord> = new Map();
 
 	private reusableEntities: Entity[] = [];
+	private entitiesForDestruction: Set<Entity> = new Set();
 
 	private uid = createUIDGenerator(1);
 
@@ -76,48 +78,65 @@ export class EntityStore {
 		const record = this.entities.get(entity)!;
 
 		const archetype = record.archetype;
-		const chunk = archetype.chunks[record.chunkIndex];
-		const entities = chunk[$entitiesArray];
-		const oldChunkSize = chunk.size;
+		const oldArchetypeSchemas = archetype.schemas;
+		const nonCleanupComponents = [];
+		// get all non-cleanup components
+		for (const componentType of oldArchetypeSchemas) {
+			if (!(componentType as CleanupComponentType)[$cleanupComponent]) {
+				nonCleanupComponents.push(componentType);
+			}
+		}
 
-		// copy values from last element in removed entity's place (keep arrays packed)
-		const toRemoveIndex = record.indexInChunk;
-		const lastElementIndex = oldChunkSize - 1;
+		// if all components are non-cleanup - destroy entity
+		if (nonCleanupComponents.length === oldArchetypeSchemas.length) {
+			const chunk = archetype.chunks[record.chunkIndex];
+			const entities = chunk[$entitiesArray];
+			const oldChunkSize = chunk.size;
 
-		if (toRemoveIndex === lastElementIndex) {
-			entities[lastElementIndex] = 0;
-		} else {
-			const lastElementEntity = entities[lastElementIndex];
+			// copy values from last element in removed entity's place (keep arrays packed)
+			const toRemoveIndex = record.indexInChunk;
+			const lastElementIndex = oldChunkSize - 1;
 
-			// swap last element data with removed entity data
-			chunk[$entitiesArray][toRemoveIndex] = lastElementEntity;
-			for (const componentsArray of chunk[$componentsTable]) {
-				const lastInstance = componentsArray[lastElementIndex];
-				const toRemoveInstance = componentsArray[toRemoveIndex];
+			if (toRemoveIndex === lastElementIndex) {
+				entities[lastElementIndex] = 0;
+			} else {
+				const lastElementEntity = entities[lastElementIndex];
 
-				const componentType = toRemoveInstance.constructor;
-				const fields = componentType[$definition]!;
+				// swap last element data with removed entity data
+				chunk[$entitiesArray][toRemoveIndex] = lastElementEntity;
+				for (const componentsArray of chunk[$componentsTable]) {
+					const lastInstance = componentsArray[lastElementIndex];
+					const toRemoveInstance = componentsArray[toRemoveIndex];
 
-				// copy values of last element in place of removed entity to avoid gaps
-				for (const fieldName in fields) {
-					toRemoveInstance[fieldName] = lastInstance[fieldName];
+					const componentType = toRemoveInstance.constructor;
+					const fields = componentType[$definition]!;
+
+					// copy values of last element in place of removed entity to avoid gaps
+					for (const fieldName in fields) {
+						toRemoveInstance[fieldName] = lastInstance[fieldName];
+					}
 				}
+
+				// update swapped entity's record
+				this.entities.get(lastElementEntity)!.indexInChunk = toRemoveIndex;
 			}
 
-			// update swapped entity's record
-			this.entities.get(lastElementEntity)!.indexInChunk = toRemoveIndex;
+			// reset values of last element
+			for (const componentsArray of chunk[$componentsTable]) {
+				const lastInstance = componentsArray[lastElementIndex];
+				this.resetComponentToDefaults(lastInstance);
+			}
+
+			this.entities.delete(entity);
+			this.reusableEntities.push(entity);
+
+			chunk[$size]--;
+		} else {
+			// there are cleanup components - detach all non-cleanup components
+			// entity will be destroyed once all cleanup components are detached
+			this.detachComponents(entity, nonCleanupComponents);
+			this.entitiesForDestruction.add(entity);
 		}
-
-		// reset values of last element
-		for (const componentsArray of chunk[$componentsTable]) {
-			const lastInstance = componentsArray[lastElementIndex];
-			this.resetComponentToDefaults(lastInstance);
-		}
-
-		this.entities.delete(entity);
-		this.reusableEntities.push(entity);
-
-		chunk[$size]--;
 	}
 
 	public exists(entity: Entity): boolean {
@@ -334,18 +353,26 @@ export class EntityStore {
 					}
 				}
 
-				// if last element entity was swapped - update record
+				// if last element entity was swapped - update last element entity record
 				if (oldIndex !== oldChunkLastElementIndex) {
 					oldChunk[$entitiesArray][oldIndex] = oldChunkLastEntity;
 					this.entities.get(oldChunkLastEntity)!.indexInChunk = oldIndex;
 				}
-				// update entity record
-				record.archetype = newArchetype;
-				record.chunkIndex = newChunk.id;
-				record.indexInChunk = newIndex;
+
+				// if entity is left with no components and is flagged for destruction - remove it
+				if (newArchetype.schemas.length === 0 && this.entitiesForDestruction.has(entity)) {
+					this.reusableEntities.push(entity);
+					this.entities.delete(entity);
+				} else {
+					// else update entity record
+					record.archetype = newArchetype;
+					record.chunkIndex = newChunk.id;
+					record.indexInChunk = newIndex;
+
+					newChunk[$size]++;
+				}
 
 				oldChunk[$size]--;
-				newChunk[$size]++;
 			}
 		}
 	}
