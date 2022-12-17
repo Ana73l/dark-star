@@ -1,5 +1,6 @@
 import { Schema } from '@dark-star/core';
 import { serializable } from '@dark-star/shared-object';
+import { componentDefaults } from '../storage/archetype/__internals__';
 
 /** @internal */
 export type ComponentTypeId = number;
@@ -50,4 +51,10 @@ export type ComponentType<T extends any = any> = (new () => T) & Schema;
  * }
  * ```
  */
-export const component: <T extends ComponentType>() => (target: T) => T = () => serializable();
+export const component: <T extends ComponentType>() => (target: T) => T =
+	() =>
+	<T extends ComponentType>(target: T): T => {
+		componentDefaults.set(target, new target());
+
+		return serializable()(target);
+	};

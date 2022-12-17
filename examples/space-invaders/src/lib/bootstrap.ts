@@ -66,7 +66,7 @@ export const bootstrap = async (canvas: HTMLCanvasElement) => {
 		.addSound('laser1', 'assets/sounds/sfx_laser1.ogg')
 		.loadAssets();
 
-	// initialize shared object singleton
+	// initialize delta time singleton
 	const deltaT = new DeltaTime();
 
 	// order of adding systems does not matter as long as they have their @updateBefore @updateAfter @group tags set

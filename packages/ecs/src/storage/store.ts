@@ -4,59 +4,9 @@ import { Entity } from '../entity';
 import { ComponentType, ComponentTypeId } from '../component/component';
 import { QueryRecord, ComponentInstancesFromTypes, ComponentTypes } from '../query';
 
-import { $componentsTable, $entitiesArray } from './archetype/__internals__';
+import { $componentsTable, $entitiesArray, componentDefaults } from './archetype/__internals__';
 import { Archetype, EntityType } from './archetype/archetype';
 import { $cleanupComponent } from '../component/__internals__';
-
-export const matchEntityTypes = (toMatch: Set<ComponentType>, entityType: EntityType): boolean => {
-	if (toMatch.size !== entityType.size) {
-		return false;
-	}
-
-	for (const componentType of toMatch) {
-		if (!entityType.has(componentType[$id]!)) {
-			return false;
-		}
-	}
-
-	return true;
-};
-export const matchAnyEntityTypes = (toMatch: Set<ComponentType>, entityType: EntityType): boolean => {
-	for (const componentType of toMatch) {
-		if (entityType.has(componentType[$id]!)) {
-			return true;
-		}
-	}
-
-	return false;
-};
-export const entityTypeHasAll = (toMatch: Set<ComponentType>, entityType: EntityType): boolean => {
-	for (const componentType of toMatch) {
-		if (!entityType.has(componentType[$id]!)) {
-			return false;
-		}
-	}
-
-	return true;
-};
-export const typeIdsMatchEntityType = (toMatch: ComponentTypeId[] | Uint32Array, entityType: EntityType): boolean => {
-	for (const componentTypeId of toMatch) {
-		if (!entityType.has(componentTypeId)) {
-			return false;
-		}
-	}
-
-	return true;
-};
-export const anyTypeIdsMatchEntityType = (toMatch: ComponentTypeId[] | Uint32Array, entityType: EntityType): boolean => {
-	for (const componentTypeId of toMatch) {
-		if (entityType.has(componentTypeId)) {
-			return true;
-		}
-	}
-
-	return false;
-};
 
 export type EntityRecord = {
 	archetype: Archetype;
@@ -69,6 +19,7 @@ export class EntityStore {
 	public readonly entities: Map<Entity, EntityRecord> = new Map();
 
 	private reusableEntities: Entity[] = [];
+
 	private uid = createUIDGenerator(1);
 
 	private archetypes: Archetype[] = [];
@@ -94,7 +45,7 @@ export class EntityStore {
 		this.entities.set(entity, {
 			archetype,
 			chunkIndex: chunk.id,
-			indexInChunk: oldChunkSize,
+			indexInChunk: oldChunkSize
 		});
 
 		// if initial values are passed - set them
@@ -106,7 +57,7 @@ export class EntityStore {
 			for (componentTypeIndex = 0; componentTypeIndex < componentTypesArgLength; componentTypeIndex++) {
 				const componentType = componentTypes[componentTypeIndex];
 				const componentArray = chunk.getComponentArray(componentType);
-				componentInstances.push(componentArray ? componentArray[oldChunkSize] : undefined);
+				componentInstances.push(componentArray?.[oldChunkSize]);
 			}
 
 			initial(entity, componentInstances as ComponentInstancesFromTypes<T>);
@@ -155,6 +106,12 @@ export class EntityStore {
 
 			// update swapped entity's record
 			this.entities.get(lastElementEntity)!.indexInChunk = toRemoveIndex;
+		}
+
+		// reset values of last element
+		for (const componentsArray of chunk[$componentsTable]) {
+			const lastInstance = componentsArray[lastElementIndex];
+			this.resetComponentToDefaults(lastInstance);
 		}
 
 		this.entities.delete(entity);
@@ -259,20 +216,25 @@ export class EntityStore {
 				newChunk[$entitiesArray][newIndex] = entity;
 
 				for (const componentType of oldArchetypeSchemas) {
-					const oldComponentArray = oldChunk.getComponentArray(componentType)!;
-					const newComponentArray = newChunk.getComponentArray(componentType)!;
+					if (componentType[$size]) {
+						const oldComponentArray = oldChunk.getComponentArray(componentType)!;
+						const newComponentArray = newChunk.getComponentArray(componentType)!;
+						const defaultValues = componentDefaults.get(componentType);
 
-					const toMoveInstance = oldComponentArray[oldIndex];
-					const lastInstanceInOldArray = oldComponentArray[oldChunkLastElementIndex];
-					const newInstance = newComponentArray[newIndex];
-					const fieldNames = Object.keys(componentType[$definition]!);
+						const toMoveInstance = oldComponentArray[oldIndex];
+						const lastInstanceInOldArray = oldComponentArray[oldChunkLastElementIndex];
+						const newInstance = newComponentArray[newIndex];
+						const fieldNames = Object.keys(componentType[$definition]!);
 
-					// copy component values to new component array
-					for (const fieldName of fieldNames) {
-						newInstance[fieldName] = toMoveInstance[fieldName];
-						// if entity wasn't last - copy data of last entity in its place to avoid gaps
-						if (oldIndex !== oldChunkLastElementIndex) {
-							toMoveInstance[fieldName] = lastInstanceInOldArray[fieldName];
+						// copy component values to new component array
+						for (const fieldName of fieldNames) {
+							newInstance[fieldName] = toMoveInstance[fieldName];
+							// if entity wasn't last - copy data of last entity in its place to avoid gaps
+							if (oldIndex !== oldChunkLastElementIndex) {
+								toMoveInstance[fieldName] = lastInstanceInOldArray[fieldName];
+							}
+							// reset values of last element
+							lastInstanceInOldArray[fieldName] = defaultValues[fieldName];
 						}
 					}
 				}
@@ -347,9 +309,10 @@ export class EntityStore {
 				newChunk[$entitiesArray][newIndex] = entity;
 
 				for (const componentType of oldArchetypeSchemas) {
-					if(componentType[$size]) {
+					if (componentType[$size]) {
 						const oldComponentArray = oldChunk.getComponentArray(componentType)!;
 						const newComponentArray = newChunk.getComponentArray(componentType);
+						const defaultValues = componentDefaults.get(componentType)!;
 
 						const toMoveInstance = oldComponentArray[oldIndex];
 						const lastInstanceInOldArray = oldComponentArray[oldChunkLastElementIndex];
@@ -365,6 +328,8 @@ export class EntityStore {
 							if (oldIndex !== oldChunkLastElementIndex) {
 								toMoveInstance[fieldName] = lastInstanceInOldArray[fieldName];
 							}
+							// reset values of last element
+							lastInstanceInOldArray[fieldName] = defaultValues[fieldName];
 						}
 					}
 				}
@@ -495,4 +460,68 @@ export class EntityStore {
 
 		return this.createArchetype(componentTypes);
 	}
+
+	private resetComponentToDefaults(component: InstanceType<ComponentType>): void {
+		const componentType = component.constructor;
+
+		const defaultValues = componentDefaults.get(componentType);
+
+		for (const fieldName in defaultValues) {
+			component[fieldName] = defaultValues[fieldName];
+		}
+	}
+}
+
+function matchEntityTypes(toMatch: Set<ComponentType>, entityType: EntityType): boolean {
+	if (toMatch.size !== entityType.size) {
+		return false;
+	}
+
+	for (const componentType of toMatch) {
+		if (!entityType.has(componentType[$id]!)) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+function matchAnyEntityTypes(toMatch: Set<ComponentType>, entityType: EntityType): boolean {
+	for (const componentType of toMatch) {
+		if (entityType.has(componentType[$id]!)) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+function entityTypeHasAll(toMatch: Set<ComponentType>, entityType: EntityType): boolean {
+	for (const componentType of toMatch) {
+		if (!entityType.has(componentType[$id]!)) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+function typeIdsMatchEntityType(toMatch: ComponentTypeId[] | Uint32Array, entityType: EntityType): boolean {
+	for (const componentTypeId of toMatch) {
+		if (!entityType.has(componentTypeId)) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+function anyTypeIdsMatchEntityType(toMatch: ComponentTypeId[] | Uint32Array, entityType: EntityType): boolean {
+	for (const componentTypeId of toMatch) {
+		if (entityType.has(componentTypeId)) {
+			return true;
+		}
+	}
+
+	return false;
 }

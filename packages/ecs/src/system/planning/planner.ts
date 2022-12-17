@@ -10,7 +10,6 @@ import { Planner as IPlanner } from './__internals__';
 import { RootSystem } from './root-system';
 
 export class Planner implements IPlanner, Disposable {
-	private queries: Map<System, [ComponentQueryDescriptor[]]> = new Map();
 	private disposed: boolean = false;
 
 	constructor(private store: EntityStore, private systems: System[]) {}
@@ -25,14 +24,6 @@ export class Planner implements IPlanner, Disposable {
 			some?: TSome,
 			none?: TNone
 		): SystemQuery<TAll, TSome, TNone> => {
-			const components = convertQueryToDescriptors(all).concat(convertQueryToDescriptors(some || []));
-
-			if (this.queries.has(system)) {
-				this.queries.get(system)!.push(components);
-			} else {
-				this.queries.set(system, [components]);
-			}
-
 			const record = this.store.registerQuery(all, some, none);
 
 			return new SystemQuery<TAll, TSome, TNone>(system, record);
@@ -40,7 +31,7 @@ export class Planner implements IPlanner, Disposable {
 	}
 
 	public createSystemRoot(): Instance<RootSystem> {
-		const { systems, queries } = this;
+		const { systems } = this;
 
 		const systemInstances = new Map<SystemType, InstanceType<SystemType>>();
 		const systemsInGroup = new Map<SystemType<SystemGroup>, System[]>();
@@ -119,8 +110,6 @@ export class Planner implements IPlanner, Disposable {
 	}
 
 	public dispose(): void {
-		this.queries.clear();
-
 		while (this.systems.length) {
 			this.systems.pop();
 		}
