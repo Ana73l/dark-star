@@ -72,7 +72,7 @@ export type CleanupComponentType<T extends any = any> = ComponentType<T> & { [$c
  * 				// ...
  *
  * 				// detach PixiJSSprite from entity
- * 				this.world.detach(entity, [PixiJSSprite]);
+ * 				this.world.detach(pixiSprite.entity, [PixiJSSprite]);
  * 			})
  * 			.run();
  * 	}
