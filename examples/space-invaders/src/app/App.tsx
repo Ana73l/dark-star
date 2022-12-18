@@ -6,7 +6,7 @@ const App = () => {
 	const canvas = useRef<HTMLCanvasElement>(null);
 
 	useEffect(() => {
-		if(!canvas.current) {
+		if (!canvas.current) {
 			return;
 		}
 

@@ -1,4 +1,4 @@
-import { System, group, SystemQuery, read, updateAfter, entities, World } from '@dark-star/ecs';
+import { System, group, SystemQuery, read, updateAfter, entities } from '@dark-star/ecs';
 import { injectable } from '@dark-star/di';
 
 import { Position } from '../components/position.data';

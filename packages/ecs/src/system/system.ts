@@ -191,7 +191,9 @@ export abstract class System implements ISystem {
 	 *
 	 * The update() function is ran on the main thread but can be used to schedule {@link Job jobs} using the {@link System.query query} and {@link System.jobWithCode jobWithCode} methods.
 	 *
-	 * Entity commands ({@link World.spawn spawn}, {@link World.attach attach}, {@link World.detach detach}, {@link World.destroy destroy}, {@link World.has has}, {@link World.get get}, {@link World.exists exists}) can be invoked only from the main thread and cannot be used in {@link Job jobs}.
+	 * Entity commands: {@link World.spawn spawn}, {@link World.attach attach}, {@link World.detach detach}, {@link World.destroy destroy} can be used in {@link Job jobs} if {@link World} is passed as a parameter to the job.
+	 *
+	 * Entity accessors ({@link World.has has}, {@link World.get get}, {@link World.exists exists}) can be invoked only from the main thread and cannot be used in {@link Job jobs}.
 	 *
 	 * @example
 	 * ```ts
@@ -231,6 +233,14 @@ export abstract class System implements ISystem {
 	 * ```
 	 */
 	public abstract update(): Promise<void>;
+
+	/**
+	 * Called when the System is destroyed.
+	 *
+	 * @remarks
+	 * Override to free resources used by the system.
+	 */
+	public async destroy(): Promise<void> {}
 
 	/**
 	 * Completes all {@link Job jobs} (if in a {@link WorldBuilder.useThreads multithreaded} {@link World world}) operating on data described with a {@link ComponentQueryDescriptor component access descriptors} array.

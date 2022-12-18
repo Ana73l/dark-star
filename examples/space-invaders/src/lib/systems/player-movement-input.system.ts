@@ -17,6 +17,10 @@ export class PlayerMovementInput extends System {
 		super();
 	}
 
+	public override async init() {
+		this.keyboard.attach(window as any);
+	}
+
 	public override async update() {
 		const keyboard = this.keyboard;
 		/**
@@ -32,5 +36,9 @@ export class PlayerMovementInput extends System {
 				movement.right = right;
 			})
 			.run();
+	}
+
+	public override async destroy() {
+		this.keyboard.detach();
 	}
 }

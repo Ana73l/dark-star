@@ -56,7 +56,7 @@ export class EnemyMovement extends System {
 							enemy.column = column;
 
 							position.x = column * 90 + sprite.width / 2;
-							position.y = -120 + row * 100;
+							position.y = row * 100;
 
 							weapon.damage = 10;
 							weapon.fireThrottle = 0.5;

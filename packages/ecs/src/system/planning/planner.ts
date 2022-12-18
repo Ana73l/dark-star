@@ -128,7 +128,9 @@ function addSystemToGroup(
 	if (prerequisites.has(systemType)) {
 		const priorSystemTypes = prerequisites.get(systemType)!;
 		for (const priorSystemType of priorSystemTypes) {
-			addSystemToGroup(systemInstances.get(priorSystemType)!, prerequisites, systemInstances, addedSystems, result);
+			if (systemInstances.has(priorSystemType)) {
+				addSystemToGroup(systemInstances.get(priorSystemType)!, prerequisites, systemInstances, addedSystems, result);
+			}
 		}
 	}
 

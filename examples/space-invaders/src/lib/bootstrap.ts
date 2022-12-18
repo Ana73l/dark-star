@@ -1,7 +1,7 @@
 import { WorldBuilder } from '@dark-star/ecs';
 import { CORES_COUNT } from '@dark-star/worker-pool';
 
-import { createKeyboard, Keyboard } from './providers/keyboard.provider';
+import { Keyboard } from './providers/keyboard.provider';
 
 import { ClearVelocity } from './systems/clear-velocity.system';
 import { PrepareMovement } from './systems/prepare-movement.system';
@@ -73,7 +73,7 @@ export const bootstrap = async (canvas: HTMLCanvasElement) => {
 	const world = await new WorldBuilder()
 		.useThreads(CORES_COUNT)
 		.registerSingleton(CanvasRenderingContext2D, canvas.getContext('2d'))
-		.registerSingleton(Keyboard, createKeyboard().attach(window as any))
+		.registerSingleton(Keyboard)
 		.registerSingleton(AssetStore, assetStore)
 		.registerSingleton(DeltaTime, deltaT)
 		.registerSystem(InputGroup)
@@ -135,7 +135,7 @@ export const bootstrap = async (canvas: HTMLCanvasElement) => {
 		requestAnimationFrame(loop);
 	};
 
-	requestAnimationFrame(loop);
+	loop(0);
 
 	return world;
 };

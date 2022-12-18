@@ -1,6 +1,6 @@
 enum KeyPressEvents {
 	PRESS = 'keydown',
-	RELEASE = 'keyup',
+	RELEASE = 'keyup'
 }
 
 export enum Keys {
@@ -79,42 +79,45 @@ export enum Keys {
 	SIX = 'Digit6',
 	SEVEN = 'Digit7',
 	EIGHT = 'Digit8',
-	NINE = 'Digit9',
+	NINE = 'Digit9'
 }
 
-export abstract class Keyboard {
-	abstract pressed(key: Keys): boolean;
-	abstract attach(element: HTMLElement): Keyboard;
-	abstract detach(): Keyboard;
-}
+export class Keyboard {
+	private keys: Map<Keys, boolean | undefined> = new Map();
+	private parent?: HTMLElement;
 
-export const createKeyboard = (): Keyboard => {
-	const keys: Map<Keys, boolean | undefined> = new Map();
-	let element: HTMLElement | undefined;
+	public pressed(key: Keys): boolean {
+		return this.keys.get(key) || false;
+	}
 
-	const press = ({ code }: KeyboardEvent) => keys.set(code as Keys, true);
+	public attach(parent: HTMLElement): Keyboard {
+		if (this.parent) {
+			this.detach();
+		}
 
-	const release = ({ code }: KeyboardEvent) => keys.set(code as Keys, false);
+		this.parent = parent;
+		parent.addEventListener(KeyPressEvents.PRESS, this.press);
+		parent.addEventListener(KeyPressEvents.RELEASE, this.release);
+		console.log('attached keyboard');
+		return this;
+	}
 
-	const keyboard = {
-		pressed: (key: Keys): boolean => keys.get(key) || false,
-		attach: (el: HTMLElement): Keyboard => {
-			element = el;
-			console.log('attached keyboard');
-			element.addEventListener(KeyPressEvents.PRESS, press);
-			element.addEventListener(KeyPressEvents.RELEASE, release);
+	public detach(): Keyboard {
+		if (this.parent) {
+			this.parent.removeEventListener(KeyPressEvents.PRESS, this.press);
+			this.parent.removeEventListener(KeyPressEvents.RELEASE, this.release);
+			this.parent = undefined;
+			this.keys.clear();
+		}
 
-			return keyboard;
-		},
-		detach: (): Keyboard => {
-			element?.removeEventListener(KeyPressEvents.PRESS, press);
-			element?.removeEventListener(KeyPressEvents.RELEASE, release);
-			element = undefined;
-			keys.clear();
+		return this;
+	}
 
-			return keyboard;
-		},
+	private press = ({ code }: KeyboardEvent) => {
+		this.keys.set(code as Keys, true);
 	};
 
-	return keyboard;
-};
+	private release = ({ code }: KeyboardEvent) => {
+		this.keys.set(code as Keys, false);
+	};
+}

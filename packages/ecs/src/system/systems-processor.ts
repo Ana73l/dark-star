@@ -16,11 +16,12 @@ export class SystemProcessor implements Disposable {
 		return this.disposed;
 	}
 
-	public dispose(): void {
+	public async dispose(): Promise<void> {
 		const systems = this.flattenedSystems;
 
 		while (systems.length > 0) {
-			systems.pop();
+			const system = systems.pop()!;
+			await system.destroy();
 		}
 
 		this.disposed = true;
