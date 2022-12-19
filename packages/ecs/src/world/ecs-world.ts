@@ -164,6 +164,12 @@ export class ECSWorld implements World {
 		this.deferredCommands.destroy(entity);
 	}
 
+	public async processDeferredCommands(): Promise<void> {
+		await this.jobScheduler?.completeJobs();
+
+		this.deferredCommands.process();
+	}
+
 	public async step(): Promise<void> {
 		assert(!this.isDisposed, 'Cannot schedule a step in a disposed world.');
 
@@ -178,10 +184,8 @@ export class ECSWorld implements World {
 		this.runPromise = new Promise<void>(async function (resolve) {
 			self.store.currentWorldVersion = self._version;
 
-			// complete all scheduled jobs
-			await self.jobScheduler?.completeJobs();
+			await self.processDeferredCommands();
 
-			self.deferredCommands.process();
 			await self.systemProcessor.execute(self._version);
 
 			self._version++;

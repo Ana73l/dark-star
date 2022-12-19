@@ -177,6 +177,20 @@ export abstract class World implements Disposable {
 	abstract destroy(entity: Entity): void;
 
 	/**
+	 * Completes all {@link Job jobs} and processes all the deferred {@link Entity} commands.
+	 *
+	 * @remarks
+	 * Entity commands ({@link World.spawn spawn}, {@link World.attach attach}, {@link World.detach detach} and {@link World.destroy destroy})
+	 * are processed by the World at the beginning of each frame. This method allows premature processing of deferred commands.
+	 *
+	 * @example
+	 * ```ts
+	 * await world.processDeferredCommands();
+	 * ```
+	 */
+	abstract processDeferredCommands(): Promise<void>;
+
+	/**
 	 * Executes all deferred commands and systems in the world.
 	 *
 	 * @example
