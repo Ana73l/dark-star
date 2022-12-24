@@ -1,0 +1,81 @@
+{
+	"name": "simple-three",
+	"$schema": "../../node_modules/nx/schemas/project-schema.json",
+	"sourceRoot": "examples/simple-three/src",
+	"projectType": "application",
+	"targets": {
+		"build": {
+			"executor": "@nrwl/webpack:webpack",
+			"outputs": ["{options.outputPath}"],
+			"defaultConfiguration": "production",
+			"options": {
+				"compiler": "babel",
+				"outputPath": "dist/examples/simple-three",
+				"index": "examples/simple-three/src/index.html",
+				"baseHref": "/",
+				"main": "examples/simple-three/src/main.tsx",
+				"polyfills": "examples/simple-three/src/polyfills.ts",
+				"tsConfig": "examples/simple-three/tsconfig.app.json",
+				"assets": ["examples/simple-three/src/favicon.ico", "examples/simple-three/src/assets"],
+				"styles": ["examples/simple-three/src/styles.scss"],
+				"scripts": [],
+				"webpackConfig": "examples/simple-three/webpack.config.js"
+			},
+			"configurations": {
+				"development": {
+					"extractLicenses": false,
+					"optimization": false,
+					"sourceMap": true,
+					"vendorChunk": true
+				},
+				"production": {
+					"fileReplacements": [
+						{
+							"replace": "examples/simple-three/src/environments/environment.ts",
+							"with": "examples/simple-three/src/environments/environment.prod.ts"
+						}
+					],
+					"optimization": true,
+					"outputHashing": "all",
+					"sourceMap": false,
+					"namedChunks": false,
+					"extractLicenses": true,
+					"vendorChunk": false
+				}
+			}
+		},
+		"serve": {
+			"executor": "@nrwl/webpack:dev-server",
+			"defaultConfiguration": "development",
+			"options": {
+				"buildTarget": "simple-three:build",
+				"hmr": true
+			},
+			"configurations": {
+				"development": {
+					"buildTarget": "simple-three:build:development"
+				},
+				"production": {
+					"buildTarget": "simple-three:build:production",
+					"hmr": false
+				}
+			}
+		},
+		"lint": {
+			"executor": "@nrwl/linter:eslint",
+			"outputs": ["{options.outputFile}"],
+			"options": {
+				"lintFilePatterns": ["examples/simple-three/**/*.{ts,tsx,js,jsx}"]
+			}
+		},
+		"test": {
+			"executor": "@nrwl/jest:jest",
+			"outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+			"options": {
+				"jestConfig": "examples/simple-three/jest.config.ts",
+				"passWithNoTests": true
+			}
+		}
+	},
+	"tags": []
+}

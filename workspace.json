@@ -6,6 +6,7 @@
 		"di": "packages/di",
 		"ecs": "packages/ecs",
 		"shared-object": "packages/shared-object",
+		"simple-three": "examples/simple-three",
 		"space-invaders": "examples/space-invaders",
 		"worker-pool": "packages/worker-pool"
 	}
