@@ -123,7 +123,7 @@ export const bootstrap = async (canvas: HTMLCanvasElement) => {
 		}
 	);
 
-	let prevTime = 0.0;
+	let prevTime = performance.now();
 
 	const loop = async (time: number) => {
 		deltaT.value = time - prevTime;
