@@ -10,24 +10,9 @@ const App = () => {
 			return;
 		}
 
-		const resize = () => {
-			if (!canvas.current) {
-				return;
-			}
-
-			canvas.current.width = window.innerWidth;
-			canvas.current.height = window.innerHeight;
-		};
-
-		resize();
-
 		(async () => {
 			await bootstrap(canvas.current!);
 		})();
-
-		window.addEventListener('resize', resize);
-
-		return () => window.removeEventListener('resize', resize);
 	}, []);
 
 	return <canvas ref={canvas} />;

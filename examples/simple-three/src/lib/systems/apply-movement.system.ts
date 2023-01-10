@@ -25,6 +25,7 @@ export class ApplyMovement extends System {
 			.each([write(Position), read(Velocity)], [this.deltaT.value], ([position, velocity], [deltaT]) => {
 				position.x += velocity.x * deltaT;
 				position.y += velocity.y * deltaT;
+				position.z += velocity.z * deltaT;
 			})
 			.scheduleParallel();
 	}

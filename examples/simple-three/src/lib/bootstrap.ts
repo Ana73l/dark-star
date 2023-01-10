@@ -1,6 +1,6 @@
 import { WorldBuilder } from '@dark-star/ecs';
 import { CORES_COUNT } from '@dark-star/worker-pool';
-import { Scene, PerspectiveCamera, WebGLRenderer } from 'three';
+import { Scene, PerspectiveCamera, WebGLRenderer, Color } from 'three';
 
 import { Keyboard } from './providers/keyboard.provider';
 
@@ -13,36 +13,42 @@ import { AssetStore } from './asset-store';
 import { RenderGroup } from './systems/render-group.system';
 import { Position } from './components/position.data';
 import { Velocity } from './components/velocity.data';
-import { Movement } from './components/movement.data';
+import { MovementControl } from './components/movement-control.data';
 import { Player } from './components/player.tag';
 import { PlayerMovementInput } from './systems/player-movement-input.system';
 import { RenderThreeScene } from './systems/render-three-scene';
-import { Sprite } from './components/sprite.data';
 import { DeltaTime } from './providers/delta-time.provider';
 import { Health } from './components/health.data';
-import { EnemyMovement } from './systems/enemy-movement.system';
-import { Weapon } from './components/weapon.data';
 import { PlayerWeaponInput } from './systems/player-weapon-input.system';
-import { FireWeapon } from './systems/fire-weapon.system';
 import { EnemyCombatSystem } from './systems/enemy-combat.system';
-import { Collider } from './components/collider.data';
 import { DetectCollisions } from './systems/detect-collisions.system';
 import { ResolveProjectileCollision } from './systems/resolve-projectile-collision.system';
 import { ClearColisions } from './systems/clear-collisions.system';
 import { InputGroup } from './systems/input-group.system';
 import { SimulationGroup } from './systems/simulation-group.system';
 import { Model3 } from './components/model3.data';
+import { Rotation } from './components/rotation.data';
+import { SyncRotationToObject3D } from './systems/sync-rotation-to-object3d.system';
+import { SyncPositionToObject3D } from './systems/sync-position-to-object3d.system';
+import { RotationControl } from './components/rotation-control.data';
+import { ApplyRotationControl } from './systems/apply-rotation-control.system';
+import { PlayerRotationInput } from './systems/player-rotation-input.system';
 
 export const bootstrap = async (canvas: HTMLCanvasElement) => {
 	const assetStore = await createAssetLoader()
 		.addObject('archerTowerLvl1', 'assets/models/_archer_tower_LVL_1.fbx')
 		.addObject('peasant1', 'assets/models/peasant_1.fbx')
 		.addObject('king', 'assets/models/king.fbx')
+		.addObjectGLTF('Character', 'assets/models/Character.gltf')
+		.addObjectGLTF('Enemy', 'assets/models/Enemy.gltf')
 		.loadAssets();
 
 	// THREE scene
 	const scene = new Scene();
-	const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+	scene.background = new Color('#99ccff');
+	const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.001, 1000);
+	camera.position.set(25, 10, 25);
+
 	const renderer = new WebGLRenderer({
 		canvas
 	});
@@ -65,32 +71,43 @@ export const bootstrap = async (canvas: HTMLCanvasElement) => {
 		.registerSystem(PlayerMovementInput)
 		.registerSystem(PlayerWeaponInput)
 		.registerSystem(ClearVelocity)
+		.registerSystem(SyncRotationToObject3D)
 		.registerSystem(RenderThreeScene)
+		.registerSystem(SyncPositionToObject3D)
+		.registerSystem(ApplyRotationControl)
+		.registerSystem(PlayerRotationInput)
 		.registerSystem(ApplyMovement)
 		.registerSystem(PrepareMovement)
 		.registerSystem(Death)
-		.registerSystem(EnemyMovement)
 		.registerSystem(ResolveProjectileCollision)
 		.registerSystem(EnemyCombatSystem)
-		.registerSystem(FireWeapon)
 		.registerSystem(DetectCollisions)
 		.registerSystem(ClearColisions)
 		.build();
 
 	// player
-	world.spawn([Position, Model3, Movement, Health, Velocity, Player], (_, [position, model3, movement, health, weapon, collider]) => {
-		position.x = 0;
-		position.y = 0;
-		position.z = 0;
+	world.spawn(
+		[Position, Model3, MovementControl, Health, RotationControl, Rotation, Velocity, Player],
+		(_, [position, model3, movement, health, rotationControl, rotation]) => {
+			position.x = 30;
+			position.y = 0;
+			position.z = 0;
 
-		model3.model = 'king';
-		model3.scale = 1;
+			model3.model = 'Character';
+			model3.scale = 5;
 
-		movement.speedX = 600 / 1000;
+			movement.speedForward = 100 / 1000;
+			movement.speedBackward = 50 / 1000;
+			movement.speedSideways = 80 / 1000;
 
-		health.maxHealth = 100;
-		health.currentHealth = health.maxHealth;
-	});
+			health.maxHealth = 100;
+			health.currentHealth = health.maxHealth;
+
+			rotationControl.speed = 5 / 1000;
+
+			rotation.y = 0.8;
+		}
+	);
 
 	let prevTime = performance.now();
 

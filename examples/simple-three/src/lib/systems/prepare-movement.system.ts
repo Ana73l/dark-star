@@ -2,30 +2,40 @@ import { System, SystemQuery, entities, write, read, group } from '@dark-star/ec
 import { injectable } from '@dark-star/di';
 
 import { Velocity } from '../components/velocity.data';
-import { Movement } from '../components/movement.data';
+import { MovementControl } from '../components/movement-control.data';
+import { Rotation } from '../components/rotation.data';
 
 import { SimulationGroup } from './simulation-group.system';
 
 @injectable()
 @group(SimulationGroup)
 export class PrepareMovement extends System {
-	@entities([Velocity, Movement])
-	public entities!: SystemQuery<[typeof Velocity, typeof Movement]>;
+	@entities([Velocity, MovementControl, Rotation])
+	public entities!: SystemQuery<[typeof Velocity, typeof MovementControl, typeof Rotation]>;
 
 	public override async update() {
 		this.entities
-			.each([write(Velocity), read(Movement)], ([velocity, movement]) => {
-				if (movement.up) {
-					velocity.y -= movement.speedY;
+			.each([write(Velocity), read(MovementControl), read(Rotation)], ([velocity, movement, rotation]) => {
+				const rotationY = rotation.y;
+				const speedForward = movement.speedForward;
+				const speedBackward = movement.speedBackward;
+				const speedSideways = movement.speedSideways;
+
+				if (movement.forward) {
+					velocity.x += Math.sin(rotationY) * speedForward;
+					velocity.z += Math.cos(rotationY) * speedForward;
 				}
-				if (movement.down) {
-					velocity.y += movement.speedY;
+				if (movement.backward) {
+					velocity.x -= Math.sin(rotationY) * speedBackward;
+					velocity.z -= Math.cos(rotationY) * speedBackward;
 				}
 				if (movement.left) {
-					velocity.x -= movement.speedX;
+					velocity.x += Math.cos(rotationY) * speedForward;
+					velocity.z += -Math.sin(rotationY) * speedForward;
 				}
 				if (movement.right) {
-					velocity.x += movement.speedX;
+					velocity.x += -Math.cos(rotationY) * speedSideways;
+					velocity.z += Math.sin(rotationY) * speedSideways;
 				}
 			})
 			.scheduleParallel();

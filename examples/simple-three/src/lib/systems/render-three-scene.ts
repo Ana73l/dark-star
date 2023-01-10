@@ -1,4 +1,4 @@
-import { System, group, SystemQuery, read, updateAfter, entities, Entity, World } from '@dark-star/ecs';
+import { System, group, SystemQuery, read, entities, Entity, World } from '@dark-star/ecs';
 import { injectable } from '@dark-star/di';
 import { WebGLRenderer, Scene, PerspectiveCamera, HemisphereLight, Object3D } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
@@ -16,13 +16,10 @@ export class RenderThreeScene extends System {
 	@entities([Model3], [], [ThreeObject])
 	public newRenderables!: SystemQuery<[typeof Model3], [], [typeof ThreeObject]>;
 
-	@entities([ThreeObject, Position])
-	public activeRenderables!: SystemQuery<[typeof ThreeObject, typeof Position]>;
-
 	@entities([ThreeObject], [], [Model3])
 	public flaggedForDestruction!: SystemQuery<[typeof ThreeObject], [], [typeof Model3]>;
 
-	private entityToThreeObj: Map<Entity, Object3D> = new Map();
+	public entityToThreeObj: Map<Entity, Object3D> = new Map();
 
 	constructor(
 		private world: World,
@@ -35,9 +32,6 @@ export class RenderThreeScene extends System {
 	}
 
 	public override async init() {
-		const tower = this.assetStore.getObject('archerTowerLvl1');
-		tower.scale.set(0.01, 0.01, 0.01);
-		tower.position.set(50, 0, 0);
 		this.camera.position.set(0, 50, 0);
 
 		const light = new HemisphereLight(0xffffbb, 0x080820, 1);
@@ -46,7 +40,27 @@ export class RenderThreeScene extends System {
 		controls.enableDamping = true;
 		controls.target.set(0, 1, 0);
 		this.scene.add(light);
-		this.scene.add(tower);
+
+		this.world.spawn([Position, Model3], (_, [position, model]) => {
+			model.scale = 0.01;
+			model.model = 'archerTowerLvl1';
+
+			position.x = 80;
+		});
+
+		this.world.spawn([Position, Model3], (_, [position, model]) => {
+			model.scale = 0.01;
+			model.model = 'archerTowerLvl1';
+
+			position.x = -20;
+		});
+
+		this.world.spawn([Position, Model3], (_, [position, model]) => {
+			model.scale = 5;
+			model.model = 'Enemy';
+
+			position.x = 10;
+		});
 
 		window.addEventListener('resize', this.onResize);
 	}
@@ -55,23 +69,14 @@ export class RenderThreeScene extends System {
 		await this.newRenderables
 			.withEntities()
 			.each([read(Model3)], (entity, [model]) => {
-				const obj = this.assetStore.getObject(model.model).clone(true);
-				obj.scale.set(model.scale, model.scale, model.scale);
+				const obj = this.assetStore.getObject(model.model);
+				obj.scale.setScalar(model.scale);
 				this.scene.add(obj);
 				this.entityToThreeObj.set(entity, obj);
 
 				this.world.attach(entity, [ThreeObject], ([threeObj]) => {
 					threeObj.entity = entity;
 				});
-			})
-			.run();
-
-		await this.activeRenderables
-			.withEntities()
-			.each([read(Position)], (entity, [position]) => {
-				const mesh = this.entityToThreeObj.get(entity);
-
-				mesh!.position.set(position.x, position.y, position.z);
 			})
 			.run();
 

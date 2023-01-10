@@ -1,9 +1,11 @@
 import { Object3D } from 'three';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { AssetStore, createAssetStore } from './asset-store';
 
 export type AssetLoader = {
 	addObject(name: string, src: string): AssetLoader;
+	addObjectGLTF(name: string, src: string): AssetLoader;
 	addSprite(name: string, src: string): AssetLoader;
 	addSound(name: string, src: string): AssetLoader;
 	loadAssets(): Promise<AssetStore>;
@@ -15,6 +17,7 @@ export const createAssetLoader = (): AssetLoader => {
 	const sounds: Record<string, HTMLAudioElement> = {};
 	const tasks: Promise<void>[] = [];
 	const fbx = new FBXLoader();
+	const gltf = new GLTFLoader();
 
 	const assetLoader = {
 		addObject: (name: string, src: string) => {
@@ -24,6 +27,29 @@ export const createAssetLoader = (): AssetLoader => {
 						src,
 						(o) => {
 							objects[name] = o;
+							console.log(name, o);
+							resolve();
+						},
+						undefined,
+						(err) => reject(err)
+					);
+				})
+			);
+
+			return assetLoader;
+		},
+		addObjectGLTF: (name: string, src: string) => {
+			tasks.push(
+				new Promise<void>((resolve, reject) => {
+					gltf.load(
+						src,
+						(gltf) => {
+							objects[name] = gltf.scene;
+							console.log(name, gltf);
+							console.log(name, gltf.animations);
+							gltf.scene.traverse((o) => {
+								o.frustumCulled = false;
+							});
 
 							resolve();
 						},

@@ -3,15 +3,15 @@ import { injectable } from '@dark-star/di';
 
 import { Keyboard, Keys } from '../providers/keyboard.provider';
 
-import { Movement } from '../components/movement.data';
+import { MovementControl } from '../components/movement-control.data';
 import { Player } from '../components/player.tag';
 import { InputGroup } from './input-group.system';
 
 @injectable()
 @group(InputGroup)
 export class PlayerMovementInput extends System {
-	@entities([Player, Movement])
-	public entities!: SystemQuery<[typeof Player, typeof Movement]>;
+	@entities([Player, MovementControl])
+	public entities!: SystemQuery<[typeof Player, typeof MovementControl]>;
 
 	constructor(private keyboard: Keyboard) {
 		super();
@@ -23,19 +23,19 @@ export class PlayerMovementInput extends System {
 
 	public override async update() {
 		const keyboard = this.keyboard;
-		/**
-		 * Run this action on the main thread since we are accessing main thread APIs
-		 */
-
-		const left = keyboard.pressed(Keys.A) || keyboard.pressed(Keys.LEFT);
-		const right = keyboard.pressed(Keys.D) || keyboard.pressed(Keys.RIGHT);
+		const forward = keyboard.pressed(Keys.W) || keyboard.pressed(Keys.UP);
+		const backward = keyboard.pressed(Keys.S) || keyboard.pressed(Keys.DOWN);
+		const left = keyboard.pressed(Keys.Q);
+		const right = keyboard.pressed(Keys.E);
 
 		await this.entities
-			.each([write(Movement)], ([movement]) => {
+			.each([write(MovementControl)], [forward, backward, left, right], ([movement], [forward, backward, left, right]) => {
+				movement.forward = forward;
+				movement.backward = backward;
 				movement.left = left;
 				movement.right = right;
 			})
-			.run();
+			.scheduleParallel();
 	}
 
 	public override async destroy() {

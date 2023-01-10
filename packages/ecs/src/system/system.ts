@@ -301,7 +301,6 @@ export abstract class System implements ISystem {
 	}
 
 	/**
-	 * @internal
 	 * Registers a persistent {@link SystemQuery query}.
 	 *
 	 * @remarks
