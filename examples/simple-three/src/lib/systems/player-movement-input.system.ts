@@ -17,10 +17,6 @@ export class PlayerMovementInput extends System {
 		super();
 	}
 
-	public override async init() {
-		this.keyboard.attach(window as any);
-	}
-
 	public override async update() {
 		const keyboard = this.keyboard;
 		const forward = keyboard.pressed(Keys.W) || keyboard.pressed(Keys.UP);
@@ -36,9 +32,5 @@ export class PlayerMovementInput extends System {
 				movement.right = right;
 			})
 			.scheduleParallel();
-	}
-
-	public override async destroy() {
-		this.keyboard.detach();
 	}
 }

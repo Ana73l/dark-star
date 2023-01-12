@@ -59,32 +59,29 @@ export class DeferredCommandsProcessor implements Disposable {
 	}
 
 	public process(): void {
+		// do not cache commands lengths, allowing nesting commands in callbacks
 		const createEntityCommands = this.createEntityCommands;
 		const attachComponentsCommands = this.attachComponentsCommands;
 		const detachComponentsCommands = this.detachComponentsCommands;
 		const destroyEntityCommands = this.destroyEntityCommands;
 		let commandIndex;
 
-		const createCommandsCount = createEntityCommands.length;
-		for (commandIndex = 0; commandIndex < createCommandsCount; commandIndex++) {
+		for (commandIndex = 0; commandIndex < createEntityCommands.length; commandIndex++) {
 			const command = createEntityCommands[commandIndex];
 			this.store.createEntity(command.componentTypes, command.init);
 		}
 
-		const attachCommandsCount = attachComponentsCommands.length;
-		for (commandIndex = 0; commandIndex < attachCommandsCount; commandIndex++) {
+		for (commandIndex = 0; commandIndex < attachComponentsCommands.length; commandIndex++) {
 			const command = attachComponentsCommands[commandIndex];
 			this.store.attachComponents(command.entity, command.componentTypes, command.init);
 		}
 
-		const detachCommandsCount = detachComponentsCommands.length;
-		for (commandIndex = 0; commandIndex < detachCommandsCount; commandIndex++) {
+		for (commandIndex = 0; commandIndex < detachComponentsCommands.length; commandIndex++) {
 			const command = detachComponentsCommands[commandIndex];
 			this.store.detachComponents(command.entity, command.componentTypes);
 		}
 
-		const destroyCommandsCount = destroyEntityCommands.length;
-		for (commandIndex = 0; commandIndex < destroyCommandsCount; commandIndex++) {
+		for (commandIndex = 0; commandIndex < destroyEntityCommands.length; commandIndex++) {
 			const entity = destroyEntityCommands[commandIndex];
 			this.store.destroyEntity(entity);
 		}
@@ -93,19 +90,19 @@ export class DeferredCommandsProcessor implements Disposable {
 	}
 
 	public clear(): void {
-		while (this.createEntityCommands.length > 0) {
+		while (this.createEntityCommands.length) {
 			this.createEntityCommands.pop();
 		}
 
-		while (this.attachComponentsCommands.length > 0) {
+		while (this.attachComponentsCommands.length) {
 			this.attachComponentsCommands.pop();
 		}
 
-		while (this.detachComponentsCommands.length > 0) {
+		while (this.detachComponentsCommands.length) {
 			this.detachComponentsCommands.pop();
 		}
 
-		while (this.destroyEntityCommands.length > 0) {
+		while (this.destroyEntityCommands.length) {
 			this.destroyEntityCommands.pop();
 		}
 	}

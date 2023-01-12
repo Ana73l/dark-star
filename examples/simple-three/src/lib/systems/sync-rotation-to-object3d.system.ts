@@ -1,11 +1,11 @@
 import { System, group, SystemQuery, read, entities, updateBefore } from '@dark-star/ecs';
 import { injectable } from '@dark-star/di';
 
-import { ThreeObject } from '../components/three-object';
+import { ThreeObject } from '../components/three-object.data';
 
 import { RenderGroup } from './render-group.system';
 import { Rotation } from '../components/rotation.data';
-import { RenderThreeScene } from './render-three-scene';
+import { RenderThreeScene } from './render-three-scene.system';
 
 @injectable()
 @group(RenderGroup)
@@ -23,7 +23,7 @@ export class SyncRotationToObject3D extends System {
 
 		await this.rotatables
 			.each([read(ThreeObject), read(Rotation)], ([threeObj, rotation]) => {
-				const obj = entityToThreeObj.get(threeObj.entity)!;
+				const obj = entityToThreeObj.get(threeObj.entity)!.object;
 
 				obj.rotation.set(rotation.x, rotation.y, rotation.z);
 			})

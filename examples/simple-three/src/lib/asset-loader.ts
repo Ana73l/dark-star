@@ -1,7 +1,8 @@
-import { Object3D } from 'three';
+import { AnimationClip } from 'three';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import { AssetStore, createAssetStore } from './asset-store';
+0;
+import { AssetStore, createAssetStore, Model3DParam } from './asset-store';
 
 export type AssetLoader = {
 	addObject(name: string, src: string): AssetLoader;
@@ -12,7 +13,7 @@ export type AssetLoader = {
 };
 
 export const createAssetLoader = (): AssetLoader => {
-	const objects: Record<string, Object3D> = {};
+	const objects: Record<string, Model3DParam> = {};
 	const sprites: Record<string, HTMLImageElement> = {};
 	const sounds: Record<string, HTMLAudioElement> = {};
 	const tasks: Promise<void>[] = [];
@@ -25,9 +26,22 @@ export const createAssetLoader = (): AssetLoader => {
 				new Promise<void>((resolve, reject) => {
 					fbx.load(
 						src,
-						(o) => {
-							objects[name] = o;
-							console.log(name, o);
+						(object) => {
+							object.traverse((o) => {
+								o.frustumCulled = false;
+								o.castShadow = true;
+								o.receiveShadow = true;
+							});
+
+							const animations: Record<string, AnimationClip> = {};
+
+							object.animations.forEach((clip) => (animations[clip.name] = clip));
+
+							objects[name] = {
+								object,
+								animations
+							};
+
 							resolve();
 						},
 						undefined,
@@ -44,13 +58,22 @@ export const createAssetLoader = (): AssetLoader => {
 					gltf.load(
 						src,
 						(gltf) => {
-							objects[name] = gltf.scene;
-							console.log(name, gltf);
-							console.log(name, gltf.animations);
 							gltf.scene.traverse((o) => {
 								o.frustumCulled = false;
+								o.castShadow = true;
+								o.receiveShadow = true;
 							});
 
+							const animations: Record<string, AnimationClip> = {};
+
+							gltf.animations.forEach((clip) => (animations[clip.name] = clip));
+
+							objects[name] = {
+								object: gltf.scene,
+								animations
+							};
+
+							console.log(name, objects[name]);
 							resolve();
 						},
 						undefined,

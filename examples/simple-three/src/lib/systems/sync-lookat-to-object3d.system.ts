@@ -2,17 +2,17 @@ import { System, group, SystemQuery, read, entities, updateBefore } from '@dark-
 import { injectable } from '@dark-star/di';
 
 import { ThreeObject } from '../components/three-object.data';
+import { LookAt } from '../components/look-at.data';
 
 import { RenderGroup } from './render-group.system';
-import { Position } from '../components/position.data';
 import { RenderThreeScene } from './render-three-scene.system';
 
 @injectable()
 @group(RenderGroup)
 @updateBefore(RenderThreeScene)
-export class SyncPositionToObject3D extends System {
-	@entities([ThreeObject, Position])
-	public movables!: SystemQuery<[typeof ThreeObject, typeof Position]>;
+export class SyncLookAtToObject3D extends System {
+	@entities([ThreeObject, LookAt])
+	public movables!: SystemQuery<[typeof ThreeObject, typeof LookAt]>;
 
 	constructor(private threeSceneSystem: RenderThreeScene) {
 		super();
@@ -22,10 +22,10 @@ export class SyncPositionToObject3D extends System {
 		const entityToThreeObj = this.threeSceneSystem.entityToThreeObj;
 
 		await this.movables
-			.each([read(ThreeObject), read(Position)], ([threeObj, position]) => {
+			.each([read(ThreeObject), read(LookAt)], ([threeObj, lookAt]) => {
 				const obj = entityToThreeObj.get(threeObj.entity)!.object;
 
-				obj.position.set(position.x, position.y, position.z);
+				obj.lookAt(lookAt.x, lookAt.y, lookAt.z);
 			})
 			.run();
 	}

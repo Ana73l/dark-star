@@ -21,7 +21,7 @@ export class ApplyRotationControl extends System {
 		this.entities
 			.each([write(Rotation), read(RotationControl)], [this.deltaT.value], ([rotation, rotationControl], [deltaT]) => {
 				const rotationSpeed = rotationControl.speed;
-				// console.log(rotationControl.left, rotationControl.right, rotationControl.speed);
+
 				if (rotationControl.left) {
 					rotation.y += rotationSpeed * deltaT;
 				}
